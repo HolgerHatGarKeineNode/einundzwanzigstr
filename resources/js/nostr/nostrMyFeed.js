@@ -18,7 +18,6 @@ export default () => ({
             this.userEvents = Array.from(await this.$store.ndk.ndk.fetchEvents(filter))
                 //.filter((event) => event.id === 'ba23aa4be2fcdbc25fb318a994c2d9b43c3bd5d91fe4e375c5b40af09a6e7016')
                 .sort((a, b) => b.created_at - a.created_at);
-            console.log(this.userEvents);
         }
     },
 

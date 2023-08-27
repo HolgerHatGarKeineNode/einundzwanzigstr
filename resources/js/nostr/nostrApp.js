@@ -87,7 +87,6 @@ export default () => ({
     },
 
     async loadReactions(event) {
-        let alreadyReacted = false;
         let reactions = 0;
         let reposts = 0;
         let zaps = 0;
@@ -126,7 +125,11 @@ export default () => ({
             kinds: [7],
         }
         const awaitAlreadyReacted = await this.$store.ndk.ndk.fetchEvents(alreadyReactedFilter);
-        this.alreadyReactedData[event.id] = awaitAlreadyReacted.size > 0;
+        this.alreadyReactedData[event.id] = {};
+        this.alreadyReactedData[event.id].reacted = awaitAlreadyReacted.size > 0;
+        this.alreadyReactedData[event.id].reactions = reactions;
+        this.alreadyReactedData[event.id].reposts = reposts;
+        this.alreadyReactedData[event.id].zaps = zaps;
     },
 
     async love(event) {

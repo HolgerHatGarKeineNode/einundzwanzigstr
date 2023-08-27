@@ -35,7 +35,8 @@
             <div class="px-12" x-data="nostrEinundzwanzigFeed(@this)">
                 <ul role="list" class="space-y-3">
 
-                    <template x-for="event in einundzwanzigEvents.sort((a, b) => b.created_at - a.created_at)" :key="event.id"
+                    <template x-for="event in einundzwanzigEvents.sort((a, b) => b.created_at - a.created_at)"
+                              :key="event.id"
                               x-transition:enter="transition ease-out duration-300"
                               x-transition:enter-start="opacity-0 transform scale-90"
                               x-transition:enter-end="opacity-100 transform scale-100"
@@ -53,7 +54,8 @@
                                                 />
                                             </div>
                                             <div>
-                                                <h4 class="text-lg font-bold" x-text="einundzwanzigEventsProfiles[event.pubkey].display_name"></h4>
+                                                <h4 class="text-lg font-bold"
+                                                    x-text="einundzwanzigEventsProfiles[event.pubkey].display_name"></h4>
                                             </div>
                                         </div>
                                     </template>
@@ -65,7 +67,8 @@
                                 <div class="pl-16 ml-2" x-html="parseText(event.content.replaceAll('\n','<br>'))"></div>
                                 <div class="flex space-x-2 justify-end">
                                     <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
-                                        <div class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                        <div
+                                            class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
                                             <span x-text="tag[1]"></span>
                                         </div>
                                     </template>

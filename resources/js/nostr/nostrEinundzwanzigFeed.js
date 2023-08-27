@@ -1,10 +1,12 @@
 // this is a nostr application that uses the sdk from this GitHub repo https://github.com/nostr-dev-kit/ndk
-export default () => ({
+export default (livewireComponent) => ({
     init() {
         Alpine.effect(async () => {
             await this.loadEinundzwanzigEvents();
         })
     },
+
+    currentNpubs:  livewireComponent.entangle('currentNpubs'),
 
     hexpubkeys: [],
 
@@ -16,9 +18,10 @@ export default () => ({
     async loadEinundzwanzigEvents() {
         const date = new Date();
         const startOfCurrentDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000;
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime() / 1000;
 
         this.hexpubkeys = [];
-        const authors = await this.getEinundzwanzigNostrPlebs();
+        const authors = this.currentNpubs;
         authors.forEach((author) => {
             const ndkUSer = this.$store.ndk.ndk.getUser({
                 npub: author.trim(),

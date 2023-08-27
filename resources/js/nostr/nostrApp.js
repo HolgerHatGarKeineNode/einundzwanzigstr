@@ -51,7 +51,7 @@ export default () => ({
             return `<div><iframe width="560" height="315" src="https://www.youtube.com/embed/${tag.split('v=')[1]}" frameborder="0" allowfullscreen></iframe></div>`;
         });
         // video
-        parser.addRule(/(https?:\/\/\S+(\.mp4|\.webm|\.ogg))/g, function (tag) {
+        parser.addRule(/(https?:\/\/\S+(\.mp4|\.webm|\.ogg|\.mov))/g, function (tag) {
             return `<div><video style="max-width: 60%; max-height: 600px; height: auto;" controls src=${tag}></video></div>`;
         });
         // hashtags

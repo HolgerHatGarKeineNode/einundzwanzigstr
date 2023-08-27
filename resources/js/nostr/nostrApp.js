@@ -30,8 +30,8 @@ export default () => ({
 
     parseText(text) {
         const replaceWithThis = '<a target="_blank" href="$1"><div class="max-w-xl"><img class="w-full object-contain object-left" src="$1" /></div></a>';
+        text = text.replace(/(https?:\/\/\S+(\.png|\.jpg|\.gif|\.webp))/g, replaceWithThis);
 
-        return text
-            .replace(/(https?:\/\/\S+(\.png|\.jpg|\.gif|\.webp))/g, replaceWithThis);
+        return text.replaceAll('\n','<br>');
     },
 });

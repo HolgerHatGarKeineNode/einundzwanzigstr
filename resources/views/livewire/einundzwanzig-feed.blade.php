@@ -45,15 +45,15 @@
                         <li class="overflow-hidden rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white">
                             <div class="flex flex-col space-y-2">
                                 <div class="flex justify-between">
-                                    <template x-if="einundzwanzigEventsProfilesData[event.pubkey]">
+                                    <template x-if="einundzwanzigEventsProfiles[event.pubkey]">
                                         <div class="flex">
                                             <div class="mr-4 flex-shrink-0">
                                                 <img class="inline-block h-14 w-14 rounded-full"
-                                                     :src="einundzwanzigEventsProfilesData[event.pubkey].picture" alt=""
+                                                     :src="einundzwanzigEventsProfiles[event.pubkey].picture" alt=""
                                                 />
                                             </div>
                                             <div>
-                                                <h4 class="text-lg font-bold" x-text="einundzwanzigEventsProfilesData[event.pubkey].display_name"></h4>
+                                                <h4 class="text-lg font-bold" x-text="einundzwanzigEventsProfiles[event.pubkey].display_name"></h4>
                                             </div>
                                         </div>
                                     </template>

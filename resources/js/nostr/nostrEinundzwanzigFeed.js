@@ -30,7 +30,7 @@ export default () => ({
             const filter = {kinds: [0], authors: [pubkey]};
             const events = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
             if (events[0]) {
-                this.einundzwanzigEventsProfilesData[pubkey] = JSON.parse(events[0].content);
+                this.einundzwanzigEventsProfiles[pubkey] = JSON.parse(events[0].content);
             }
         });
 
@@ -63,6 +63,5 @@ export default () => ({
 
     einundzwanzigEvents: [],
     einundzwanzigEventsProfiles: {},
-    einundzwanzigEventsProfilesData: {},
 
 });

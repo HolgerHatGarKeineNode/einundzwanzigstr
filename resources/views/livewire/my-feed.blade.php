@@ -61,10 +61,11 @@
                                               x-text="new Date(event.created_at * 1000).toLocaleString()"></span>
                                     </div>
                                 </div>
-                                <div class="pl-16 ml-2" x-html="parseText(event.content)"></div>
+                                <div class="pl-16 ml-2" x-html="parseText(event)"></div>
                                 <div class="flex space-x-2 justify-end">
                                     <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
-                                        <div class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                        <div
+                                            class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
                                             <span x-text="tag[1]"></span>
                                         </div>
                                     </template>

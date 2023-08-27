@@ -2,15 +2,13 @@
 export default (livewireComponent) => ({
     init() {
         Alpine.effect(async () => {
-            await this.loadEinundzwanzigEvents();
+            await this.loadEvents();
         })
     },
 
     currentNpubs:  livewireComponent.entangle('currentNpubs'),
 
-    hexpubkeys: [],
-
-    async loadEinundzwanzigEvents() {
+    async loadEvents() {
         const date = new Date();
         const startOfCurrentDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000;
         const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime() / 1000;
@@ -28,7 +26,7 @@ export default (livewireComponent) => ({
             const filter = {kinds: [0], authors: [pubkey]};
             const events = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
             if (events[0]) {
-                this.einundzwanzigEventsProfiles[pubkey] = JSON.parse(events[0].content);
+                this.eventsData[pubkey] = JSON.parse(events[0].content);
             }
         });
 
@@ -40,10 +38,10 @@ export default (livewireComponent) => ({
             const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: false});
 
             sub.on('event', (event) => {
-                if (this.einundzwanzigEvents.find((einundzwanzigEvent) => einundzwanzigEvent.id === event.id)) {
+                if (this.events.find((einundzwanzigEvent) => einundzwanzigEvent.id === event.id)) {
                     return;
                 } else {
-                    this.einundzwanzigEvents.push(event);
+                    this.events.push(event);
                 }
             });
 
@@ -55,11 +53,11 @@ export default (livewireComponent) => ({
                 console.log(notice);
             });
 
-            this.einundzwanzigEvents = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
+            this.events = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
         })
     },
 
-    einundzwanzigEvents: [],
-    einundzwanzigEventsProfiles: {},
+    events: [],
+    eventsData: {},
 
 });

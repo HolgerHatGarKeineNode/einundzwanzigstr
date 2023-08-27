@@ -1,6 +1,6 @@
-import NDK, {NDKNip07Signer} from "@nostr-dev-kit/ndk";
-import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
+import NDK from "@nostr-dev-kit/ndk";
 import defaultRelays from "./defaultRelays.js";
+import {Parser} from "simple-text-parser";
 
 // this is a nostr application that uses the sdk from this GitHub repo https://github.com/nostr-dev-kit/ndk
 export default () => ({
@@ -28,10 +28,37 @@ export default () => ({
         });
     },
 
-    parseText(text) {
-        const replaceWithThis = '<a target="_blank" href="$1"><div class="max-w-xl"><img class="w-full object-contain object-left" src="$1" /></div></a>';
-        text = text.replace(/(https?:\/\/\S+(\.png|\.jpg|\.gif|\.webp))/g, replaceWithThis);
+    async parseText(event) {
+        const parser = new Parser();
+        let content = event.content;
 
-        return text.replaceAll('\n','<br>');
+        parser.addRule(/\n/g, function (tag) {
+            // Return the tag minus the `#` and surrond with html tags
+            return `<br>`;
+        });
+        // images
+        parser.addRule(/(https?:\/\/\S+(\.png|\.jpg|\.gif|\.webp))/g, function (tag) {
+            return `<a target="_blank" href="${tag}"><div class="max-w-xl"><img class="w-full object-contain object-left" src="${tag}" /></div></a>`;
+        });
+        // youtube
+        parser.addRule(/(youtu.be\/|youtube.com\/watch\?v=)([^&]+)/, function (tag) {
+            return `<div><iframe width="560" height="315" src="https://www.youtube.com/embed/${tag.split('v=')[1]}" frameborder="0" allowfullscreen></iframe></div>`;
+        });
+        // video
+        parser.addRule(/(https?:\/\/\S+(\.mp4|\.webm|\.ogg))/g, function (tag) {
+            return `<div><video style="max-width: 60%; max-height: 600px; height: auto;" controls src=${tag}></video></div>`;
+        });
+        // hashtags
+        parser.addRule(/\#[\S]+/gi, function (tag) {
+            // Return the tag minus the `#` and surrond with html tags
+            return `<br>`;
+        });
+
+        return parser.render(content);
     },
+
+    async loadEvent(noteId) {
+        return await this.$store.ndk.ndk.fetchEvent(noteId);
+    },
+
 });

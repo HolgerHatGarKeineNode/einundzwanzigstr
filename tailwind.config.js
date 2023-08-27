@@ -8,7 +8,7 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
 
-        './resources/js/nostr/nostrApp.js',
+        './resources/js/nostr/**/*.js',
     ],
 
     theme: {

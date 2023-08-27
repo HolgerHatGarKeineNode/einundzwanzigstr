@@ -35,7 +35,7 @@
             <div class="px-12" x-data="nostrEinundzwanzigFeed(@this)">
                 <ul role="list" class="space-y-3">
 
-                    <template x-for="event in einundzwanzigEvents.sort((a, b) => b.created_at - a.created_at)"
+                    <template x-for="event in events.sort((a, b) => b.created_at - a.created_at)"
                               :key="event.id"
                               x-transition:enter="transition ease-out duration-300"
                               x-transition:enter-start="opacity-0 transform scale-90"
@@ -44,36 +44,43 @@
                               x-transition:leave-start="opacity-100 transform scale-100"
                               x-transition:leave-end="opacity-0 transform scale-90">
                         <li class="overflow-hidden rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white">
-                            <div class="flex flex-col space-y-2">
-                                <div class="flex justify-between">
-                                    <template x-if="einundzwanzigEventsProfiles[event.pubkey]">
+                            <template x-if="!eventsData[event.pubkey]">
+                                <button type="button"
+                                        class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <span class="mt-2 block text-sm font-semibold text-gray-100">Loading note...</span>
+                                </button>
+                            </template>
+                            <template x-if="eventsData[event.pubkey]">
+                                <div class="flex flex-col space-y-2">
+                                    <div class="flex justify-between">
                                         <div class="flex">
                                             <div class="mr-4 flex-shrink-0">
                                                 <img class="inline-block h-14 w-14 rounded-full"
-                                                     :src="einundzwanzigEventsProfiles[event.pubkey].picture" alt=""
+                                                     :src="eventsData[event.pubkey].picture" alt=""
                                                 />
                                             </div>
                                             <div>
                                                 <h4 class="text-lg font-bold"
-                                                    x-text="einundzwanzigEventsProfiles[event.pubkey].display_name"></h4>
+                                                    x-text="eventsData[event.pubkey].display_name"></h4>
                                             </div>
                                         </div>
-                                    </template>
-                                    <div>
+                                        <div>
                                         <span class="text-gray-300 text-xs"
                                               x-text="new Date(event.created_at * 1000).toLocaleString()"></span>
+                                        </div>
+                                    </div>
+                                    <div class="pl-16 ml-2"
+                                         x-html="parseText(event)"></div>
+                                    <div class="flex space-x-2 justify-end">
+                                        <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
+                                            <div
+                                                class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                                <span x-text="tag[1]"></span>
+                                            </div>
+                                        </template>
                                     </div>
                                 </div>
-                                <div class="pl-16 ml-2" x-html="parseText(event.content.replaceAll('\n','<br>'))"></div>
-                                <div class="flex space-x-2 justify-end">
-                                    <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
-                                        <div
-                                            class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
-                                            <span x-text="tag[1]"></span>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
+                            </template>
                         </li>
                     </template>
 

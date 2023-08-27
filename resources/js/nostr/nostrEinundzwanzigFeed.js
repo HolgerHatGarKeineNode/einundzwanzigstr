@@ -10,11 +10,6 @@ export default (livewireComponent) => ({
 
     hexpubkeys: [],
 
-    async getEinundzwanzigNostrPlebs() {
-        const response = await fetch('https://portal.einundzwanzig.space/api/nostrplebs');
-        return await response.json();
-    },
-
     async loadEinundzwanzigEvents() {
         const date = new Date();
         const startOfCurrentDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000;

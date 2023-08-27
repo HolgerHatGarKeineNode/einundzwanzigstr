@@ -57,8 +57,28 @@ export default () => ({
         return parser.render(content);
     },
 
-    async loadEvent(noteId) {
-        return await this.$store.ndk.ndk.fetchEvent(noteId);
+    async loadSubEvents(event) {
+        let subEvents = [];
+
+        // find string starting with nostr:
+        const regex = /nostr:[a-zA-Z0-9]+/g;
+        const matches = event.content.match(regex);
+        if (matches) {
+            for (let i = 0; i < matches.length; i++) {
+                const match = matches[i];
+                const subEvent = await this.$store.ndk.ndk.fetchEvent(match.split('nostr:')[1]);
+                if (subEvent) {
+                    subEvents.push(subEvent);
+                }
+            }
+        }
+        console.log(subEvents);
+
+        return subEvents;
+    },
+
+    async loadEvent(event) {
+        return this.parseText(await this.$store.ndk.ndk.fetchEvent(event.id));
     },
 
 });

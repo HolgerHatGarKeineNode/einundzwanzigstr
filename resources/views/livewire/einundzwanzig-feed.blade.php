@@ -45,10 +45,9 @@
                               x-transition:leave-end="opacity-0 transform scale-90">
                         <li class="overflow-hidden rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white">
                             <template x-if="!eventsData[event.pubkey]">
-                                <button type="button"
-                                        class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                <div class="relative block w-full rounded-lg border-2 border-dashed border-amber-500 p-12 text-center">
                                     <span class="mt-2 block text-sm font-semibold text-gray-100">Loading note...</span>
-                                </button>
+                                </div>
                             </template>
                             <template x-if="eventsData[event.pubkey]">
                                 <div class="flex flex-col space-y-2">
@@ -69,8 +68,16 @@
                                               x-text="new Date(event.created_at * 1000).toLocaleString()"></span>
                                         </div>
                                     </div>
-                                    <div class="pl-16 ml-2"
-                                         x-html="parseText(event)"></div>
+                                    <div class="pl-16 ml-2" x-html="parseText(event)"></div>
+                                    <template x-if="event.content.includes('nostr:')">
+                                        <template x-for="e in loadSubEvents(event)">
+                                            <div class="pl-16 ml-2">
+                                                <div class="relative block w-full rounded-lg border-2 border-dashed border-amber-500 p-12">
+                                                    <div x-html="loadEvent(e)"></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </template>
                                     <div class="flex space-x-2 justify-end">
                                         <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
                                             <div
@@ -79,6 +86,7 @@
                                             </div>
                                         </template>
                                     </div>
+                                    <x-nostr.reactions />
                                 </div>
                             </template>
                         </li>

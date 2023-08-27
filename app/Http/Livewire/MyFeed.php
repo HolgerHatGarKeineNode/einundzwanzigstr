@@ -4,11 +4,11 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 
-class Nostr extends Component
+class MyFeed extends Component
 {
     public function render()
     {
-        return view('livewire.nostr')
+        return view('livewire.my-feed')
             ->layout('layouts.guest');
     }
 }

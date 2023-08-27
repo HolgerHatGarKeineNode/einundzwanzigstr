@@ -1,6 +1,8 @@
 import NDK, {NDKEvent} from "@nostr-dev-kit/ndk";
 import defaultRelays from "./defaultRelays.js";
 import {Parser} from "simple-text-parser";
+import {decode} from 'light-bolt11-decoder';
+import {compactNumber} from "./utils/number.js";
 
 // this is a nostr application that uses the sdk from this GitHub repo https://github.com/nostr-dev-kit/ndk
 export default () => ({
@@ -106,12 +108,12 @@ export default () => ({
                     break;
                 case 9735: {
                     const bolt11 = event.tags.find((tag) => tag[0] === 'bolt11')[1];
-                    // if (bolt11) {
-                    //     const decoded = decode(bolt11);
-                    //     const amount = decoded.sections.find((item) => item.name === 'amount');
-                    //     const sats = amount.value / 1000;
-                    //     zaps += sats;
-                    // }
+                    if (bolt11) {
+                        const decoded = decode(bolt11);
+                        const amount = decoded.sections.find((item) => item.name === 'amount');
+                        const sats = amount.value / 1000;
+                        zaps += sats;
+                    }
                     break;
                 }
                 default:
@@ -127,9 +129,9 @@ export default () => ({
         const awaitAlreadyReacted = await this.$store.ndk.ndk.fetchEvents(alreadyReactedFilter);
         this.alreadyReactedData[event.id] = {};
         this.alreadyReactedData[event.id].reacted = awaitAlreadyReacted.size > 0;
-        this.alreadyReactedData[event.id].reactions = reactions;
-        this.alreadyReactedData[event.id].reposts = reposts;
-        this.alreadyReactedData[event.id].zaps = zaps;
+        this.alreadyReactedData[event.id].reactions = compactNumber.format(reactions);
+        this.alreadyReactedData[event.id].reposts = compactNumber.format(reposts);
+        this.alreadyReactedData[event.id].zaps = compactNumber.format(zaps);
     },
 
     async love(event) {

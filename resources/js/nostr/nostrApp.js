@@ -1,4 +1,4 @@
-import NDK from "@nostr-dev-kit/ndk";
+import NDK, {NDKEvent} from "@nostr-dev-kit/ndk";
 import defaultRelays from "./defaultRelays.js";
 import {Parser} from "simple-text-parser";
 
@@ -6,6 +6,8 @@ import {Parser} from "simple-text-parser";
 export default () => ({
 
     open: false,
+
+    alreadyReactedData: {},
 
     init() {
         this.$store.ndk.ndk = new NDK({
@@ -30,6 +32,10 @@ export default () => ({
 
     async parseText(event) {
         const parser = new Parser();
+        if (event === null) {
+            console.log(event);
+            return;
+        }
         let content = event.content;
 
         parser.addRule(/\n/g, function (tag) {
@@ -72,7 +78,6 @@ export default () => ({
                 }
             }
         }
-        console.log(subEvents);
 
         return subEvents;
     },
@@ -80,5 +85,68 @@ export default () => ({
     async loadEvent(event) {
         return this.parseText(await this.$store.ndk.ndk.fetchEvent(event.id));
     },
+
+    async loadReactions(event) {
+        let alreadyReacted = false;
+        let reactions = 0;
+        let reposts = 0;
+        let zaps = 0;
+
+        const filter = {
+            '#e': [event.id],
+            kinds: [6, 7, 9735],
+        };
+        const awaitReactions = await this.$store.ndk.ndk.fetchEvents(filter);
+        awaitReactions.forEach((event) => {
+            switch (event.kind) {
+                case 6:
+                    reposts += 1;
+                    break;
+                case 7:
+                    reactions += 1;
+                    break;
+                case 9735: {
+                    const bolt11 = event.tags.find((tag) => tag[0] === 'bolt11')[1];
+                    // if (bolt11) {
+                    //     const decoded = decode(bolt11);
+                    //     const amount = decoded.sections.find((item) => item.name === 'amount');
+                    //     const sats = amount.value / 1000;
+                    //     zaps += sats;
+                    // }
+                    break;
+                }
+                default:
+                    break;
+            }
+        });
+
+        const alreadyReactedFilter = {
+            '#e': [event.id],
+            'p': [this.$store.ndk.user.hexpubkey()],
+            kinds: [7],
+        }
+        const awaitAlreadyReacted = await this.$store.ndk.ndk.fetchEvents(alreadyReactedFilter);
+        this.alreadyReactedData[event.id] = awaitAlreadyReacted.size > 0;
+    },
+
+    async love(event) {
+        console.log(event.id, event.pubkey);
+        // react to event
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
+        ndkEvent.content = '❤️';
+        ndkEvent.kind = 7;
+        ndkEvent.tags = [
+            ['e', event.id],
+            ['p', event.pubkey],
+        ];
+        await ndkEvent.publish();
+        window.$wireui.notify({
+            title: 'Success',
+            description: 'You reacted to this event with ❤️',
+            icon: 'success'
+
+        })
+        await this.loadReactions(event);
+    }
 
 });

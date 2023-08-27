@@ -11,12 +11,14 @@
     @googlefonts
 
     <!-- Scripts -->
+    <wireui:scripts />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Styles -->
     @livewireStyles
 </head>
 <body class="overflow-y-auto bg-gray-900">
+<x-notifications z-index="z-50"/>
 {{ $slot }}
 @livewireScripts
 </body>

@@ -6,6 +6,7 @@ export default (event) => ({
 
             if (this.$refs.table !== undefined) {
                 this.$refs.table.style.maxHeight = this.$refs.left.offsetHeight - 150 + 'px';
+                this.$refs.table.style.minHeight = '200px';
             }
 
             if (this.alreadyReactedData && this.alreadyReactedData[event.id]) {

@@ -1,6 +1,6 @@
 <div x-data="nostrDetails(event)">
     <div>
-        <nav class="flex overflow-x-auto border-b border-white/10 py-4">
+        <nav class="flex overflow-x-auto border-b border-white/10">
             <ul role="list"
                 class="flex min-w-full flex-none gap-x-6 px-4 text-sm font-semibold leading-6 text-gray-400 sm:px-6 lg:px-8">
                 <template x-for="tab in tabs">
@@ -15,7 +15,7 @@
             </ul>
         </nav>
         <div class="overflow-y-auto" x-ref="table">
-            <table class="mt-6 w-full whitespace-nowrap text-left">
+            <table class="w-full whitespace-nowrap text-left">
                 <colgroup>
                     <col class="w-full sm:w-4/12">
                     <col class="lg:w-4/12">

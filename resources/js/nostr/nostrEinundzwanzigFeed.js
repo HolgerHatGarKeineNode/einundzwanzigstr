@@ -6,7 +6,7 @@ export default (livewireComponent) => ({
         });
     },
 
-    currentNpubs:  livewireComponent.entangle('currentNpubs'),
+    currentNpubs: livewireComponent.entangle('currentNpubs'),
 
     async loadEvents() {
         // set authors
@@ -35,21 +35,19 @@ export default (livewireComponent) => ({
 
     fetchEvents(filter) {
         this.$store.ndk.ndk.connect().then(async () => {
-            console.log('NDK Connected!!!');
+            console.log('NDK Connected - feed events');
 
-            const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
+            const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: false});
 
             // subscribe to events
             sub.on('event', (event) => {
-                if (this.events.find((einundzwanzigEvent) => einundzwanzigEvent.id === event.id)) {
-                    return;
-                } else {
+                if (!this.events.find((einundzwanzigEvent) => einundzwanzigEvent.id === event.id)) {
                     this.events.push(event);
                 }
             });
 
             sub.on('eose', () => {
-                console.log('EOSE');
+                console.log('EOSE feed events');
             });
 
             sub.on('notice', (notice) => {

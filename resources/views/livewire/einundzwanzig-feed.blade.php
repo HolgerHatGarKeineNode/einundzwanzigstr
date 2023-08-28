@@ -32,7 +32,7 @@
             </header>--}}
 
             <!-- CONTENT -->
-            <div class="px-12" x-data="nostrEinundzwanzigFeed(@this)">
+            <div class="px-2 sm:px-12" x-data="nostrEinundzwanzigFeed(@this)">
                 <ul role="list" class="space-y-3">
 
                     <template x-for="event in events.sort((a, b) => b.created_at - a.created_at)"

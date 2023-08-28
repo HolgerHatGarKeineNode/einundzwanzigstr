@@ -32,7 +32,7 @@
             </header>--}}
 
             <!-- CONTENT -->
-            <div class="px-12" x-data="nostrMyFeed">
+            <div class="px-2 sm:px-12" x-data="nostrMyFeed">
                 <ul role="list" class="space-y-3">
 
                     <template x-for="event in userEvents" :key="event.id"

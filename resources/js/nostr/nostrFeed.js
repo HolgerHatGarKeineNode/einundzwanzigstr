@@ -1,4 +1,6 @@
 // this is a nostr application that uses the sdk from this GitHub repo https://github.com/nostr-dev-kit/ndk
+import {NDKKind} from "@nostr-dev-kit/ndk";
+
 export default (livewireComponent) => ({
     init() {
         Alpine.effect(async () => {
@@ -28,7 +30,7 @@ export default (livewireComponent) => ({
 
         // fetch profiles
         this.hexpubkeys.forEach(async (pubkey) => {
-            const filter = {kinds: [0], authors: [pubkey]};
+            const filter = {kinds: [NDKKind.Metadata], authors: [pubkey]};
             const events = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
             if (events[0]) {
                 this.eventsData[pubkey] = JSON.parse(events[0].content);
@@ -36,7 +38,7 @@ export default (livewireComponent) => ({
         });
 
         const filter = {
-            kinds: [1],
+            kinds: [NDKKind.Text],
             authors: Array.from(this.hexpubkeys),
             since: this.$store.ndk.loadSince,
             limit: 25,

@@ -1,4 +1,4 @@
-import NDK, {NDKEvent} from "@nostr-dev-kit/ndk";
+import NDK, {NDKEvent, NDKKind} from "@nostr-dev-kit/ndk";
 import defaultRelays from "./defaultRelays.js";
 import {Parser} from "simple-text-parser";
 import {decode} from 'light-bolt11-decoder';
@@ -99,7 +99,7 @@ export default () => ({
 
             const filter = {
                 '#e': [event.id],
-                kinds: [6, 7, 9735],
+                kinds: [NDKKind.Repost, NDKKind.Reaction, NDKKind.Zap],
             };
             const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
 
@@ -147,7 +147,7 @@ export default () => ({
             const alreadyReactedFilter = {
                 '#e': [event.id],
                 'p': [this.$store.ndk.user.hexpubkey()],
-                kinds: [7],
+                kinds: [NDKKind.Reaction],
             }
             const subAlreadyReacted = this.$store.ndk.ndk.subscribe(alreadyReactedFilter, {closeOnEose: true});
             subAlreadyReacted.on('event', async (e) => {
@@ -164,7 +164,7 @@ export default () => ({
         // react to event
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.content = '❤️';
-        ndkEvent.kind = 7;
+        ndkEvent.kind = NDKKind.Reaction;
         ndkEvent.tags = [
             ['e', event.id],
             ['p', event.pubkey],
@@ -203,7 +203,7 @@ export default () => ({
 
     async repost(event) {
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
-        ndkEvent.kind = 6;
+        ndkEvent.kind = NDKKind.Repost;
         ndkEvent.tags = [
             ['e', event.id, 'wss://relayable.org', 'root'],
             ['p', event.pubkey],

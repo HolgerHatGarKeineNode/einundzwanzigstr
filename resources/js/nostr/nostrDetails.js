@@ -1,3 +1,5 @@
+import {NDKKind} from "@nostr-dev-kit/ndk";
+
 export default (event) => ({
 
     init() {
@@ -76,7 +78,7 @@ export default (event) => ({
     },
 
     async loadUserData(event) {
-        const filter = {kinds: [0], authors: [event.pubkey]};
+        const filter = {kinds: [NDKKind.Metadata], authors: [event.pubkey]};
         const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
         sub.on('event', (e) => {
             if (event) {

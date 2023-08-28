@@ -4,15 +4,19 @@ import {Parser} from "simple-text-parser";
 import {decode} from 'light-bolt11-decoder';
 import {compactNumber} from "./utils/number.js";
 import {requestProvider} from "webln";
+import JSConfetti from 'js-confetti';
 
 // this is a nostr application that uses the sdk from this GitHub repo https://github.com/nostr-dev-kit/ndk
 export default () => ({
 
     open: false,
+    jsConfetti: null,
 
     alreadyReactedData: {},
 
     init() {
+        this.jsConfetti = new JSConfetti();
+
         this.$store.ndk.ndk = new NDK({
             cacheAdapter: this.$store.ndk.dexieAdapter,
             signer: this.$store.ndk.nip07signer,
@@ -151,6 +155,10 @@ export default () => ({
             icon: 'success'
 
         })
+        setTimeout(() =>
+            this.jsConfetti.addConfetti({
+                emojis: ['❤️',],
+            }), 1000);
         setTimeout(async () => await this.loadReactions(event), 1000)
     },
 
@@ -163,7 +171,12 @@ export default () => ({
         const res = await ndkEvent.zap(69000);
         console.log(res, decode(res), window.webln);
         await requestProvider();
-        window.webln.sendPayment(res);
+        const payment = await window.webln.sendPayment(res);
+        console.log(payment);
+        setTimeout(() =>
+            this.jsConfetti.addConfetti({
+                emojis: ['🤙', '⚡'],
+            }), 1000);
         setTimeout(async () => await this.loadReactions(event), 5000)
     },
 
@@ -180,6 +193,10 @@ export default () => ({
             description: 'You reposted this event',
             icon: 'success'
         })
+        setTimeout(() =>
+            this.jsConfetti.addConfetti({
+                emojis: ['🤙',],
+            }), 1000);
         setTimeout(async () => await this.loadReactions(event), 1000)
     },
 

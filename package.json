@@ -13,6 +13,7 @@
         "alpinejs": "^3.4.2",
         "autoprefixer": "^10.4.2",
         "axios": "^1.1.2",
+        "js-confetti": "^0.11.0",
         "laravel-vite-plugin": "^0.8.0",
         "light-bolt11-decoder": "^3.0.0",
         "postcss": "^8.4.6",

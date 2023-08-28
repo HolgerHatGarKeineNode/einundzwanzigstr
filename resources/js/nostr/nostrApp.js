@@ -183,7 +183,7 @@ export default () => ({
         console.log(payment);
         setTimeout(() =>
             this.jsConfetti.addConfetti({
-                emojis: ['🤙', '⚡'],
+                emojis: ['⚡'],
             }), 1000);
         setTimeout(async () => await this.loadReactions(event), 5000)
     },

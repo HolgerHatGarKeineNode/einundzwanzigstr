@@ -2612,6 +2612,11 @@ plur@^4.0.0:
   dependencies:
     irregular-plurals "^3.2.0"
 
+poll@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/poll/-/poll-3.2.2.tgz#d29f9ab39afcd6ce11783bf3fc2c6e05def5efc7"
+  integrity sha512-qckJRcLqqsX72Uu/Sa/GbzWUXB/zZcyMNccwdGFQnYoewnXUdWyMWkHUmaiBAvm950ujJJ15OiFFy+gtBm1K+A==
+
 postcss-import@^15.1.0:
   version "15.1.0"
   resolved "https://registry.yarnpkg.com/postcss-import/-/postcss-import-15.1.0.tgz#41c64ed8cc0e23735a9698b3249ffdbf704adc70"

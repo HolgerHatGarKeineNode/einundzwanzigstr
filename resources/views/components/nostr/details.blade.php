@@ -21,18 +21,8 @@
                     <col class="lg:w-4/12">
                     <col class="lg:w-1/12">
                 </colgroup>
-                {{--<thead class="border-b border-white/10 text-sm leading-6 text-white">
-                <tr>
-                    <th scope="col" class="py-2 pl-4 pr-8 font-semibold sm:pl-6 lg:pl-8">User</th>
-                    <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell">Commit</th>
-                    <th scope="col" class="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20">Status</th>
-                    <th scope="col" class="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20">Duration</th>
-                    <th scope="col" class="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8">Deployed at</th>
-                </tr>
-                </thead>--}}
                 <tbody class="divide-y divide-white/5">
 
-                <template x-if="currentTab === 'reactions'">
                     <template x-for="reaction in reactions" :key="reaction.id">
                         <tr>
                             <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8" x-data="loadUserData(reaction)">
@@ -57,7 +47,6 @@
                             </td>
                         </tr>
                     </template>
-                </template>
 
                 </tbody>
             </table>

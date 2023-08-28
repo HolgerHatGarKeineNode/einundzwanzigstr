@@ -6,12 +6,19 @@ export default (livewireComponent) => ({
         });
     },
 
+    isMyProfile: livewireComponent.entangle('isMyProfile'),
     currentNpubs: livewireComponent.entangle('currentNpubs'),
 
     async loadEvents() {
+        let authors = this.currentNpubs;
+        if (this.isMyProfile && this.$store.ndk.user) {
+            authors = [this.$store.ndk.user.npub];
+        } else if (this.isMyProfile && !this.$store.ndk.user) {
+            return;
+        }
+
         // set authors
         this.hexpubkeys = [];
-        const authors = this.currentNpubs;
         authors.forEach((author) => {
             const ndkUSer = this.$store.ndk.ndk.getUser({
                 npub: author.trim(),
@@ -28,7 +35,12 @@ export default (livewireComponent) => ({
             }
         });
 
-        const filter = {kinds: [1], authors: this.hexpubkeys, since: this.$store.ndk.loadSince};
+        const filter = {
+            kinds: [1],
+            authors: Array.from(this.hexpubkeys),
+            since: this.$store.ndk.loadSince,
+            limit: 25,
+        };
 
         this.fetchEvents(filter, this.$store.ndk.loadSince);
     },
@@ -41,7 +53,7 @@ export default (livewireComponent) => ({
 
             // subscribe to events
             sub.on('event', (event) => {
-                if (!this.events.find((einundzwanzigEvent) => einundzwanzigEvent.id === event.id)) {
+                if (!this.events.find((e) => e.id === event.id)) {
                     this.events.push(event);
                 }
             });
@@ -53,9 +65,6 @@ export default (livewireComponent) => ({
             sub.on('notice', (notice) => {
                 console.log(notice);
             });
-
-            // fetch events
-            this.events = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
         });
     },
 

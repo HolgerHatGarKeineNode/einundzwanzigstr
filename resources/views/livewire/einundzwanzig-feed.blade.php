@@ -32,7 +32,7 @@
             </header>--}}
 
             <!-- CONTENT -->
-            <div class="px-2 sm:px-12" x-data="nostrEinundzwanzigFeed(@this)">
+            <div class="px-2 sm:px-12" x-data="nostrFeed(@this)">
                 <ul role="list" class="space-y-3">
 
                     <template x-for="event in events.sort((a, b) => b.created_at - a.created_at)"
@@ -44,11 +44,14 @@
                               x-transition:leave-start="opacity-100 transform scale-100"
                               x-transition:leave-end="opacity-0 transform scale-90">
                         <li>
-                            <div class="grid grid-cols-3 gap-2" x-data="pollStats(event)">
-                                <div x-ref="left" class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white">
+                            <div class="grid grid-cols-3 gap-2" x-data="loadReactions(event)">
+                                <div x-ref="left"
+                                     class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-hidden">
                                     <template x-if="!eventsData[event.pubkey]">
-                                        <div class="relative block w-full rounded-lg border-2 border-dashed border-amber-500 p-12 text-center">
-                                            <span class="mt-2 block text-sm font-semibold text-gray-100">Loading note...</span>
+                                        <div
+                                            class="relative block w-full rounded-lg border-2 border-dashed border-amber-500 p-12 text-center">
+                                            <span
+                                                class="mt-2 block text-sm font-semibold text-gray-100">Loading note...</span>
                                         </div>
                                     </template>
                                     <template x-if="eventsData[event.pubkey]">
@@ -66,15 +69,16 @@
                                                     </div>
                                                 </div>
                                                 <div>
-                                        <span class="text-gray-300 text-xs"
-                                              x-text="new Date(event.created_at * 1000).toLocaleString()"></span>
+                                                <span class="text-gray-300 text-xs"
+                                                    x-text="new Date(event.created_at * 1000).toLocaleString()"></span>
                                                 </div>
                                             </div>
                                             <div class="pl-16 ml-2" x-html="parseText(event)"></div>
                                             <template x-if="event.content.includes('nostr:')">
                                                 <template x-for="e in loadSubEvents(event)">
                                                     <div class="pl-16 ml-2">
-                                                        <div class="relative block w-full rounded-lg border-2 border-dashed border-amber-500 p-6">
+                                                        <div
+                                                            class="relative block w-full rounded-lg border-2 border-dashed border-amber-500 p-6">
                                                             <div x-html="loadEvent(e)"></div>
                                                         </div>
                                                     </div>
@@ -88,12 +92,12 @@
                                                     </div>
                                                 </template>
                                             </div>
-                                            <x-nostr.reactions />
+                                            <x-nostr.reactions/>
                                         </div>
                                     </template>
                                 </div>
                                 <div class="rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white">
-                                    <x-nostr.details />
+                                    <x-nostr.details/>
                                 </div>
                             </div>
                         </li>

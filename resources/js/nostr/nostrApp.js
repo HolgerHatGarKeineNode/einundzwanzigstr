@@ -5,6 +5,7 @@ import {decode} from 'light-bolt11-decoder';
 import {compactNumber} from "./utils/number.js";
 import {requestProvider} from "webln";
 import JSConfetti from 'js-confetti';
+import {poll} from 'poll'
 
 // this is a nostr application that uses the sdk from this GitHub repo https://github.com/nostr-dev-kit/ndk
 export default () => ({
@@ -32,6 +33,7 @@ export default () => ({
                     user.ndk = that.$store.ndk.ndk;
                     that.$store.ndk.user = user;
                     await that.$store.ndk.user.fetchProfile();
+                    console.log(that.$store.ndk.user);
                 }
             });
         });
@@ -93,58 +95,68 @@ export default () => ({
         return this.parseText(await this.$store.ndk.ndk.fetchEvent(event.id));
     },
 
-    async loadReactions(event) {
-        let reactions = 0;
-        let reposts = 0;
-        let zaps = 0;
+    loadReactions(event) {
+        if (this.$store.ndk.user) {
 
-        const filter = {
-            '#e': [event.id],
-            kinds: [6, 7, 9735],
-        };
-        const awaitReactions = await this.$store.ndk.ndk.fetchEvents(filter);
-        if (this.alreadyReactedData[event.id] === undefined) {
-            this.alreadyReactedData[event.id] = {};
-        }
-        this.alreadyReactedData[event.id].repostsData = [];
-        this.alreadyReactedData[event.id].reactionsData = [];
-        this.alreadyReactedData[event.id].zapsData = [];
-        awaitReactions.forEach((e) => {
-            switch (e.kind) {
-                case 6:
-                    this.alreadyReactedData[event.id].repostsData.push(e);
-                    reposts += 1;
-                    break;
-                case 7:
-                    this.alreadyReactedData[event.id].reactionsData.push(e);
-                    reactions += 1;
-                    break;
-                case 9735: {
-                    const bolt11 = e.tags.find((tag) => tag[0] === 'bolt11')[1];
-                    if (bolt11) {
-                        const decoded = decode(bolt11);
-                        this.alreadyReactedData[event.id].zapsData.push(decoded);
-                        const amount = decoded.sections.find((item) => item.name === 'amount');
-                        const sats = amount.value / 1000;
-                        zaps += sats;
-                    }
-                    break;
-                }
-                default:
-                    break;
+            const filter = {
+                '#e': [event.id],
+                kinds: [6, 7, 9735],
+            };
+            const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
+
+            if (this.alreadyReactedData[event.id] === undefined) {
+                this.alreadyReactedData[event.id] = {};
+                this.alreadyReactedData[event.id].reacted = false;
+                this.alreadyReactedData[event.id].repostsData = [];
+                this.alreadyReactedData[event.id].reposts = 0;
+                this.alreadyReactedData[event.id].reactionsData = [];
+                this.alreadyReactedData[event.id].reactions = 0;
+                this.alreadyReactedData[event.id].zapsData = [];
+                this.alreadyReactedData[event.id].zaps = 0;
             }
-        });
 
-        const alreadyReactedFilter = {
-            '#e': [event.id],
-            'p': [this.$store.ndk.user.hexpubkey()],
-            kinds: [7],
+            sub.on('event', async (e) => {
+                switch (e.kind) {
+                    case 6:
+                        this.alreadyReactedData[event.id].repostsData.push(e);
+                        this.alreadyReactedData[event.id].reposts += 1
+                        break;
+                    case 7:
+                        if (!this.alreadyReactedData[event.id].reactionsData.find((item) => item.id === e.id)) {
+                            this.alreadyReactedData[event.id].reactionsData.push(e);
+                        }
+                        this.alreadyReactedData[event.id].reactions += 1
+                        break;
+                    case 9735: {
+                        const bolt11 = e.tags.find((tag) => tag[0] === 'bolt11')[1];
+                        if (bolt11) {
+                            const decoded = decode(bolt11);
+                            this.alreadyReactedData[event.id].zapsData.push(decoded);
+                            const amount = decoded.sections.find((item) => item.name === 'amount');
+                            const sats = amount.value / 1000;
+                            this.alreadyReactedData[event.id].zaps += sats;
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            });
+
+            const alreadyReactedFilter = {
+                '#e': [event.id],
+                'p': [this.$store.ndk.user.hexpubkey()],
+                kinds: [7],
+            }
+            const subAlreadyReacted = this.$store.ndk.ndk.subscribe(alreadyReactedFilter, {closeOnEose: true});
+            subAlreadyReacted.on('event', async (e) => {
+                this.alreadyReactedData[event.id].reacted = true;
+            });
+            subAlreadyReacted.on('eose', () => {
+                console.log('EOSE already reacted');
+            });
+
         }
-        const awaitAlreadyReacted = await this.$store.ndk.ndk.fetchEvents(alreadyReactedFilter);
-        this.alreadyReactedData[event.id].reacted = awaitAlreadyReacted.size > 0;
-        this.alreadyReactedData[event.id].reactions = compactNumber.format(reactions);
-        this.alreadyReactedData[event.id].reposts = compactNumber.format(reposts);
-        this.alreadyReactedData[event.id].zaps = compactNumber.format(zaps);
     },
 
     async love(event) {
@@ -213,17 +225,6 @@ export default () => ({
             emojiSize: 100,
             emojis: ['🛠️',],
         });
-    },
-
-    async pollStats(event) {
-        await this.loadReactions(event);
-        await Sleep(30000);
-        console.log('POLL STATS');
-        await this.pollStats(event);
-
-        function Sleep(milliseconds) {
-            return new Promise(resolve => setTimeout(resolve, milliseconds));
-        }
     },
 
 });

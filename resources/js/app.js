@@ -1,8 +1,7 @@
 import './bootstrap';
 import nostrApp from './nostr/nostrApp';
-import nostrMyFeed from './nostr/nostrMyFeed';
 import nostrDetails from './nostr/nostrDetails';
-import nostrEinundzwanzigFeed from './nostr/nostrEinundzwanzigFeed';
+import nostrFeed from './nostr/nostrFeed';
 
 import Alpine from 'alpinejs';
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
@@ -26,7 +25,6 @@ Alpine.store('ndk', {
 })
 
 Alpine.data('nostrApp', nostrApp);
-Alpine.data('nostrMyFeed', nostrMyFeed);
-Alpine.data('nostrEinundzwanzigFeed', nostrEinundzwanzigFeed);
+Alpine.data('nostrFeed', nostrFeed);
 Alpine.data('nostrDetails', nostrDetails);
 Alpine.start();

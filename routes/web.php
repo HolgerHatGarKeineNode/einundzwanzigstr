@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return to_route('my-feed');
+    return to_route('my-profile');
 });
 
 
-Route::get('/my-feed', \App\Http\Livewire\MyFeed::class)->name('my-feed');
+Route::get('/my-profile', \App\Http\Livewire\EinundzwanzigFeed::class)->name('my-profile');
 Route::get('/einundzwanzig-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('einundzwanzig-feed');
 Route::get('/gigi-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('gigi-feed');
 Route::get('/d11n-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('d11n-feed');

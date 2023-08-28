@@ -5,7 +5,7 @@
     <div x-show="open" x-transition:enter="transition-opacity ease-linear duration-300"
          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
          x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900/80"
+         x-transition:leave-end="opacity-0" class="fixed inset-0 bg-[#1b1b1b]/80"
          x-description="Off-canvas menu backdrop, show/hide based on off-canvas menu state."
          style="display: none;"></div>
 
@@ -34,7 +34,7 @@
             </div>
 
             <!-- Sidebar component, swap this element with another sidebar if you like -->
-            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 ring-1 ring-white/10">
+            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-[#1b1b1b] px-6 ring-1 ring-white/10">
                 <div class="flex h-16 shrink-0 items-center">
                     <span class="text-white text-md">Einundzwanzig</span>
                     {{--<img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&amp;shade=500"

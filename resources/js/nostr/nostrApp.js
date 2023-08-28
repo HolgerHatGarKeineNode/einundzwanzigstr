@@ -3,6 +3,7 @@ import defaultRelays from "./defaultRelays.js";
 import {Parser} from "simple-text-parser";
 import {decode} from 'light-bolt11-decoder';
 import {compactNumber} from "./utils/number.js";
+import {requestProvider} from "webln";
 
 // this is a nostr application that uses the sdk from this GitHub repo https://github.com/nostr-dev-kit/ndk
 export default () => ({
@@ -155,8 +156,16 @@ export default () => ({
     },
 
     async zap(event) {
-        const bolt11 = await event.zap(69, "Zapping your post!"); // Returns a bolt11 payment request
-        console.log(bolt11);
+        if (!this.$store.ndk.ndk.signer) {
+            const signer = this.$store.ndk.nip07signer;
+            this.$store.ndk.ndk.signer = signer;
+        }
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk, event);
+        const res = await ndkEvent.zap(69000);
+        console.log(res, decode(res), window.webln);
+        await requestProvider();
+        window.webln.sendPayment(res);
+        await this.loadReactions(event);
     }
 
 });

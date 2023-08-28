@@ -103,18 +103,25 @@ export default () => ({
             kinds: [6, 7, 9735],
         };
         const awaitReactions = await this.$store.ndk.ndk.fetchEvents(filter);
-        awaitReactions.forEach((event) => {
-            switch (event.kind) {
+        this.alreadyReactedData[event.id] = {};
+        this.alreadyReactedData[event.id].repostsData = [];
+        this.alreadyReactedData[event.id].reactionsData = [];
+        this.alreadyReactedData[event.id].zapsData = [];
+        awaitReactions.forEach((e) => {
+            switch (e.kind) {
                 case 6:
+                    this.alreadyReactedData[event.id].repostsData.push(e);
                     reposts += 1;
                     break;
                 case 7:
+                    this.alreadyReactedData[event.id].reactionsData.push(e);
                     reactions += 1;
                     break;
                 case 9735: {
-                    const bolt11 = event.tags.find((tag) => tag[0] === 'bolt11')[1];
+                    const bolt11 = e.tags.find((tag) => tag[0] === 'bolt11')[1];
                     if (bolt11) {
                         const decoded = decode(bolt11);
+                        this.alreadyReactedData[event.id].zapsData.push(decoded);
                         const amount = decoded.sections.find((item) => item.name === 'amount');
                         const sats = amount.value / 1000;
                         zaps += sats;
@@ -132,7 +139,6 @@ export default () => ({
             kinds: [7],
         }
         const awaitAlreadyReacted = await this.$store.ndk.ndk.fetchEvents(alreadyReactedFilter);
-        this.alreadyReactedData[event.id] = {};
         this.alreadyReactedData[event.id].reacted = awaitAlreadyReacted.size > 0;
         this.alreadyReactedData[event.id].reactions = compactNumber.format(reactions);
         this.alreadyReactedData[event.id].reposts = compactNumber.format(reposts);
@@ -159,7 +165,7 @@ export default () => ({
             this.jsConfetti.addConfetti({
                 emojis: ['❤️',],
             }), 1000);
-        setTimeout(async () => await this.loadReactions(event), 1000)
+        setTimeout(async () => await this.loadReactions(event), 1000);
     },
 
     async zap(event) {

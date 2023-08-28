@@ -1,4 +1,4 @@
-<div class="relative py-4 pl-16 ml-2" x-data="loadReactions(event)">
+<div class="relative py-4 pl-16 ml-2">
     <template x-if="alreadyReactedData[event.id]">
         <div class="flex justify-between w-full">
             <div class="cursor-pointer flex space-x-2" @click="love(event)">

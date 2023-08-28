@@ -36,7 +36,6 @@ export default (livewireComponent) => ({
     fetchEvents(filter) {
         this.$store.ndk.ndk.connect().then(async () => {
             console.log('NDK Connected!!!');
-            console.log(filter);
 
             const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
 

@@ -136,7 +136,6 @@ export default () => ({
     },
 
     async love(event) {
-        console.log(event.id, event.pubkey);
         // react to event
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.content = '❤️';
@@ -152,7 +151,7 @@ export default () => ({
             icon: 'success'
 
         })
-        await this.loadReactions(event);
+        setTimeout(async () => await this.loadReactions(event), 1000)
     },
 
     async zap(event) {
@@ -166,6 +165,22 @@ export default () => ({
         await requestProvider();
         window.webln.sendPayment(res);
         setTimeout(async () => await this.loadReactions(event), 5000)
-    }
+    },
+
+    async repost(event) {
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
+        ndkEvent.kind = 6;
+        ndkEvent.tags = [
+            ['e', event.id, 'wss://relayable.org', 'root'],
+            ['p', event.pubkey],
+        ];
+        await ndkEvent.publish();
+        window.$wireui.notify({
+            title: 'Success',
+            description: 'You reposted this event',
+            icon: 'success'
+        })
+        setTimeout(async () => await this.loadReactions(event), 1000)
+    },
 
 });

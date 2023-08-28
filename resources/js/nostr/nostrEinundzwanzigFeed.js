@@ -9,11 +9,6 @@ export default (livewireComponent) => ({
     currentNpubs:  livewireComponent.entangle('currentNpubs'),
 
     async loadEvents() {
-        const date = new Date();
-        const startOfCurrentDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000;
-        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime() / 1000;
-        const startOfLastDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).getTime() / 1000;
-
         // set authors
         this.hexpubkeys = [];
         const authors = this.currentNpubs;
@@ -33,12 +28,17 @@ export default (livewireComponent) => ({
             }
         });
 
-        const filter = {kinds: [1], authors: this.hexpubkeys, since: startOfLastDay};
+        const filter = {kinds: [1], authors: this.hexpubkeys, since: this.$store.ndk.loadSince};
 
+        this.fetchEvents(filter, this.$store.ndk.loadSince);
+    },
+
+    fetchEvents(filter) {
         this.$store.ndk.ndk.connect().then(async () => {
             console.log('NDK Connected!!!');
+            console.log(filter);
 
-            const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: false});
+            const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
 
             // subscribe to events
             sub.on('event', (event) => {
@@ -50,7 +50,7 @@ export default (livewireComponent) => ({
             });
 
             sub.on('eose', () => {
-               console.log('EOSE');
+                console.log('EOSE');
             });
 
             sub.on('notice', (notice) => {
@@ -59,7 +59,7 @@ export default (livewireComponent) => ({
 
             // fetch events
             this.events = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
-        })
+        });
     },
 
     events: [],

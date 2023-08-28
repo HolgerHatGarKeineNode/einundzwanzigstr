@@ -92,6 +92,8 @@
                         </li>
                     </template>
 
+                    <x-button amber @click="loadMore" label="Load more..."/>
+
                 </ul>
             </div>
 

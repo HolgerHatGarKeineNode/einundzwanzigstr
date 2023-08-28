@@ -10,7 +10,7 @@
                 <div class="text-amber-500" x-text="alreadyReactedData[event.id].zaps"></div>
                 <x-fat-bolt class="hover:text-amber-500"/>
             </div>
-            <div class="cursor-pointer flex space-x-2">
+            <div class="cursor-pointer flex space-x-2" @click="repost(event)">
                 <div class="text-amber-500" x-text="alreadyReactedData[event.id].reposts"></div>
                 <x-fat-arrows-turn-right class="hover:text-amber-500"/>
             </div>

@@ -464,6 +464,13 @@
     utf8-buffer "^1.0.0"
     websocket-polyfill "^0.0.3"
 
+"@nostr-fetch/adapter-ndk@^0.12.2":
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/@nostr-fetch/adapter-ndk/-/adapter-ndk-0.12.2.tgz#2e7a75e3df71cdd414ca9d02be0617810872e787"
+  integrity sha512-+7EVuxS5DDZvNo6qbfFp7xRHwIyjyi36hYkiQFDjbQ4gX5LKo9RIPB1P+1XGkOSDFshypTbovZCaFunscJ/zhQ==
+  dependencies:
+    "@nostr-fetch/kernel" "^0.12.2"
+
 "@nostr-fetch/kernel@^0.12.2":
   version "0.12.2"
   resolved "https://registry.yarnpkg.com/@nostr-fetch/kernel/-/kernel-0.12.2.tgz#f719f319ea7cca768232f99100e057399cf32349"

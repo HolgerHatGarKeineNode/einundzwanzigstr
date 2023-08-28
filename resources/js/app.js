@@ -1,7 +1,6 @@
 import './bootstrap';
 import nostrApp from './nostr/nostrApp';
 import nostrDetails from './nostr/nostrDetails';
-import nostrFeed from './nostr/nostrFeed';
 
 import Alpine from 'alpinejs';
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
@@ -12,6 +11,8 @@ window.Alpine = Alpine;
 const date = new Date();
 
 Alpine.store('ndk', {
+    // fetcher
+    fetcher: null,
     // nostr ndk
     ndk: null,
     // signer
@@ -25,6 +26,5 @@ Alpine.store('ndk', {
 })
 
 Alpine.data('nostrApp', nostrApp);
-Alpine.data('nostrFeed', nostrFeed);
 Alpine.data('nostrDetails', nostrDetails);
 Alpine.start();

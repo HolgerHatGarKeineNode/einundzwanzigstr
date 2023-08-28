@@ -77,9 +77,11 @@ export default (event) => ({
 
     async loadUserData(reaction) {
         const filter = {kinds: [0], authors: [reaction.pubkey]};
-        const events = Array.from(await this.$store.ndk.ndk.fetchEvents(filter));
-        if (events[0]) {
-            this.profileData[reaction.pubkey] = JSON.parse(events[0].content);
-        }
+        const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
+        sub.on('event', (event) => {
+            if (event) {
+                this.profileData[reaction.pubkey] = JSON.parse(event.content);
+            }
+        });
     },
 })

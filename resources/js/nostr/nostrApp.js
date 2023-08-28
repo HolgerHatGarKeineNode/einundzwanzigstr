@@ -51,7 +51,7 @@ export default () => ({
         });
         // images
         parser.addRule(/(https?:\/\/\S+(\.png|\.jpg|\.gif|\.webp))/g, function (tag) {
-            return `<a target="_blank" href="${tag}"><div class="max-w-xl"><img class="w-full object-contain object-left" src="${tag}" /></div></a>`;
+            return `<div class="max-w-xl"><a target="_blank" href="${tag}"><img class="w-full object-contain object-left" src="${tag}" /></a></div>`;
         });
         // youtube
         parser.addRule(/(youtu.be\/|youtube.com\/watch\?v=)([^&]+)/, function (tag) {

@@ -143,18 +143,24 @@ export default () => ({
                         break;
                 }
             });
+            sub.on('eose', () => {
+                console.log('EOSE fetch reactions');
+            });
+            sub.on('notice', (notice) => {
+                console.log(notice);
+            });
 
             const alreadyReactedFilter = {
                 '#e': [event.id],
                 'p': [this.$store.ndk.user.hexpubkey()],
                 kinds: [NDKKind.Reaction],
             }
-            const subAlreadyReacted = this.$store.ndk.ndk.subscribe(alreadyReactedFilter, {closeOnEose: true});
+            const subAlreadyReacted = this.$store.ndk.ndk.subscribe(alreadyReactedFilter, {true: false});
             subAlreadyReacted.on('event', async (e) => {
                 this.alreadyReactedData[event.id].reacted = true;
             });
-            subAlreadyReacted.on('eose', () => {
-                console.log('EOSE already reacted');
+            subAlreadyReacted.on('notice', (notice) => {
+                console.log(notice);
             });
 
         }

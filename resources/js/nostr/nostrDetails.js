@@ -12,6 +12,7 @@ export default (event) => ({
             if (this.alreadyReactedData && this.alreadyReactedData[event.id]) {
 
                 this.reactions = this.alreadyReactedData[event.id].reactionsData;
+                this.zaps = this.alreadyReactedData[event.id].zapsData;
 
                 this.tabs = [
                     {
@@ -42,6 +43,8 @@ export default (event) => ({
     currentTab: 'reactions',
 
     reactions: [],
+    zaps: [],
+    reposts: [],
 
     profileData: {},
 
@@ -69,19 +72,20 @@ export default (event) => ({
     },
 
     switchTab(name) {
-        this.jsConfetti.addConfetti({
-            emojiSize: 100,
-            emojis: ['🛠️',],
+        this.currentTab = name;
+    },
+
+    async loadUserData(event) {
+        const filter = {kinds: [0], authors: [event.pubkey]};
+        const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
+        sub.on('event', (e) => {
+            if (event) {
+                this.profileData[event.pubkey] = JSON.parse(e.content);
+            }
         });
     },
 
-    async loadUserData(reaction) {
-        const filter = {kinds: [0], authors: [reaction.pubkey]};
-        const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: true});
-        sub.on('event', (event) => {
-            if (event) {
-                this.profileData[reaction.pubkey] = JSON.parse(event.content);
-            }
-        });
+    async parseZapEventDescription(event) {
+        await this.loadUserData(event);
     },
 })

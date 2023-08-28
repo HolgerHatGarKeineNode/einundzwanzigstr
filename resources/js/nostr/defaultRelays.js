@@ -4,7 +4,7 @@ export default [
     'wss://nostr.wine',
     'wss://nos.lol',
     'wss://relay.damus.io',
-    //'wss://relay.snort.social',
+    'wss://relay.snort.social',
     'wss://nostr.mom',
     //'wss://nostr-pub.wellorder.net',
     'wss://nostr.bitcoiner.social',

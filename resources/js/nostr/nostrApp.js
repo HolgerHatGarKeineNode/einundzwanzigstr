@@ -33,7 +33,6 @@ export default () => ({
                     user.ndk = that.$store.ndk.ndk;
                     that.$store.ndk.user = user;
                     await that.$store.ndk.user.fetchProfile();
-                    console.log(that.$store.ndk.user);
                 }
             });
         });
@@ -131,10 +130,12 @@ export default () => ({
                         const bolt11 = e.tags.find((tag) => tag[0] === 'bolt11')[1];
                         if (bolt11) {
                             const decoded = decode(bolt11);
-                            this.alreadyReactedData[event.id].zapsData.push(decoded);
                             const amount = decoded.sections.find((item) => item.name === 'amount');
                             const sats = amount.value / 1000;
                             this.alreadyReactedData[event.id].zaps += sats;
+                        }
+                        if (!this.alreadyReactedData[event.id].zapsData.find((item) => item.id === e.id)) {
+                            this.alreadyReactedData[event.id].zapsData.push(e);
                         }
                         break;
                     }

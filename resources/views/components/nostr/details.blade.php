@@ -23,6 +23,7 @@
                 </colgroup>
                 <tbody class="divide-y divide-white/5">
 
+                <template x-if="currentTab === 'reactions'">
                     <template x-for="reaction in reactions" :key="reaction.id">
                         <tr>
                             <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8" x-data="loadUserData(reaction)">
@@ -38,7 +39,8 @@
                             </td>
                             <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
                                 <div class="flex gap-x-3">
-                                    <div class="font-mono text-sm leading-6 text-gray-400" x-text="reaction.content === '+' ? 'repost' : reaction.content"></div>
+                                    <div class="font-mono text-sm leading-6 text-gray-400"
+                                         x-text="reaction.content === '+' ? 'repost' : reaction.content"></div>
                                 </div>
                             </td>
                             <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
@@ -47,6 +49,36 @@
                             </td>
                         </tr>
                     </template>
+                </template>
+
+                <template x-if="currentTab === 'zaps'">
+                    <template x-for="zap in zaps" :key="zap.id">
+                        <tr>
+                            <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
+                                <template x-if="profileData[zap.pubkey]">
+                                    <div class="flex items-center gap-x-4">
+                                        <img
+                                            :src="profileData[zap.pubkey].picture"
+                                            alt="" class="h-8 w-8 rounded-full bg-gray-800">
+                                        <div class="truncate text-sm font-medium leading-6 text-white"
+                                             x-text="profileData[zap.pubkey].display_name ? profileData[zap.pubkey].display_name : profileData[zap.pubkey].name"></div>
+                                    </div>
+                                </template>
+                            </td>
+                            <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                                <div class="flex gap-x-3">
+                                    <div class="font-mono text-sm leading-6 text-gray-400"
+                                         x-text="parseZapEventDescription(zap)"></div>
+                                </div>
+                            </td>
+                            <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                                <time
+                                    x-text="new Date(zap.created_at * 1000).toLocaleString()"
+                                    datetime="2023-01-23T11:00"></time>
+                            </td>
+                        </tr>
+                    </template>
+                </template>
 
                 </tbody>
             </table>

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return to_route('my-profile');
+    return to_route('d11n-feed');
 });
 
 

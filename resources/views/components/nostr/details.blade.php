@@ -7,7 +7,7 @@
                     <li>
                         <div @click="switchTab(tab.name)" :class="currentTab === tab.name ? 'text-amber-400' : ''"
                              class="cursor-pointer">
-                            <span class="pr-2" x-text="tab.count > 0 ? tab.count : ''"></span><span
+                            <span class="pr-2" x-text="tab.count > -1 ? tab.count : ''"></span><span
                                 x-text="tab.label"></span>
                         </div>
                     </li>

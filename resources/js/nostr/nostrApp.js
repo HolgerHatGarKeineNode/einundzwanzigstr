@@ -165,7 +165,7 @@ export default () => ({
         console.log(res, decode(res), window.webln);
         await requestProvider();
         window.webln.sendPayment(res);
-        await this.loadReactions(event);
+        setTimeout(async () => await this.loadReactions(event), 5000)
     }
 
 });

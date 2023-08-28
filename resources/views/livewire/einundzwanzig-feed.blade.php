@@ -65,7 +65,7 @@
                                                     </div>
                                                     <div>
                                                         <h4 class="text-lg font-bold"
-                                                            x-text="eventsData[event.pubkey].display_name"></h4>
+                                                            x-text="eventsData[event.pubkey].display_name ? eventsData[event.pubkey].display_name : eventsData[event.pubkey].name"></h4>
                                                     </div>
                                                 </div>
                                                 <div>

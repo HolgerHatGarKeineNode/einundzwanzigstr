@@ -5,7 +5,7 @@ export default (event) => ({
         Alpine.effect(async () => {
 
             if (this.$refs.table !== undefined) {
-                this.$refs.table.style.maxHeight = this.$refs.left.offsetHeight - 150 + 'px';
+                this.$refs.table.style.maxHeight = this.$refs.left.offsetHeight - 100 + 'px';
                 this.$refs.table.style.minHeight = '200px';
             }
 

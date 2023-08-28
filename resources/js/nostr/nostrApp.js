@@ -145,38 +145,6 @@ export default () => ({
         this.alreadyReactedData[event.id].reactions = compactNumber.format(reactions);
         this.alreadyReactedData[event.id].reposts = compactNumber.format(reposts);
         this.alreadyReactedData[event.id].zaps = compactNumber.format(zaps);
-
-        //this.subReactions(event);
-    },
-
-    subReactions(event) {
-        this.$store.ndk.ndk.connect().then(async () => {
-            console.log('NDK Connected - reaction events');
-
-            const filter = {
-                '#e': [event.id],
-                kinds: [6, 7, 9735],
-            };
-            const sub = this.$store.ndk.ndk.subscribe(filter, {closeOnEose: false});
-
-            // subscribe to events
-            sub.on('event', (reactionEvent) => {
-                if (reactionEvent.kind === 7) {
-                    if (!this.alreadyReactedData[event.id].reactionsData.find((e) => e.id === reactionEvent.id)) {
-                        console.log(reactionEvent);
-                        //this.alreadyReactedData[event.id].reactionsData.push(reactionEvent);
-                    }
-                }
-            });
-
-            sub.on('eose', () => {
-                console.log('EOSE reaction events');
-            });
-
-            sub.on('notice', (notice) => {
-                console.log(notice);
-            });
-        });
     },
 
     async love(event) {
@@ -245,6 +213,17 @@ export default () => ({
             emojiSize: 100,
             emojis: ['🛠️',],
         });
+    },
+
+    async pollStats(event) {
+        await this.loadReactions(event);
+        await Sleep(30000);
+        console.log('POLL STATS');
+        await this.pollStats(event);
+
+        function Sleep(milliseconds) {
+            return new Promise(resolve => setTimeout(resolve, milliseconds));
+        }
     },
 
 });

@@ -1,5 +1,5 @@
 export default [
-    //'wss://nostr.einundzwanzig.space',
+    'wss://nostr.einundzwanzig.space',
     'wss://nostr.codingarena.de',
     'wss://nostr.wine',
     'wss://nos.lol',

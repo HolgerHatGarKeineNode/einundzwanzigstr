@@ -44,7 +44,7 @@
                               x-transition:leave-start="opacity-100 transform scale-100"
                               x-transition:leave-end="opacity-0 transform scale-90">
                         <li>
-                            <div class="grid grid-cols-3 gap-2" x-data="loadReactions(event)">
+                            <div class="grid grid-cols-3 gap-2" x-data="pollStats(event)">
                                 <div x-ref="left" class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white">
                                     <template x-if="!eventsData[event.pubkey]">
                                         <div class="relative block w-full rounded-lg border-2 border-dashed border-amber-500 p-12 text-center">

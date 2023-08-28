@@ -103,7 +103,9 @@ export default () => ({
             kinds: [6, 7, 9735],
         };
         const awaitReactions = await this.$store.ndk.ndk.fetchEvents(filter);
-        this.alreadyReactedData[event.id] = {};
+        if (this.alreadyReactedData[event.id] === undefined) {
+            this.alreadyReactedData[event.id] = {};
+        }
         this.alreadyReactedData[event.id].repostsData = [];
         this.alreadyReactedData[event.id].reactionsData = [];
         this.alreadyReactedData[event.id].zapsData = [];

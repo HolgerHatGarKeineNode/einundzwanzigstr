@@ -200,4 +200,11 @@ export default () => ({
         setTimeout(async () => await this.loadReactions(event), 1000)
     },
 
+    comment(event) {
+        this.jsConfetti.addConfetti({
+            emojiSize: 100,
+            emojis: ['🛠️',],
+        });
+    },
+
 });

@@ -13,17 +13,19 @@
             <ul role="list" class="flex flex-1 flex-col gap-y-7">
                 <li>
                     <ul role="list" class="-mx-2 space-y-1">
-                        <li>
-                            <a href="{{ route('my-feed') }}"
-                               class="{{ request()->is('my-feed') ? $activeClass : $notActiveClass }}">
-                                <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                     stroke="currentColor" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"></path>
-                                </svg>
-                                My Profile
-                            </a>
-                        </li>
+                        <template x-if="$store.ndk.user">
+                            <li>
+                                <a href="{{ route('my-feed') }}"
+                                   class="{{ request()->is('my-feed') ? $activeClass : $notActiveClass }}">
+                                    <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                         stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"></path>
+                                    </svg>
+                                    My Profile
+                                </a>
+                            </li>
+                        </template>
                         <li>
                             <a href="{{ route('einundzwanzig-feed') }}"
                                class="{{ request()->is('einundzwanzig-feed') ? $activeClass : $notActiveClass }}"

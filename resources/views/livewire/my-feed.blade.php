@@ -63,10 +63,9 @@
                                 </div>
                                 <div class="pl-16 ml-2" x-html="parseText(event)"></div>
                                 <template x-if="event.content.includes('nostr:')">
-                                    <button type="button"
-                                            class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <div class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                         <span class="mt-2 block text-sm font-semibold text-gray-100">nostr:</span>
-                                    </button>
+                                    </div>
                                 </template>
                                 <div class="flex space-x-2 justify-end">
                                     <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">

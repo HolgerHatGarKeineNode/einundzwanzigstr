@@ -1,4 +1,4 @@
-<div class="py-4 pl-16 ml-2" x-data="loadReactions(event)">
+<div class="relative py-4 pl-16 ml-2" x-data="loadReactions(event)">
     <template x-if="alreadyReactedData[event.id]">
         <div class="flex justify-between w-full">
             <div class="cursor-pointer flex space-x-2" @click="love(event)">
@@ -18,6 +18,15 @@
                 <div class="text-amber-500">0</div>
                 <x-fat-comment class="hover:text-amber-500"/>
             </div>
+        </div>
+    </template>
+    <template x-if="!alreadyReactedData[event.id]">
+        <div class="relative reaction-card block w-full rounded-lg border-dashed border-amber-500 p-12 text-center">
+            <span class="mt-2 block text-sm font-semibold text-gray-100">Loading reactions...</span>
+            <span class="top absolute"></span>
+            <span class="right absolute"></span>
+            <span class="bottom absolute"></span>
+            <span class="left absolute"></span>
         </div>
     </template>
 </div>

@@ -12,6 +12,7 @@ export default (livewireComponent) => ({
         const date = new Date();
         const startOfCurrentDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000;
         const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime() / 1000;
+        const startOfLastDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).getTime() / 1000;
 
         // set authors
         this.hexpubkeys = [];
@@ -32,7 +33,7 @@ export default (livewireComponent) => ({
             }
         });
 
-        const filter = {kinds: [1], authors: this.hexpubkeys, since: startOfCurrentDay};
+        const filter = {kinds: [1], authors: this.hexpubkeys, since: startOfLastDay};
 
         this.$store.ndk.ndk.connect().then(async () => {
             console.log('NDK Connected!!!');

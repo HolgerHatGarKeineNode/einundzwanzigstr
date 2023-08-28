@@ -155,7 +155,7 @@ export default () => ({
     },
 
     async zap(event) {
-        const bolt11 = await event.zap(1337, "Zapping your post!"); // Returns a bolt11 payment request
+        const bolt11 = await event.zap(69, "Zapping your post!"); // Returns a bolt11 payment request
         console.log(bolt11);
     }
 

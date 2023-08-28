@@ -152,6 +152,11 @@ export default () => ({
 
         })
         await this.loadReactions(event);
+    },
+
+    async zap(event) {
+        const bolt11 = await event.zap(1337, "Zapping your post!"); // Returns a bolt11 payment request
+        console.log(bolt11);
     }
 
 });

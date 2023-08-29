@@ -58,10 +58,9 @@
 
                     <template x-for="event in events" :key="event.id">
                         <li>
-                            <div class="grid grid-cols-3 gap-2">
-                                <div x-ref="left"
-                                     class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-hidden">
-                                    <div class="flex flex-col space-y-2">
+                            <div class="grid grid-cols-7 gap-2">
+                                <div class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                    <div class="flex flex-col justify-between space-y-2 h-full">
                                         <template x-if="authorMetaData[event.pubkey]">
                                             <div class="flex justify-between">
                                                 <div class="flex">
@@ -74,11 +73,13 @@
                                                     <div>
                                                         <h4 class="text-lg font-bold"
                                                             x-text="authorMetaData[event.pubkey].display_name"></h4>
+                                                        <h4 class="text-md font-bold"
+                                                            x-text="authorMetaData[event.pubkey].nip05"></h4>
                                                     </div>
                                                 </div>
                                                 <div>
                                                 <span class="text-gray-300 text-xs"
-                                                      x-text="new Date(event.created_at * 1000).toLocaleString()"></span>
+                                                      x-text="formatDate(event.created_at)"></span>
                                                 </div>
                                             </div>
                                         </template>
@@ -113,7 +114,10 @@
                                         <x-nostr.reactions/>
                                     </div>
                                 </div>
-                                <div class="rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white">
+                                <div class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                    <x-nostr.replies/>
+                                </div>
+                                <div class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <x-nostr.details/>
                                 </div>
                             </div>

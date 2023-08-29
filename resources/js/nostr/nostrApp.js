@@ -13,6 +13,30 @@ export default (livewireComponent) => ({
         return compactNumber.format(number);
     },
 
+    formatDate(date) {
+        // human readable age from timestamp in multiple formates (seconds, minutes, hours, days, weeks, months, years)
+        const time = Math.floor((Date.now() - date * 1000) / 1000);
+        if (time < 60) {
+            return time + 's';
+        }
+        if (time < 3600) {
+            return Math.floor(time / 60) + 'm ago';
+        }
+        if (time < 86400) {
+            return Math.floor(time / 3600) + 'h ago';
+        }
+        if (time < 604800) {
+            return Math.floor(time / 86400) + 'd ago';
+        }
+        if (time < 2629800) {
+            return Math.floor(time / 604800) + 'w ago';
+        }
+        if (time < 31557600) {
+            return Math.floor(time / 2629800) + 'm ago';
+        }
+        return Math.floor(time / 31557600) + 'y ago';
+    },
+
     rejected: false,
 
     open: false,
@@ -22,7 +46,30 @@ export default (livewireComponent) => ({
     currentNpubs: livewireComponent.entangle('currentNpubs'),
 
     events: [],
+    eventsReplies: {},
+
     authorMetaData: {},
+
+    currentTab: 'reactions',
+
+    tabs: [
+        {
+            name: 'reactions',
+            label: 'Reactions',
+        },
+        {
+            name: 'zaps',
+            label: 'Zaps',
+        },
+        {
+            name: 'reposts',
+            label: 'Reposts',
+        },
+    ],
+
+    switchTab(tab) {
+        this.currentTab = tab;
+    },
 
     reactions: {
         reposts: {},
@@ -122,6 +169,50 @@ export default (livewireComponent) => ({
         });
     },
 
+    async fetchAllRepliesOfEvent(event) {
+        console.log('connected to fetchAllRepliesOfEvents');
+        const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
+        const events = await fetcher.fetchAllEvents(
+            this.$store.ndk.validatedRelays,
+            {kinds: [eventKind.text], '#e': [event.id],},
+            {},
+            {sort: true}
+        );
+        if (events.length > 0) {
+            const replies = new Set();
+            events.forEach((event) => {
+                const tags = event.tags.filter((el) => el[0] === 'e' && el[1] !== event.id);
+                if (tags.length > 0) {
+                    tags.forEach((tag) => {
+                        const rootIndex = events.findIndex((el) => el.id === tag[1]);
+                        if (rootIndex !== -1) {
+                            const rootEvent = events[rootIndex];
+                            if (rootEvent && rootEvent.replies) {
+                                rootEvent.replies.push(event);
+                            } else {
+                                rootEvent.replies = [event];
+                            }
+                            replies.add(event.id);
+                        }
+                    });
+                }
+            });
+            this.eventsReplies[event.id] = events.filter((ev) => !replies.has(ev.id));
+            // unique pubkeys from events
+            const authorIds = [...new Set(this.eventsReplies[event.id].map((ev) => ev.pubkey))];
+            // filter authorIds that are already in this.authorMetaData
+            for (const authorId of authorIds) {
+                if (this.authorMetaData[authorId]) {
+                    const index = authorIds.indexOf(authorId);
+                    if (index > -1) {
+                        authorIds.splice(index, 1);
+                    }
+                }
+            }
+            await this.getAuthorsMeta(authorIds);
+        }
+    },
+
     async fetchEvents() {
         console.log('connected to fetchEvents');
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
@@ -135,8 +226,20 @@ export default (livewireComponent) => ({
         this.events = await fetcher.fetchLatestEvents(
             this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], authors: hexpubs},
-            10,
+            25,
         );
+        // find children of events
+        for (const event of this.events) {
+            if (event.tags.find((el) => el[3] === 'reply')?.[1]) {
+                // remove current event from this.events
+                const index = this.events.indexOf(event);
+                if (index > -1) {
+                    this.events.splice(index, 1);
+                }
+            } else {
+                await this.fetchAllRepliesOfEvent(event);
+            }
+        }
         // unique pubkeys from events
         const authorIds = [...new Set(this.events.map((event) => event.pubkey))];
         // filter authorIds that are already in this.authorMetaData
@@ -175,6 +278,7 @@ export default (livewireComponent) => ({
             }
             this.authorMetaData[latestEvent.pubkey] = profile;
         }
+        console.log(this.authorMetaData);
     },
 
     parseContent(event) {
@@ -427,5 +531,40 @@ export default (livewireComponent) => ({
             return this.numberFormat(this.reactions.zaps[event.id].zaps);
         }
     },
+
+    checkNip05(nip05) {
+        if (nip05) {
+            // split nip05 into parts
+            const nip05Parts = nip05.split('@');
+            // check if nip05 has 2 parts
+            if (nip05Parts.length !== 2) {
+                console.log('nip05 is invalid');
+                return;
+            }
+            // check if nip05 has a valid domain
+            const nip05Domain = nip05Parts[1];
+            if (!nip05Domain.includes('.')) {
+                console.log('nip05 is invalid');
+                return;
+            }
+            // construct nip05 check url
+            const nip05CheckUrl = 'https://' + nip05Domain + '/.well-known/nostr.json';
+
+            // check nostr nip05 with http fetch on .well-known/nostr.json and look for nip05
+            fetch(nip05CheckUrl)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    return true;
+                    if (data.names) {
+                        // check if in data.names there is a name with the nip05
+                        const nip05Name = nip05Parts[0];
+                        return data.names.find((name) => name === nip05Name);
+                    } else {
+                        console.log(data);
+                    }
+                });
+        }
+    }
 
 });

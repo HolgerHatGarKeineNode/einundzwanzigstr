@@ -24,7 +24,7 @@
 
         <template x-if="currentTab === 'reactions'">
             <template
-                    x-for="reaction in reactions.reactionEventsData && reactions.reactionEventsData[event.id]"
+                    x-for="reaction in reactions.reactionEventsData && reactions.reactionEventsData[event.id] && reactions.reactionEventsData[event.id].sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
                     :key="reaction.id"
             >
                 <template x-if="authorMetaData[reaction.pubkey]">
@@ -56,7 +56,7 @@
 
         <template x-if="currentTab === 'zaps'">
             <template
-                    x-for="reaction in reactions.reactionZapsData && reactions.reactionZapsData[event.id]"
+                    x-for="reaction in reactions.reactionZapsData && reactions.reactionZapsData[event.id] && reactions.reactionZapsData[event.id].sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
                     :key="reaction.id"
             >
                 <tr>
@@ -86,7 +86,7 @@
 
         <template x-if="currentTab === 'reposts'">
             <template
-                    x-for="reaction in reactions.reactionRepostsData && reactions.reactionRepostsData[event.id]"
+                    x-for="reaction in reactions.reactionRepostsData && reactions.reactionRepostsData[event.id] && reactions.reactionRepostsData[event.id].sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
                     :key="reaction.id"
             >
                 <tr>

@@ -9,7 +9,7 @@
                              class="cursor-pointer">
                                 <span class="pr-2"
                                       x-text="getReactionCount(tab.name, event)"></span><span
-                                x-text="tab.label"></span>
+                                    x-text="tab.label"></span>
                         </div>
                 </template>
             </ul>
@@ -24,10 +24,10 @@
                 <tbody class="divide-y divide-white/5">
 
                 <template
-                    x-if="currentTab === 'reactions' && reactions.reactionEventsData && reactions.reactionEventsData[event.id]">
+                        x-if="currentTab === 'reactions' && reactions.reactionEventsData && reactions.reactionEventsData[event.id]">
                     <template
-                        x-for="reaction in reactions.reactionEventsData[event.id].sort((p1, p2) => (p1.created_at < p2.created_at) ? 1 : (p1.created_at > p2.created_at) ? -1 : 0)"
-                        :key="reaction.id"
+                            x-for="reaction in reactions.reactionEventsData[event.id].sort((p1, p2) => (p1.created_at < p2.created_at) ? 1 : (p1.created_at > p2.created_at) ? -1 : 0)"
+                            :key="reaction.id"
                     >
                         <template x-if="authorMetaData[reaction.pubkey]">
                             <tr>
@@ -36,9 +36,18 @@
                                         <div class="flex items-center gap-x-4">
                                             <img
                                                     :src="authorMetaData[reaction.pubkey].image"
-                                                    alt="" class="h-8 w-8 rounded-full bg-gray-800">
+                                                    :alt="authorMetaData[reaction.pubkey].display_name[0]"
+                                                    class="h-8 w-8 rounded-full bg-gray-800">
                                             <div class="truncate text-sm font-medium leading-6 text-white"
                                                  x-text="authorMetaData[reaction.pubkey].display_name"></div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!authorMetaData[reaction.pubkey].image">
+                                        <div class="flex items-center gap-x-4">
+                                            <img
+                                                    src="{{ asset('img/nostr.png') }}"
+                                                    alt="anon" class="h-8 w-8 rounded-full bg-gray-800">
+                                            <div class="truncate text-sm font-medium leading-6 text-white">anon</div>
                                         </div>
                                     </template>
                                 </td>

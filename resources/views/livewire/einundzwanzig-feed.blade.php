@@ -68,7 +68,7 @@
                                                     <div class="mr-4 flex-shrink-0">
                                                         <img class="inline-block h-14 w-14 rounded-full"
                                                              :src="authorMetaData[event.pubkey].image"
-                                                             :alt="authorMetaData[event.pubkey].display_name"
+                                                             :alt="authorMetaData[event.pubkey].display_name[0]"
                                                         />
                                                     </div>
                                                     <div>
@@ -105,7 +105,7 @@
                                         <div class="flex space-x-2 justify-end">
                                             <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
                                                 <div
-                                                    class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                                        class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
                                                     <span x-text="tag[1]"></span>
                                                 </div>
                                             </template>

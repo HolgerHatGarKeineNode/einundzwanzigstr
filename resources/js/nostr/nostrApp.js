@@ -19,12 +19,60 @@ export default (livewireComponent) => ({
     reactionMetaData: {},
     reactions: {},
 
+    async verifyRelays(relays) {
+        try {
+            const urls = relays.map((relay) => {
+                if (relay.startsWith('ws')) {
+                    return relay.replace('ws', 'http');
+                }
+                if (relay.startsWith('wss')) {
+                    return relay.replace('wss', 'https');
+                }
+            });
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
+
+            const requests = urls.map((url) =>
+                fetch(url, {
+                    headers: {Accept: 'application/nostr+json'},
+                    signal: controller.signal,
+                })
+            );
+            const responses = await Promise.all(requests);
+            const errors = responses.filter((response) => !response.ok);
+
+            if (errors.length > 0) {
+                throw errors.map((response) => Error(response.statusText));
+            }
+
+            const verifiedRelays = responses.map((res) => {
+                if (res.url.startsWith('http')) {
+                    return res.url.replace('http', 'ws');
+                }
+                if (res.url.startsWith('https')) {
+                    return res.url.replace('https', 'wss');
+                }
+            });
+
+            // clear timeout
+            clearTimeout(timeoutId);
+
+            // return all validate relays
+            return verifiedRelays;
+        } catch (e) {
+            console.error(e);
+            e.forEach((error) => console.error(error));
+        }
+    },
+
     async init() {
         this.jsConfetti = new JSConfetti();
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
-        const explicitRelays = normalizeRelayUrlSet(defaultRelays);
+        let explicitRelayUrls = [];
+        explicitRelayUrls = await this.verifyRelays(defaultRelays);
         const instance = new NDK({
-            explicitRelayUrls: explicitRelays,
+            explicitRelayUrls: explicitRelayUrls,
             signer: this.$store.ndk.nip07signer,
             cacheAdapter: this.$store.ndk.dexieAdapter,
         });

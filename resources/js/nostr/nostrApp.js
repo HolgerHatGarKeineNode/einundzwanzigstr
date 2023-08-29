@@ -17,7 +17,7 @@ export default (livewireComponent) => ({
         // human readable age from timestamp in multiple formates (seconds, minutes, hours, days, weeks, months, years)
         const time = Math.floor((Date.now() - date * 1000) / 1000);
         if (time < 60) {
-            return time + 's';
+            return time + 's ago';
         }
         if (time < 3600) {
             return Math.floor(time / 60) + 'm ago';

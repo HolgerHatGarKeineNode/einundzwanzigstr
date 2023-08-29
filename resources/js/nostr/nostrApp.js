@@ -91,8 +91,10 @@ export default (livewireComponent) => ({
 
     parseContent(event) {
         let content = event.content;
+
         // replace \n with <br>
-        content = event.content.replace(/\n/g, '<br>');
+        content = event.content.replace(/\n/g, ' <br> ');
+
         // replace all images with img tags
         content = content.replace(/(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.gif))/g, '<a target="_blank" href="$1"><div class="max-w-sm py-2"><img class="aspect-[3/2] w-full rounded-2xl object-cover" src="$1" /></div></a>');
 

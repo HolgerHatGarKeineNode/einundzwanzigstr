@@ -1,4 +1,3 @@
-import './bootstrap';
 import nostrApp from './nostr/nostrApp';
 import nostrDetails from './nostr/nostrDetails';
 import nostrReplies from './nostr/nostrReplies';

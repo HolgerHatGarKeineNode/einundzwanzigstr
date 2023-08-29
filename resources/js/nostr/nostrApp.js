@@ -491,7 +491,7 @@ export default (livewireComponent) => ({
         const res = await ndkEvent
             .zap(
                 69000,
-                'This is a test zap from my experimental Nostr app on https://einundzwanzigstr.codingarena.de'
+                'This is a test zap from my experimental nostr web client at https://einundzwanzigstr.codingarena.de'
             );
         console.log(res, decode(res), window.webln);
         await requestProvider();

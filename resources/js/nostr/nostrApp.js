@@ -44,6 +44,7 @@ export default (livewireComponent) => ({
     jsConfetti: null,
 
     currentNpubs: livewireComponent.entangle('currentNpubs'),
+    limit: livewireComponent.entangle('limit'),
 
     events: [],
     eventsReplies: {},
@@ -226,7 +227,7 @@ export default (livewireComponent) => ({
         this.events = await fetcher.fetchLatestEvents(
             this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], authors: hexpubs},
-            25,
+            this.limit,
         );
         // find children of events
         for (const event of this.events) {

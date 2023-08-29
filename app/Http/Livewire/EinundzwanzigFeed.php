@@ -9,6 +9,7 @@ class EinundzwanzigFeed extends Component
 {
     public bool $isMyProfile = false;
     public array $currentNpubs = [];
+    public int $limit = 10;
 
     public function mount()
     {
@@ -22,6 +23,10 @@ class EinundzwanzigFeed extends Component
             request()->is('markus-turm-feed') => ['npub17fqtu2mgf7zueq2kdusgzwr2lqwhgfl2scjsez77ddag2qx8vxaq3vnr8y'],
             request()->is('snowden-feed') => ['npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'],
             request()->is('my-profile') => [],
+        };
+        $this->limit = match (true) {
+            request()->is('snowden-feed') => 3,
+            default => 10,
         };
     }
 

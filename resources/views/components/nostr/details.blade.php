@@ -33,7 +33,7 @@
                             <div class="flex items-center gap-x-4">
                                 <img
                                         :src="authorMetaData[reaction.pubkey].image"
-                                        :alt="authorMetaData[reaction.pubkey].display_name[0]"
+                                        :alt="authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
                                         class="h-8 w-8 rounded-full bg-gray-800">
                                 <div
                                         class="truncate text-sm font-medium leading-6 text-white"
@@ -61,15 +61,17 @@
             >
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">
-                        <div class="flex items-center gap-x-4">
-                            <img
-                                    :src="authorMetaData[reaction.senderPubkey].image"
-                                    :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
-                                    class="h-8 w-8 rounded-full bg-gray-800">
-                            <div
-                                    class="truncate text-sm font-medium leading-6 text-white"
-                                    x-text="authorMetaData[reaction.senderPubkey].display_name"></div>
-                        </div>
+                        <template x-if="authorMetaData[reaction.senderPubkey]">
+                            <div class="flex items-center gap-x-4">
+                                <img
+                                        :src="authorMetaData[reaction.senderPubkey].image"
+                                        :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
+                                        class="h-8 w-8 rounded-full bg-gray-800">
+                                <div
+                                        class="truncate text-sm font-medium leading-6 text-white"
+                                        x-text="authorMetaData[reaction.senderPubkey].display_name"></div>
+                            </div>
+                        </template>
                     </td>
                     <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
                         <div class="flex gap-x-3">
@@ -94,7 +96,7 @@
                         <div class="flex items-center gap-x-4">
                             <img
                                     :src="authorMetaData[reaction.pubkey].image"
-                                    :alt="authorMetaData[reaction.pubkey].display_name[0]"
+                                    :alt="authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
                                     class="h-8 w-8 rounded-full bg-gray-800">
                             <div
                                     class="truncate text-sm font-medium leading-6 text-white"

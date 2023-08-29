@@ -8,6 +8,8 @@ import {requestProvider} from "webln";
 
 export default (livewireComponent) => ({
 
+    rejected: false,
+
     open: false,
 
     jsConfetti: null,
@@ -101,6 +103,8 @@ export default (livewireComponent) => ({
                 });
                 await this.$store.ndk.user.fetchProfile();
             }
+        }).catch((error) => {
+            this.rejected = true;
         });
     },
 

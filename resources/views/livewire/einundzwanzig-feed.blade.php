@@ -1,3 +1,32 @@
+@props([
+    'reactionEmoticons' => [
+        '👍',
+        '👎',
+        '🤙',
+        '🤔',
+        '🤮',
+        '🤯',
+        '🤬',
+        '🤗',
+        '🤩',
+        '🤪',
+        '🤫',
+        '🤭',
+        '🤮',
+        '🤯',
+        '🥱',
+        '🥳',
+        '🥴',
+        '🥵',
+        '🥶',
+        '🥺',
+        '🦄',
+        '🦾',
+        // clown
+        '🤡',
+    ]
+])
+
 <div x-data="nostrApp(@this)" @keydown.window.escape="open = false" wire:ignore>
 
     @include('layouts.partials.navigation')
@@ -119,6 +148,44 @@
                                 </div>
                                 <div class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <x-nostr.details/>
+                                </div>
+                            </div>
+
+                            <div
+                                    x-show="open"
+                                    style="display: none"
+                                    x-on:keydown.escape.prevent.stop="open = false"
+                                    role="dialog"
+                                    aria-modal="true"
+                                    x-id="['modal-title']"
+                                    :aria-labelledby="$id('modal-title')"
+                                    class="fixed inset-0 z-10 overflow-y-auto"
+                            >
+                                <!-- Overlay -->
+                                <div x-show="open" x-transition.opacity
+                                     class="fixed inset-0 bg-black bg-opacity-50"></div>
+
+                                <!-- Panel -->
+                                <div
+                                        x-show="open" x-transition
+                                        x-on:click="open = false"
+                                        class="relative flex min-h-screen items-center justify-center p-4"
+                                >
+                                    <div
+                                            x-on:click.stop
+                                            class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
+                                    >
+                                        <!-- Title -->
+                                        <h2 class="text-3xl font-bold" :id="$id('modal-title')">Pick reaction</h2>
+
+                                        <!-- Content -->
+                                        <div class="mt-3 text-gray-600">
+                                            @foreach($reactionEmoticons as $r)
+                                                <div @click="love(currentEventToReact, '{{ $r }}'); open = false"
+                                                     class="text-xl cursor-pointer relative z-30 inline-block h-10 w-10 rounded-full ring-1 ring-amber-500 hover:scale-125 pl-2 pt-1">{{ $r }}</div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </li>

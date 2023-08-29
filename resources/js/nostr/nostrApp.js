@@ -9,6 +9,13 @@ import {compactNumber} from "./utils/number.js";
 
 export default (livewireComponent) => ({
 
+    open: false,
+    currentEventToReact: null,
+    openReactionPicker(event) {
+        this.currentEventToReact = event;
+        this.open = true;
+    },
+
     numberFormat(number) {
         return compactNumber.format(number);
     },
@@ -39,49 +46,65 @@ export default (livewireComponent) => ({
 
     rejected: false,
 
-    open: false,
+    jsConfetti:
+        null,
 
-    jsConfetti: null,
+    currentNpubs:
+        livewireComponent.entangle('currentNpubs'),
+    limit:
+        livewireComponent.entangle('limit'),
 
-    currentNpubs: livewireComponent.entangle('currentNpubs'),
-    limit: livewireComponent.entangle('limit'),
+    events:
+        [],
+    eventsReplies:
+        {}
+    ,
 
-    events: [],
-    eventsReplies: {},
-
-    authorMetaData: {},
+    authorMetaData: {}
+    ,
 
     currentTab: 'reactions',
 
-    tabs: [
-        {
-            name: 'reactions',
-            label: 'Reactions',
-        },
-        {
-            name: 'zaps',
-            label: 'Zaps',
-        },
-        {
-            name: 'reposts',
-            label: 'Reposts',
-        },
-    ],
+    tabs:
+        [
+            {
+                name: 'reactions',
+                label: 'Reactions',
+            },
+            {
+                name: 'zaps',
+                label: 'Zaps',
+            },
+            {
+                name: 'reposts',
+                label: 'Reposts',
+            },
+        ],
 
     switchTab(tab) {
         this.currentTab = tab;
-    },
+    }
+    ,
 
     reactions: {
-        reposts: {},
-        reacted: {},
-        reposted: {},
-        reactions: {},
-        zaps: {},
-        reactionRepostsData: {},
-        reactionEventsData: {},
-        reactionZapsData: {},
-    },
+        reposts: {}
+        ,
+        reacted: {}
+        ,
+        reposted: {}
+        ,
+        reactions: {}
+        ,
+        zaps: {}
+        ,
+        reactionRepostsData: {}
+        ,
+        reactionEventsData: {}
+        ,
+        reactionZapsData: {}
+        ,
+    }
+    ,
 
     async verifyRelays(relays) {
         try {
@@ -127,7 +150,8 @@ export default (livewireComponent) => ({
         } catch (e) {
             console.error(e);
         }
-    },
+    }
+    ,
 
     async init() {
         this.jsConfetti = new JSConfetti();
@@ -154,7 +178,8 @@ export default (livewireComponent) => ({
                 await this.fetchEvents();
             }
         });
-    },
+    }
+    ,
 
     async loadProfile() {
         this.$store.ndk.nip07signer.user().then(async (user) => {
@@ -168,7 +193,8 @@ export default (livewireComponent) => ({
         }).catch((error) => {
             this.rejected = true;
         });
-    },
+    }
+    ,
 
     async fetchAllRepliesOfEvent(event) {
         console.log('connected to fetchAllRepliesOfEvents');
@@ -212,7 +238,8 @@ export default (livewireComponent) => ({
             }
             await this.getAuthorsMeta(authorIds);
         }
-    },
+    }
+    ,
 
     async fetchEvents() {
         console.log('connected to fetchEvents');
@@ -254,7 +281,8 @@ export default (livewireComponent) => ({
         }
         await this.getAuthorsMeta(authorIds);
         await this.getReactions(this.events);
-    },
+    }
+    ,
 
     async getAuthorsMeta(authorIds) {
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
@@ -279,7 +307,8 @@ export default (livewireComponent) => ({
             }
             this.authorMetaData[latestEvent.pubkey] = profile;
         }
-    },
+    }
+    ,
 
     parseContent(event) {
         let content = event.content;
@@ -297,7 +326,8 @@ export default (livewireComponent) => ({
         content = content.replace(/(https?:\/\/[^\s]+(\.mp4|\.webm|\.ogg))/g, '<div class="aspect-w-16 aspect-h-9 py-2"><video controls><source src="$1" type="video/mp4"></video></div>');
 
         return content;
-    },
+    }
+    ,
 
     async getReactions(events) {
         if (this.$store.ndk.user) {
@@ -465,12 +495,13 @@ export default (livewireComponent) => ({
             }
             await this.getAuthorsMeta(pubkeys);
         }
-    },
+    }
+    ,
 
-    async love(event) {
+    async love(event, emoticon) {
         // react to event
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
-        ndkEvent.content = '❤️';
+        ndkEvent.content = emoticon;
         ndkEvent.kind = eventKind.reaction;
         ndkEvent.tags = [
             ['e', event.id],
@@ -481,7 +512,8 @@ export default (livewireComponent) => ({
             emojis: ['❤️',],
         })
         setTimeout(async () => await this.getReactions([event]), 1000);
-    },
+    }
+    ,
 
     async zap(event) {
         if (!this.$store.ndk.ndk.signer) {
@@ -501,7 +533,8 @@ export default (livewireComponent) => ({
             emojis: ['⚡'],
         });
         setTimeout(async () => await this.getReactions([event]), 5000);
-    },
+    }
+    ,
 
     async repost(event) {
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
@@ -515,14 +548,16 @@ export default (livewireComponent) => ({
             emojis: ['🤙',],
         });
         setTimeout(async () => await this.getReactions([event]), 1000);
-    },
+    }
+    ,
 
     async comment(event) {
         await this.jsConfetti.addConfetti({
             emojiSize: 100,
             emojis: ['🛠️',],
         });
-    },
+    }
+    ,
 
     getReactionCount(tabName, event) {
         if (tabName === 'reactions' && this.reactions.reactions && this.reactions.reactions[event.id]) {
@@ -534,7 +569,8 @@ export default (livewireComponent) => ({
         if (tabName === 'zaps' && this.reactions.zaps && this.reactions.zaps[event.id]) {
             return this.numberFormat(this.reactions.zaps[event.id].zaps);
         }
-    },
+    }
+    ,
 
     checkNip05(nip05) {
         if (nip05) {
@@ -571,4 +607,5 @@ export default (livewireComponent) => ({
         }
     }
 
-});
+})
+;

@@ -12,12 +12,14 @@
 
     <!-- Scripts -->
     <wireui:scripts />
+    <script defer src="https://unpkg.com/@alpinejs/ui@3.13.0-beta.0/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/@alpinejs/focus@3.13.0/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Styles -->
     @livewireStyles
 </head>
-<body class="overflow-y-auto bg-gray-900">
+<body class="overflow-y-auto bg-[#222222]">
 <x-notifications z-index="z-50"/>
 {{ $slot }}
 @livewireScripts

@@ -27,6 +27,7 @@ export default (livewireComponent) => ({
     reactions: {
         reposts: {},
         reacted: {},
+        reposted: {},
         reactions: {},
         zaps: {},
         reactionRepostsData: {},
@@ -216,6 +217,14 @@ export default (livewireComponent) => ({
                             this.reactions.reposts[reactedToEvent] = {
                                 reposts: 0,
                             };
+                        }
+                        if (!this.reactions.reposted[reactedToEvent]) {
+                            this.reactions.reposted[reactedToEvent] = {
+                                reposted: false,
+                            };
+                        }
+                        if (!this.reactions.reposted[reactedToEvent].reposted) {
+                            this.reactions.reposted[reactedToEvent].reposted = ev.pubkey === this.$store.ndk.user.hexpubkey();
                         }
                         if (!this.reactions.reactionRepostsData[reactedToEvent]) {
                             this.reactions.reactionRepostsData[reactedToEvent] = [];

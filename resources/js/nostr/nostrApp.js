@@ -62,7 +62,6 @@ export default (livewireComponent) => ({
             return verifiedRelays;
         } catch (e) {
             console.error(e);
-            e.forEach((error) => console.error(error));
         }
     },
 
@@ -172,48 +171,52 @@ export default (livewireComponent) => ({
                 {},
             );
             for await (const ev of reactionEvents) {
-                const reactedToEvent = events.find((event) => event.id === ev.tags.find((tag) => tag[0] === 'e')[1]);
+                const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
+                if (!reactedToEvent) {
+                    console.log(ev);
+                    continue;
+                }
                 switch (ev.kind) {
                     case 6:
                         if (!this.reactions.reposts) {
                             this.reactions.reposts = {};
                         }
-                        if (!this.reactions.reposts[reactedToEvent.id]) {
-                            this.reactions.reposts[reactedToEvent.id] = {
+                        if (!this.reactions.reposts[reactedToEvent]) {
+                            this.reactions.reposts[reactedToEvent] = {
                                 reposts: 0,
                             };
                         }
-                        this.reactions.reposts[reactedToEvent.id].reposts += 1;
+                        this.reactions.reposts[reactedToEvent].reposts += 1;
                         break;
                     case 7:
                         if (!this.reactions.reacted) {
                             this.reactions.reacted = {};
                         }
-                        if (!this.reactions.reacted[reactedToEvent.id]) {
-                            this.reactions.reacted[reactedToEvent.id] = {
+                        if (!this.reactions.reacted[reactedToEvent]) {
+                            this.reactions.reacted[reactedToEvent] = {
                                 reacted: false,
                             };
                         }
-                        if (!this.reactions.reacted[reactedToEvent.id].reacted) {
-                            this.reactions.reacted[reactedToEvent.id].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
+                        if (!this.reactions.reacted[reactedToEvent].reacted) {
+                            this.reactions.reacted[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
                         }
                         if (!this.reactions.reactions) {
                             this.reactions.reactions = {};
                         }
-                        if (!this.reactions.reactions[reactedToEvent.id]) {
-                            this.reactions.reactions[reactedToEvent.id] = {
+                        if (!this.reactions.reactions[reactedToEvent]) {
+                            this.reactions.reactions[reactedToEvent] = {
                                 reactions: 0,
                             };
                         }
-                        this.reactions.reactions[reactedToEvent.id].reactions += 1;
+                        this.reactions.reactions[reactedToEvent].reactions += 1;
                         if (!ev.content.includes('"kind":1')) {
                             if (!this.reactions.reactionEventsData) {
                                 this.reactions.reactionEventsData = {};
                             }
-                            if (!this.reactions.reactionEventsData[reactedToEvent.id]) {
-                                this.reactions.reactionEventsData[reactedToEvent.id] = [];
+                            if (!this.reactions.reactionEventsData[reactedToEvent]) {
+                                this.reactions.reactionEventsData[reactedToEvent] = [];
                             }
-                            this.reactions.reactionEventsData[reactedToEvent.id].push(ev);
+                            this.reactions.reactionEventsData[reactedToEvent].push(ev);
                         }
                         break;
                     case 9735: {
@@ -225,12 +228,12 @@ export default (livewireComponent) => ({
                             if (!this.reactions.zaps) {
                                 this.reactions.zaps = {};
                             }
-                            if (!this.reactions.zaps[reactedToEvent.id]) {
-                                this.reactions.zaps[reactedToEvent.id] = {
+                            if (!this.reactions.zaps[reactedToEvent]) {
+                                this.reactions.zaps[reactedToEvent] = {
                                     zaps: 0,
                                 };
                             }
-                            this.reactions.zaps[reactedToEvent.id].zaps += sats;
+                            this.reactions.zaps[reactedToEvent].zaps += sats;
                         }
                         break;
                     }
@@ -238,6 +241,30 @@ export default (livewireComponent) => ({
                         break;
                 }
             }
+            // if no reactions where found, set to empty object
+            for (const ev of events){
+                if (!this.reactions.reposts[ev.id]) {
+                    this.reactions.reposts[ev.id] = {
+                        reposts: 0,
+                    };
+                }
+                if (!this.reactions.reactions[ev.id]) {
+                    this.reactions.reactions[ev.id] = {
+                        reactions: 0,
+                    };
+                }
+                if (!this.reactions.zaps[ev.id]) {
+                    this.reactions.zaps[ev.id] = {
+                        zaps: 0,
+                    };
+                }
+                if (!this.reactions.reacted[ev.id]) {
+                    this.reactions.reacted[ev.id] = {
+                        reacted: false,
+                    };
+                }
+            }
+
             for (const ev in this.reactions.reactionEventsData) {
                 for (const r of this.reactions.reactionEventsData[ev]) {
                     this.getReactionMetaData(r);

@@ -509,7 +509,7 @@ export default (livewireComponent) => ({
         ];
         await ndkEvent.publish();
         await this.jsConfetti.addConfetti({
-            emojis: ['❤️',],
+            emojis: [emoticon,],
         })
         setTimeout(async () => await this.getReactions([event]), 1000);
     }

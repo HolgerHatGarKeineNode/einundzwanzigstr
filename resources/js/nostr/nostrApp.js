@@ -331,11 +331,6 @@ export default (livewireComponent) => ({
             ['p', event.pubkey],
         ];
         await ndkEvent.publish();
-        window.$wireui.notify({
-            title: 'Success',
-            description: 'You reacted to this event with ❤️',
-            icon: 'success'
-        });
         await this.jsConfetti.addConfetti({
             emojis: ['❤️',],
         })
@@ -366,11 +361,6 @@ export default (livewireComponent) => ({
             ['p', event.pubkey],
         ];
         await ndkEvent.publish();
-        window.$wireui.notify({
-            title: 'Success',
-            description: 'You reposted this event',
-            icon: 'success'
-        })
         await this.jsConfetti.addConfetti({
             emojis: ['🤙',],
         });

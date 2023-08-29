@@ -28,18 +28,6 @@ export default (event) => ({
         },
     ],
 
-    reactionMetaData: {},
-
-    async getReactionMetaData(event) {
-        if (!this.reactionMetaData[event.id]) {
-            const ndkUser = this.$store.ndk.ndk.getUser({
-                hexpubkey: event.pubkey,
-            });
-            await ndkUser.fetchProfile();
-            this.reactionMetaData[event.id] = ndkUser.profile;
-        }
-    },
-
     switchTab(tab) {
         this.currentTab = tab;
     },

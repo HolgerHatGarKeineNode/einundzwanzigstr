@@ -61,6 +61,25 @@
                                                 </div>
                                             </div>
                                         </template>
+                                        <template x-if="!authorMetaData[event.pubkey]">
+                                            <div class="flex justify-between">
+                                                <div class="flex">
+                                                    <div class="relative mr-4 flex-shrink-0">
+                                                        <img class="inline-block h-14 w-14 rounded-full"/>
+                                                        <span class="top absolute"></span>
+                                                        <span class="right absolute"></span>
+                                                        <span class="bottom absolute"></span>
+                                                        <span class="left absolute"></span>
+                                                    </div>
+                                                    <div>
+                                                        <h4 class="text-lg font-bold" x-text="event.pubkey"></h4>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                <span class="text-gray-300 text-xs">...loading</span>
+                                                </div>
+                                            </div>
+                                        </template>
                                         <div class="pl-16 ml-2" x-html="parseContent(event)"></div>
                                         <div class="flex space-x-2 justify-end">
                                             <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">

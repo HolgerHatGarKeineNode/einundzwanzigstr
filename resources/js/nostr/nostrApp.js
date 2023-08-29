@@ -16,6 +16,7 @@ export default (livewireComponent) => ({
 
     events: [],
     authorMetaData: {},
+    reactionMetaData: {},
     reactions: {},
 
     async init() {
@@ -61,11 +62,10 @@ export default (livewireComponent) => ({
             hexpubs.push(user.hexpubkey());
         }
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
-        this.events = await fetcher.fetchAllEvents(
+        this.events = await fetcher.fetchLatestEvents(
             normalizeRelayUrlSet(defaultRelays),
             {kinds: [eventKind.text], authors: hexpubs},
-            {since: nHoursAgo(24)},
-            {sort: true}
+            10,
         );
         for (const ev of this.events) {
             await this.getAuthorMeta(ev);
@@ -75,14 +75,17 @@ export default (livewireComponent) => ({
     async getAuthorMeta(event) {
         if (!this.authorMetaData[event.pubkey]) {
             const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-            const latestEvent = await fetcher.fetchLastEvent(
+            const latestEvents = await fetcher.fetchLatestEvents(
                 normalizeRelayUrlSet(defaultRelays),
                 {kinds: [eventKind.metadata], authors: [event.pubkey]},
-                {sort: true}
+                2,
             )
-            let profile = JSON.parse(latestEvent.content);
-            console.log(profile);
-            this.authorMetaData[event.pubkey] = JSON.parse(latestEvent.content);
+            for await (const latestEvent of latestEvents) {
+                if (latestEvent.kind !== eventKind.metadata) return;
+                let profile = JSON.parse(latestEvent.content);
+                console.log(profile);
+                this.authorMetaData[event.pubkey] = JSON.parse(latestEvent.content);
+            }
         }
     },
 
@@ -144,6 +147,10 @@ export default (livewireComponent) => ({
                         break;
                 }
             }
+            for (const ev of reactionEventsData) {
+                await this.getReactionMetaData(ev);
+            }
+
             this.reactions[event.id] = {
                 reacted,
                 reactions,
@@ -151,6 +158,16 @@ export default (livewireComponent) => ({
                 zaps,
                 reactionEventsData,
             };
+        }
+    },
+
+    async getReactionMetaData(event) {
+        if (!this.reactionMetaData[event.id]) {
+            const ndkUser = this.$store.ndk.ndk.getUser({
+                hexpubkey: event.pubkey,
+            });
+            await ndkUser.fetchProfile();
+            this.reactionMetaData[event.id] = ndkUser.profile;
         }
     },
 

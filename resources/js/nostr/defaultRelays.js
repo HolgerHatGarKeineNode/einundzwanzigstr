@@ -1,6 +1,7 @@
 export default [
     'wss://nostr.einundzwanzig.space',
     //'wss://nostr.codingarena.de',
+    'wss://eden.nostr.land',
     'wss://nostr.wine',
     'wss://nos.lol',
     'wss://relay.damus.io',

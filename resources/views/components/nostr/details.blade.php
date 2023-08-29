@@ -24,16 +24,16 @@
                 <tbody class="divide-y divide-white/5">
 
                 <template x-if="currentTab === 'reactions' && reactions[event.id]">
-                    <template x-for="reaction in reactions[event.id].reactionEventsData" :key="reaction.id">
+                    <template x-for="reaction in reactions[event.id].reactionEventsData" :key="reaction.id" >
                         <tr>
-                            <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8" x-data="getReactionMetaData(reaction)">
+                            <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
                                 <template x-if="reactionMetaData[reaction.id]">
                                     <div class="flex items-center gap-x-4">
                                         <img
                                                 :src="reactionMetaData[reaction.id].image"
                                                 alt="" class="h-8 w-8 rounded-full bg-gray-800">
                                         <div class="truncate text-sm font-medium leading-6 text-white"
-                                             x-text="reactionMetaData[reaction.id].display_name ? reactionMetaData[reaction.id].display_name : reactionMetaData[reaction.id].name"></div>
+                                             x-text="reactionMetaData[reaction.id].display_name ? reactionMetaData[reaction.id].display_name : reactionMetaData[reaction.id].displayName"></div>
                                     </div>
                                 </template>
                             </td>

@@ -21,17 +21,20 @@ export default (livewireComponent) => ({
 
     async init() {
         this.jsConfetti = new JSConfetti();
-
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const explicitRelays = normalizeRelayUrlSet(defaultRelays);
-        this.$store.ndk.ndk = new NDK({
+        const instance = new NDK({
             explicitRelayUrls: explicitRelays,
             signer: this.$store.ndk.nip07signer,
             cacheAdapter: this.$store.ndk.dexieAdapter,
         });
-        await this.$store.ndk.ndk.connect().catch((err) => {
-            console.error('failed to connect to NDK', err);
-        });
+        try {
+            await instance.connect(10000);
+        } catch (error) {
+            throw new Error('NDK instance init failed: ', error);
+        }
+        this.$store.ndk.ndk = instance;
+
         await this.loadProfile();
 
         Alpine.effect(async () => {

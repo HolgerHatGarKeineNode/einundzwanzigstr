@@ -77,7 +77,7 @@
                             <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
                                 <div class="flex gap-x-3">
                                     <div class="font-mono text-sm leading-6 text-gray-400"
-                                         x-text="reaction.content"></div>
+                                         x-text="numberFormat(reaction.amount)"></div>
                                 </div>
                             </td>
                             <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">

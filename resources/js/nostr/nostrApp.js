@@ -5,8 +5,13 @@ import defaultRelays from "./defaultRelays.js";
 import {decode} from "light-bolt11-decoder";
 import JSConfetti from 'js-confetti';
 import {requestProvider} from "webln";
+import {compactNumber} from "./utils/number.js";
 
 export default (livewireComponent) => ({
+
+    numberFormat(number) {
+        return compactNumber.format(number);
+    },
 
     rejected: false,
 
@@ -398,13 +403,13 @@ export default (livewireComponent) => ({
 
     getReactionCount(tabName, event) {
         if (tabName === 'reactions' && this.reactions.reactions && this.reactions.reactions[event.id]) {
-            return this.reactions.reactions[event.id].reactions;
+            return this.numberFormat(this.reactions.reactions[event.id].reactions);
         }
         if (tabName === 'reposts' && this.reactions.reposts && this.reactions.reposts[event.id]) {
-            return this.reactions.reposts[event.id].reposts;
+            return this.numberFormat(this.reactions.reposts[event.id].reposts);
         }
         if (tabName === 'zaps' && this.reactions.zaps && this.reactions.zaps[event.id]) {
-            return this.reactions.zaps[event.id].zaps;
+            return this.numberFormat(this.reactions.zaps[event.id].zaps);
         }
     },
 

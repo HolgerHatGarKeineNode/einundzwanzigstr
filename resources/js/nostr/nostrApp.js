@@ -236,7 +236,9 @@ export default (livewireComponent) => ({
                             if (!this.reactions.reactionEventsData[reactedToEvent]) {
                                 this.reactions.reactionEventsData[reactedToEvent] = [];
                             }
-                            this.reactions.reactionEventsData[reactedToEvent].push(ev);
+                            if (!this.reactions.reactionEventsData[reactedToEvent].find((e) => e.id === ev.id)) {
+                                this.reactions.reactionEventsData[reactedToEvent].push(ev);
+                            }
                         }
                         break;
                     case 9735: {
@@ -253,7 +255,6 @@ export default (livewireComponent) => ({
                                     zaps: 0,
                                 };
                             }
-                            this.reactions.zaps[reactedToEvent].zaps += sats;
                             if (!this.reactions.reactionZapsData) {
                                 this.reactions.reactionZapsData = {};
                             }
@@ -263,7 +264,10 @@ export default (livewireComponent) => ({
                             ev.indexId = 'zap_' + ev.id;
                             ev.amount = sats;
                             ev.senderPubkey = JSON.parse(ev.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
-                            this.reactions.reactionZapsData[reactedToEvent].push(ev);
+                            if (!this.reactions.reactionZapsData[reactedToEvent].find((e) => e.id === ev.id)) {
+                                this.reactions.zaps[reactedToEvent].zaps += sats;
+                                this.reactions.reactionZapsData[reactedToEvent].push(ev);
+                            }
                         }
                         break;
                     }

@@ -24,32 +24,68 @@
 
                 <tbody class="divide-y divide-white/5">
 
-                <template
-                        x-for="reaction in details(event)"
-                        :key="reaction.id"
-                >
-                    <tr>
-                        <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-                            <div class="flex items-center gap-x-4">
-                                <img
-                                        :src="reaction.image"
-                                        :alt="reaction.display_name[0]"
-                                        class="h-8 w-8 rounded-full bg-gray-800">
-                                <div class="truncate text-sm font-medium leading-6 text-white"
-                                     x-text="reaction.display_name"></div>
-                            </div>
-                        </td>
-                        <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                            <div class="flex gap-x-3">
-                                <div class="font-mono text-sm leading-6 text-gray-400"
-                                     x-text="reaction.content"></div>
-                            </div>
-                        </td>
-                        <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                            <time datetime="2023-01-23T11:00"
-                                  x-text="new Date(reaction.created_at * 1000).toLocaleString()"></time>
-                        </td>
-                    </tr>
+                <template x-if="currentTab === 'reactions'">
+                    <template
+                            x-for="reaction in reactions.reactionEventsData && reactions.reactionEventsData[event.id]"
+                            :key="reaction.id"
+                    >
+                        <template x-if="authorMetaData[reaction.pubkey]">
+                            <tr>
+                                <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
+                                    <div class="flex items-center gap-x-4">
+                                        <img
+                                                :src="authorMetaData[reaction.pubkey].image"
+                                                :alt="authorMetaData[reaction.pubkey].display_name[0]"
+                                                class="h-8 w-8 rounded-full bg-gray-800">
+                                        <div
+                                                class="truncate text-sm font-medium leading-6 text-white"
+                                                x-text="authorMetaData[reaction.pubkey].display_name"></div>
+                                    </div>
+                                </td>
+                                <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                                    <div class="flex gap-x-3">
+                                        <div class="font-mono text-sm leading-6 text-gray-400"
+                                             x-text="reaction.content"></div>
+                                    </div>
+                                </td>
+                                <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                                    <time datetime="2023-01-23T11:00"
+                                          x-text="new Date(reaction.created_at * 1000).toLocaleString()"></time>
+                                </td>
+                            </tr>
+                        </template>
+                    </template>
+                </template>
+
+                <template x-if="currentTab === 'zaps'">
+                    <template
+                            x-for="reaction in reactions.reactionZapsData && reactions.reactionZapsData[event.id]"
+                            :key="reaction.id"
+                    >
+                        <tr>
+                            <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
+                                <div class="flex items-center gap-x-4">
+                                    <img
+                                            :src="authorMetaData[reaction.senderPubkey].image"
+                                            :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
+                                            class="h-8 w-8 rounded-full bg-gray-800">
+                                    <div
+                                            class="truncate text-sm font-medium leading-6 text-white"
+                                            x-text="authorMetaData[reaction.senderPubkey].display_name"></div>
+                                </div>
+                            </td>
+                            <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                                <div class="flex gap-x-3">
+                                    <div class="font-mono text-sm leading-6 text-gray-400"
+                                         x-text="reaction.content"></div>
+                                </div>
+                            </td>
+                            <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                                <time datetime="2023-01-23T11:00"
+                                      x-text="new Date(reaction.created_at * 1000).toLocaleString()"></time>
+                            </td>
+                        </tr>
+                    </template>
                 </template>
 
                 </tbody>

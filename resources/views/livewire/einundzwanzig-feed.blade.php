@@ -1,4 +1,4 @@
-<div x-data="nostrApp(@this)" @keydown.window.escape="open = false">
+<div x-data="nostrApp(@this)" @keydown.window.escape="open = false" wire:ignore>
 
     @include('layouts.partials.navigation')
 

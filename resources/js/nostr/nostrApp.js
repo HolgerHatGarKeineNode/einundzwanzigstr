@@ -488,7 +488,11 @@ export default (livewireComponent) => ({
             this.$store.ndk.ndk.signer = this.$store.ndk.nip07signer;
         }
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk, event);
-        const res = await ndkEvent.zap(69000);
+        const res = await ndkEvent
+            .zap(
+                69000,
+                'This is a test zap from my experimental Nostr app on https://einundzwanzigstr.codingarena.de'
+            );
         console.log(res, decode(res), window.webln);
         await requestProvider();
         const payment = await window.webln.sendPayment(res);

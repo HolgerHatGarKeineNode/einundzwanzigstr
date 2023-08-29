@@ -83,7 +83,6 @@ export default (livewireComponent) => ({
             for await (const latestEvent of latestEvents) {
                 if (latestEvent.kind !== eventKind.metadata) return;
                 let profile = JSON.parse(latestEvent.content);
-                console.log(profile);
                 this.authorMetaData[event.pubkey] = JSON.parse(latestEvent.content);
             }
         }

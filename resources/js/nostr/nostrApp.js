@@ -160,7 +160,6 @@ export default (livewireComponent) => ({
             }
             this.authorMetaData[latestEvent.pubkey] = profile;
         }
-        console.log(this.authorMetaData);
     },
 
     parseContent(event) {
@@ -255,6 +254,16 @@ export default (livewireComponent) => ({
                                 };
                             }
                             this.reactions.zaps[reactedToEvent].zaps += sats;
+                            if (!this.reactions.reactionZapsData) {
+                                this.reactions.reactionZapsData = {};
+                            }
+                            if (!this.reactions.reactionZapsData[reactedToEvent]) {
+                                this.reactions.reactionZapsData[reactedToEvent] = [];
+                            }
+                            ev.indexId = 'zap_' + ev.id;
+                            ev.amount = sats;
+                            ev.senderPubkey = JSON.parse(ev.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
+                            this.reactions.reactionZapsData[reactedToEvent].push(ev);
                         }
                         break;
                     }
@@ -299,7 +308,7 @@ export default (livewireComponent) => ({
             }
 
             // collect unique pubkeys from reactionEventsData
-            const pubkeys = [];
+            let pubkeys = [];
             for (const ev of Object.values(this.reactions.reactionEventsData)) {
                 for (const e of ev) {
                     if (!pubkeys.includes(e.pubkey)) {
@@ -307,7 +316,16 @@ export default (livewireComponent) => ({
                     }
                 }
             }
-            //
+            // collect unique pubkeys from reactionZapsData
+            for (const ev of Object.values(this.reactions.reactionZapsData)) {
+                for (const e of ev) {
+                    // get pubkey from description pubkey
+                    const pubkey = JSON.parse(e.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
+                    if (!pubkeys.includes(pubkey)) {
+                        pubkeys.push(pubkey);
+                    }
+                }
+            }
             // filter pubkeys that are already in this.authorMetaData
             for (const authorId of pubkeys) {
                 if (this.authorMetaData[authorId]) {

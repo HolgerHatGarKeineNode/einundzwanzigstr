@@ -118,32 +118,45 @@ export default (livewireComponent) => ({
             });
             hexpubs.push(user.hexpubkey());
         }
-        const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         this.events = await fetcher.fetchLatestEvents(
             this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], authors: hexpubs},
             10,
         );
-        for (const ev of this.events) {
-            await this.getAuthorMeta(ev);
-        }
+        // unique pubkeys from events
+        const authorIds = [...new Set(this.events.map((event) => event.pubkey))];
+        await this.getAuthorMeta(authorIds);
         await this.getReactions(this.events);
     },
 
-    async getAuthorMeta(event) {
-        if (!this.authorMetaData[event.pubkey]) {
-            const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-            const latestEvents = await fetcher.fetchLatestEvents(
-                this.$store.ndk.validatedRelays,
-                {kinds: [eventKind.metadata], authors: [event.pubkey]},
-                2,
-            )
-            for await (const latestEvent of latestEvents) {
-                if (latestEvent.kind !== eventKind.metadata) return;
-                let profile = JSON.parse(latestEvent.content);
-                this.authorMetaData[event.pubkey] = JSON.parse(latestEvent.content);
+    async getAuthorMeta(authorIds) {
+        const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
+        const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
+        const latestEvents = await fetcher.fetchAllEvents(
+            this.$store.ndk.validatedRelays,
+            {kinds: [eventKind.metadata], authors: authorIds},
+            {},
+            {skipVerification: true}
+        )
+        for await (const latestEvent of latestEvents) {
+            if (latestEvent.kind !== eventKind.metadata) return;
+            let profile = JSON.parse(latestEvent.content);
+            // combine values from this.authorMetaData[latestEvent.pubkey] and profile
+            if (this.authorMetaData[latestEvent.pubkey]) {
+                profile = {...this.authorMetaData[latestEvent.pubkey], ...profile};
+                if (!profile.image) {
+                    profile.image = profile.picture;
+                }
+                if (!profile.display_name) {
+                    profile.display_name = profile.displayName;
+                }
+                if (!profile.display_name) {
+                    profile.display_name = profile.name;
+                }
             }
+            this.authorMetaData[latestEvent.pubkey] = profile;
         }
+        console.log(this.authorMetaData);
     },
 
     parseContent(event) {
@@ -177,7 +190,7 @@ export default (livewireComponent) => ({
             for await (const ev of reactionEvents) {
                 const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
                 if (!reactedToEvent) {
-                    console.log(ev);
+                    console.log('reactedToEvent not found', ev);
                     continue;
                 }
                 switch (ev.kind) {
@@ -247,6 +260,18 @@ export default (livewireComponent) => ({
             }
             // if no reactions where found, set to empty object
             for (const ev of events) {
+                if (!this.reactions.reposts) {
+                    this.reactions.reposts = {};
+                }
+                if (!this.reactions.reactions) {
+                    this.reactions.reactions = {};
+                }
+                if (!this.reactions.zaps) {
+                    this.reactions.zaps = {};
+                }
+                if (!this.reactions.reacted) {
+                    this.reactions.reacted = {};
+                }
                 if (!this.reactions.reposts[ev.id]) {
                     this.reactions.reposts[ev.id] = {
                         reposts: 0,

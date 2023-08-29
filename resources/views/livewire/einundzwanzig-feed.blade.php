@@ -176,7 +176,7 @@
                                             class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
                                     >
                                         <!-- Title -->
-                                        <h2 class="text-3xl font-bold" :id="$id('modal-title')">Pick reaction</h2>
+                                        <h2 class="text-3xl font-bold" :id="$id('modal-title')">Choose an emoji for your reaction</h2>
 
                                         <!-- Content -->
                                         <div class="mt-3 text-gray-600">

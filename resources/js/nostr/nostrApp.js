@@ -18,7 +18,6 @@ export default (livewireComponent) => ({
 
     events: [],
     authorMetaData: {},
-    reactionMetaData: {},
     reactions: {},
 
     async verifyRelays(relays) {
@@ -125,11 +124,20 @@ export default (livewireComponent) => ({
         );
         // unique pubkeys from events
         const authorIds = [...new Set(this.events.map((event) => event.pubkey))];
-        await this.getAuthorMeta(authorIds);
+        // filter authorIds that are already in this.authorMetaData
+        for (const authorId of authorIds) {
+            if (this.authorMetaData[authorId]) {
+                const index = authorIds.indexOf(authorId);
+                if (index > -1) {
+                    authorIds.splice(index, 1);
+                }
+            }
+        }
+        await this.getAuthorsMeta(authorIds);
         await this.getReactions(this.events);
     },
 
-    async getAuthorMeta(authorIds) {
+    async getAuthorsMeta(authorIds) {
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const latestEvents = await fetcher.fetchAllEvents(
@@ -141,22 +149,17 @@ export default (livewireComponent) => ({
         for await (const latestEvent of latestEvents) {
             if (latestEvent.kind !== eventKind.metadata) return;
             let profile = JSON.parse(latestEvent.content);
-            // combine values from this.authorMetaData[latestEvent.pubkey] and profile
-            if (this.authorMetaData[latestEvent.pubkey]) {
-                profile = {...this.authorMetaData[latestEvent.pubkey], ...profile};
-                if (!profile.image) {
-                    profile.image = profile.picture;
-                }
-                if (!profile.display_name) {
-                    profile.display_name = profile.displayName;
-                }
-                if (!profile.display_name) {
-                    profile.display_name = profile.name;
-                }
+            if (!profile.image) {
+                profile.image = profile.picture;
+            }
+            if (!profile.display_name) {
+                profile.display_name = profile.displayName;
+            }
+            if (!profile.display_name) {
+                profile.display_name = profile.name;
             }
             this.authorMetaData[latestEvent.pubkey] = profile;
         }
-        console.log(this.authorMetaData);
     },
 
     parseContent(event) {
@@ -294,21 +297,26 @@ export default (livewireComponent) => ({
                 }
             }
 
-            for (const ev in this.reactions.reactionEventsData) {
-                for (const r of this.reactions.reactionEventsData[ev]) {
-                    this.getReactionMetaData(r);
+            // collect unique pubkeys from reactionEventsData
+            const pubkeys = [];
+            for (const ev of Object.values(this.reactions.reactionEventsData)) {
+                for (const e of ev) {
+                    if (!pubkeys.includes(e.pubkey)) {
+                        pubkeys.push(e.pubkey);
+                    }
                 }
             }
-        }
-    },
-
-    async getReactionMetaData(event) {
-        if (!this.reactionMetaData[event.id]) {
-            const ndkUser = this.$store.ndk.ndk.getUser({
-                hexpubkey: event.pubkey,
-            });
-            await ndkUser.fetchProfile();
-            this.reactionMetaData[event.id] = ndkUser.profile;
+            //
+            // filter pubkeys that are already in this.authorMetaData
+            for (const authorId of pubkeys) {
+                if (this.authorMetaData[authorId]) {
+                    const index = pubkeys.indexOf(authorId);
+                    if (index > -1) {
+                        pubkeys.splice(index, 1);
+                    }
+                }
+            }
+            await this.getAuthorsMeta(pubkeys);
         }
     },
 
@@ -332,7 +340,6 @@ export default (livewireComponent) => ({
         })
         setTimeout(async () => await this.getReactions([event]), 1000);
     },
-
 
     async zap(event) {
         if (!this.$store.ndk.ndk.signer) {

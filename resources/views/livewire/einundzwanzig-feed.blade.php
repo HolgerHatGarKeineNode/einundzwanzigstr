@@ -67,7 +67,7 @@
                                                 <div class="flex">
                                                     <div class="mr-4 flex-shrink-0">
                                                         <img class="inline-block h-14 w-14 rounded-full"
-                                                             :src="authorMetaData[event.pubkey].picture"
+                                                             :src="authorMetaData[event.pubkey].image"
                                                              :alt="authorMetaData[event.pubkey].display_name"
                                                         />
                                                     </div>

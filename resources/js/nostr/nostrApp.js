@@ -29,7 +29,9 @@ export default (livewireComponent) => ({
             signer: this.$store.ndk.nip07signer,
             cacheAdapter: this.$store.ndk.dexieAdapter,
         });
-        await this.$store.ndk.ndk.connect();
+        await this.$store.ndk.ndk.connect().catch((err) => {
+            console.error('failed to connect to NDK', err);
+        });
         await this.loadProfile();
 
         Alpine.effect(async () => {

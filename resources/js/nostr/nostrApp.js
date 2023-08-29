@@ -23,7 +23,16 @@ export default (livewireComponent) => ({
 
     events: [],
     authorMetaData: {},
-    reactions: {},
+
+    reactions: {
+        reposts: {},
+        reacted: {},
+        reactions: {},
+        zaps: {},
+        reactionRepostsData: {},
+        reactionEventsData: {},
+        reactionZapsData: {},
+    },
 
     async verifyRelays(relays) {
         try {
@@ -174,7 +183,7 @@ export default (livewireComponent) => ({
         content = event.content.replace(/\n/g, ' <br> ');
 
         // replace all images with img tags
-        content = content.replace(/(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.gif))/g, '<a target="_blank" href="$1"><div class="max-w-sm py-2"><img class="aspect-[3/2] w-full rounded-2xl object-cover" src="$1" /></div></a>');
+        content = content.replace(/(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.gif))/g, '<div class="max-w-sm py-2"><a target="_blank" href="$1"><img class="aspect-[3/2] w-full rounded-2xl object-cover" src="$1" /></a></div>');
 
         // replace all YouTube links with embedded videos
         content = content.replace(/(https?:\/\/[^\s]+(\.youtube\.com\/watch\?v=|\.youtu\.be\/))([^\s]+)/g, '<div class="aspect-w-16 aspect-h-9 py-2"><iframe src="https://www.youtube.com/embed/$3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>');
@@ -203,20 +212,20 @@ export default (livewireComponent) => ({
                 }
                 switch (ev.kind) {
                     case 6:
-                        if (!this.reactions.reposts) {
-                            this.reactions.reposts = {};
-                        }
                         if (!this.reactions.reposts[reactedToEvent]) {
                             this.reactions.reposts[reactedToEvent] = {
                                 reposts: 0,
                             };
                         }
-                        this.reactions.reposts[reactedToEvent].reposts += 1;
+                        if (!this.reactions.reactionRepostsData[reactedToEvent]) {
+                            this.reactions.reactionRepostsData[reactedToEvent] = [];
+                        }
+                        if (!this.reactions.reactionRepostsData[reactedToEvent].find((e) => e.id === ev.id)) {
+                            this.reactions.reposts[reactedToEvent].reposts += 1;
+                            this.reactions.reactionRepostsData[reactedToEvent].push(ev);
+                        }
                         break;
                     case 7:
-                        if (!this.reactions.reacted) {
-                            this.reactions.reacted = {};
-                        }
                         if (!this.reactions.reacted[reactedToEvent]) {
                             this.reactions.reacted[reactedToEvent] = {
                                 reacted: false,
@@ -225,23 +234,17 @@ export default (livewireComponent) => ({
                         if (!this.reactions.reacted[reactedToEvent].reacted) {
                             this.reactions.reacted[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
                         }
-                        if (!this.reactions.reactions) {
-                            this.reactions.reactions = {};
-                        }
                         if (!this.reactions.reactions[reactedToEvent]) {
                             this.reactions.reactions[reactedToEvent] = {
                                 reactions: 0,
                             };
                         }
-                        this.reactions.reactions[reactedToEvent].reactions += 1;
                         if (!ev.content.includes('"kind":1')) {
-                            if (!this.reactions.reactionEventsData) {
-                                this.reactions.reactionEventsData = {};
-                            }
                             if (!this.reactions.reactionEventsData[reactedToEvent]) {
                                 this.reactions.reactionEventsData[reactedToEvent] = [];
                             }
                             if (!this.reactions.reactionEventsData[reactedToEvent].find((e) => e.id === ev.id)) {
+                                this.reactions.reactions[reactedToEvent].reactions += 1;
                                 this.reactions.reactionEventsData[reactedToEvent].push(ev);
                             }
                         }
@@ -252,16 +255,10 @@ export default (livewireComponent) => ({
                             const decoded = decode(bolt11);
                             const amount = decoded.sections.find((item) => item.name === 'amount');
                             const sats = amount.value / 1000;
-                            if (!this.reactions.zaps) {
-                                this.reactions.zaps = {};
-                            }
                             if (!this.reactions.zaps[reactedToEvent]) {
                                 this.reactions.zaps[reactedToEvent] = {
                                     zaps: 0,
                                 };
-                            }
-                            if (!this.reactions.reactionZapsData) {
-                                this.reactions.reactionZapsData = {};
                             }
                             if (!this.reactions.reactionZapsData[reactedToEvent]) {
                                 this.reactions.reactionZapsData[reactedToEvent] = [];
@@ -335,6 +332,15 @@ export default (livewireComponent) => ({
                     }
                 }
             }
+            // collect unique pubkeys from reactionRepostsData
+            for (const ev of Object.values(this.reactions.reactionRepostsData)) {
+                for (const e of ev) {
+                    if (!pubkeys.includes(e.pubkey)) {
+                        pubkeys.push(e.pubkey);
+                    }
+                }
+            }
+
             // filter pubkeys that are already in this.authorMetaData
             for (const authorId of pubkeys) {
                 if (this.authorMetaData[authorId]) {

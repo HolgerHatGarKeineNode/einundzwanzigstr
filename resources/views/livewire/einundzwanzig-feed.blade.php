@@ -163,7 +163,7 @@
                             >
                                 <!-- Overlay -->
                                 <div x-show="open" x-transition.opacity
-                                     class="fixed inset-0 bg-black bg-opacity-50"></div>
+                                     class="fixed inset-0"></div>
 
                                 <!-- Panel -->
                                 <div

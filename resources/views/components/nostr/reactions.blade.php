@@ -6,14 +6,18 @@
                 <x-fat-heart class="hover:text-amber-500"
                              ::class="reactions.reacted[event.id].reacted ? 'text-amber-500' : ''"/>
             </div>
-            <div class="cursor-pointer flex space-x-2" @click="zap(event)">
-                <div class="text-amber-500" x-text="reactions.reactions[event.id].zaps"></div>
-                <x-fat-bolt class="hover:text-amber-500"/>
-            </div>
-            <div class="cursor-pointer flex space-x-2" @click="repost(event)">
-                <div class="text-amber-500" x-text="reactions.reactions[event.id].reposts"></div>
-                <x-fat-arrows-turn-right class="hover:text-amber-500"/>
-            </div>
+            <template x-if="reactions.zaps && reactions.zaps[event.id]">
+                <div class="cursor-pointer flex space-x-2" @click="zap(event)">
+                    <div class="text-amber-500" x-text="reactions.zaps[event.id].zaps"></div>
+                    <x-fat-bolt class="hover:text-amber-500"/>
+                </div>
+            </template>
+            <template x-if="reactions.reposts && reactions.reposts[event.id]">
+                <div class="cursor-pointer flex space-x-2" @click="repost(event)">
+                    <div class="text-amber-500" x-text="reactions.reposts[event.id].reposts"></div>
+                    <x-fat-arrows-turn-right class="hover:text-amber-500"/>
+                </div>
+            </template>
             <div class="cursor-pointer flex space-x-2" @click="comment(event)">
                 <div class="text-amber-500">0</div>
                 <x-fat-comment class="hover:text-amber-500"/>

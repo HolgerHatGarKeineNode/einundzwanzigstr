@@ -242,7 +242,7 @@ export default (livewireComponent) => ({
                 }
             }
             // if no reactions where found, set to empty object
-            for (const ev of events){
+            for (const ev of events) {
                 if (!this.reactions.reposts[ev.id]) {
                     this.reactions.reposts[ev.id] = {
                         reposts: 0,
@@ -348,14 +348,14 @@ export default (livewireComponent) => ({
     },
 
     getReactionCount(tabName, event) {
-        if (tabName === 'reactions' && this.reactions[event.id]) {
-            return this.reactions[event.id].reactions;
+        if (tabName === 'reactions' && this.reactions.reactions && this.reactions.reactions[event.id]) {
+            return this.reactions.reactions[event.id].reactions;
         }
-        if (tabName === 'reposts' && this.reactions[event.id]) {
-            return this.reactions[event.id].reposts;
+        if (tabName === 'reposts' && this.reactions.reposts && this.reactions.reposts[event.id]) {
+            return this.reactions.reposts[event.id].reposts;
         }
-        if (tabName === 'zaps' && this.reactions[event.id]) {
-            return this.reactions[event.id].zaps;
+        if (tabName === 'zaps' && this.reactions.zaps && this.reactions.zaps[event.id]) {
+            return this.reactions.zaps[event.id].zaps;
         }
     },
 

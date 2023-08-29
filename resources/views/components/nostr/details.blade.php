@@ -3,7 +3,7 @@
         <nav class="flex overflow-x-auto border-b border-white/10">
             <ul role="list"
                 class="flex min-w-full flex-none gap-x-6 px-4 text-sm font-semibold leading-6 text-gray-400 sm:px-6 lg:px-8">
-                <template x-for="tab in tabs">
+                <template x-for="tab in tabs" :key="tab.name">
                     <li>
                         <div @click="switchTab(tab.name)" :class="currentTab === tab.name ? 'text-amber-400' : ''"
                              class="cursor-pointer">

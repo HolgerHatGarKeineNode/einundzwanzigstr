@@ -23,8 +23,8 @@
                 </colgroup>
                 <tbody class="divide-y divide-white/5">
 
-                <template x-if="currentTab === 'reactions' && reactions[event.id]">
-                    <template x-for="reaction in reactions[event.id].reactionEventsData" :key="reaction.id" >
+                <template x-if="currentTab === 'reactions' && reactions.reactionEventsData && reactions.reactionEventsData[event.id]">
+                    <template x-for="reaction in reactions.reactionEventsData[event.id]" :key="reaction.id" >
                         <tr>
                             <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
                                 <template x-if="reactionMetaData[reaction.id]">

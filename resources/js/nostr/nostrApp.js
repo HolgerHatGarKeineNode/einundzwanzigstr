@@ -1,5 +1,5 @@
 import NDK, {NDKEvent} from '@nostr-dev-kit/ndk';
-import {eventKind, normalizeRelayUrlSet, NostrFetcher} from 'nostr-fetch';
+import {eventKind, NostrFetcher} from 'nostr-fetch';
 import {ndkAdapter} from '@nostr-fetch/adapter-ndk';
 import defaultRelays from "./defaultRelays.js";
 import {decode} from "light-bolt11-decoder";
@@ -71,8 +71,9 @@ export default (livewireComponent) => ({
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         let explicitRelayUrls = [];
         explicitRelayUrls = await this.verifyRelays(defaultRelays);
+        this.$store.ndk.validatedRelays = explicitRelayUrls;
         const instance = new NDK({
-            explicitRelayUrls: explicitRelayUrls,
+            explicitRelayUrls: this.$store.ndk.validatedRelays,
             signer: this.$store.ndk.nip07signer,
             cacheAdapter: this.$store.ndk.dexieAdapter,
         });
@@ -116,20 +117,21 @@ export default (livewireComponent) => ({
         }
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         this.events = await fetcher.fetchLatestEvents(
-            normalizeRelayUrlSet(defaultRelays),
+            this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], authors: hexpubs},
             10,
         );
         for (const ev of this.events) {
             await this.getAuthorMeta(ev);
         }
+        await this.getReactions(this.events);
     },
 
     async getAuthorMeta(event) {
         if (!this.authorMetaData[event.pubkey]) {
             const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
             const latestEvents = await fetcher.fetchLatestEvents(
-                normalizeRelayUrlSet(defaultRelays),
+                this.$store.ndk.validatedRelays,
                 {kinds: [eventKind.metadata], authors: [event.pubkey]},
                 2,
             )
@@ -159,32 +161,59 @@ export default (livewireComponent) => ({
         return content;
     },
 
-    async getReactions(event) {
+    async getReactions(events) {
         if (this.$store.ndk.user) {
             console.log('connected to getReactions');
+            const eventIds = events.map((event) => event.id);
             const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
             const reactionEvents = await fetcher.allEventsIterator(
-                normalizeRelayUrlSet(defaultRelays),
-                {kinds: [eventKind.reaction, eventKind.zap, eventKind.repost], '#e': [event.id],},
+                this.$store.ndk.validatedRelays,
+                {kinds: [eventKind.reaction, eventKind.zap, eventKind.repost], '#e': eventIds,},
                 {},
             );
-            let reactionEventsData = [];
-            let reacted = false;
-            let reactions = 0;
-            let reposts = 0;
-            let zaps = 0;
             for await (const ev of reactionEvents) {
+                const reactedToEvent = events.find((event) => event.id === ev.tags.find((tag) => tag[0] === 'e')[1]);
                 switch (ev.kind) {
                     case 6:
-                        reposts += 1;
+                        if (!this.reactions.reposts) {
+                            this.reactions.reposts = {};
+                        }
+                        if (!this.reactions.reposts[reactedToEvent.id]) {
+                            this.reactions.reposts[reactedToEvent.id] = {
+                                reposts: 0,
+                            };
+                        }
+                        this.reactions.reposts[reactedToEvent.id].reposts += 1;
                         break;
                     case 7:
-                        if (!reacted) {
-                            reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
+                        if (!this.reactions.reacted) {
+                            this.reactions.reacted = {};
                         }
-                        reactions += 1;
+                        if (!this.reactions.reacted[reactedToEvent.id]) {
+                            this.reactions.reacted[reactedToEvent.id] = {
+                                reacted: false,
+                            };
+                        }
+                        if (!this.reactions.reacted[reactedToEvent.id].reacted) {
+                            this.reactions.reacted[reactedToEvent.id].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
+                        }
+                        if (!this.reactions.reactions) {
+                            this.reactions.reactions = {};
+                        }
+                        if (!this.reactions.reactions[reactedToEvent.id]) {
+                            this.reactions.reactions[reactedToEvent.id] = {
+                                reactions: 0,
+                            };
+                        }
+                        this.reactions.reactions[reactedToEvent.id].reactions += 1;
                         if (!ev.content.includes('"kind":1')) {
-                            reactionEventsData.push(ev);
+                            if (!this.reactions.reactionEventsData) {
+                                this.reactions.reactionEventsData = {};
+                            }
+                            if (!this.reactions.reactionEventsData[reactedToEvent.id]) {
+                                this.reactions.reactionEventsData[reactedToEvent.id] = [];
+                            }
+                            this.reactions.reactionEventsData[reactedToEvent.id].push(ev);
                         }
                         break;
                     case 9735: {
@@ -193,7 +222,15 @@ export default (livewireComponent) => ({
                             const decoded = decode(bolt11);
                             const amount = decoded.sections.find((item) => item.name === 'amount');
                             const sats = amount.value / 1000;
-                            zaps += sats;
+                            if (!this.reactions.zaps) {
+                                this.reactions.zaps = {};
+                            }
+                            if (!this.reactions.zaps[reactedToEvent.id]) {
+                                this.reactions.zaps[reactedToEvent.id] = {
+                                    zaps: 0,
+                                };
+                            }
+                            this.reactions.zaps[reactedToEvent.id].zaps += sats;
                         }
                         break;
                     }
@@ -201,17 +238,11 @@ export default (livewireComponent) => ({
                         break;
                 }
             }
-            for (const ev of reactionEventsData) {
-                await this.getReactionMetaData(ev);
+            for (const ev in this.reactions.reactionEventsData) {
+                for (const r of this.reactions.reactionEventsData[ev]) {
+                    this.getReactionMetaData(r);
+                }
             }
-
-            this.reactions[event.id] = {
-                reacted,
-                reactions,
-                reposts,
-                zaps,
-                reactionEventsData,
-            };
         }
     },
 
@@ -243,7 +274,7 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: ['❤️',],
         })
-        setTimeout(async () => await this.getReactions(event), 1000);
+        setTimeout(async () => await this.getReactions([event]), 1000);
     },
 
 
@@ -260,7 +291,7 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: ['⚡'],
         });
-        setTimeout(async () => await this.getReactions(event), 5000);
+        setTimeout(async () => await this.getReactions([event]), 5000);
     },
 
     async repost(event) {
@@ -279,7 +310,7 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: ['🤙',],
         });
-        setTimeout(async () => await this.getReactions(event), 1000);
+        setTimeout(async () => await this.getReactions([event]), 1000);
     },
 
     async comment(event) {

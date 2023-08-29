@@ -23,6 +23,8 @@ Alpine.store('ndk', {
     user: null,
     // loadSince
     loadSince: new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).getTime() / 1000,
+    // validated relays
+    validatedRelays: [],
 })
 
 Alpine.data('nostrApp', nostrApp);

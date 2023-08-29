@@ -9,7 +9,7 @@
                              class="cursor-pointer">
                                 <span class="pr-2"
                                       x-text="getReactionCount(tab.name, event)"></span><span
-                                    x-text="tab.label"></span>
+                                x-text="tab.label"></span>
                         </div>
                 </template>
             </ul>
@@ -23,15 +23,19 @@
                 </colgroup>
                 <tbody class="divide-y divide-white/5">
 
-                <template x-if="currentTab === 'reactions' && reactions.reactionEventsData && reactions.reactionEventsData[event.id]">
-                    <template x-for="reaction in reactions.reactionEventsData[event.id]" :key="reaction.id" >
+                <template
+                    x-if="currentTab === 'reactions' && reactions.reactionEventsData && reactions.reactionEventsData[event.id]">
+                    <template
+                        x-for="reaction in reactions.reactionEventsData[event.id].sort((p1, p2) => (p1.created_at < p2.created_at) ? 1 : (p1.created_at > p2.created_at) ? -1 : 0)"
+                        :key="reaction.id"
+                    >
                         <tr>
                             <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
                                 <template x-if="reactionMetaData[reaction.id]">
                                     <div class="flex items-center gap-x-4">
                                         <img
-                                                :src="reactionMetaData[reaction.id].image"
-                                                alt="" class="h-8 w-8 rounded-full bg-gray-800">
+                                            :src="reactionMetaData[reaction.id].image"
+                                            alt="" class="h-8 w-8 rounded-full bg-gray-800">
                                         <div class="truncate text-sm font-medium leading-6 text-white"
                                              x-text="reactionMetaData[reaction.id].display_name ? reactionMetaData[reaction.id].display_name : reactionMetaData[reaction.id].displayName"></div>
                                     </div>

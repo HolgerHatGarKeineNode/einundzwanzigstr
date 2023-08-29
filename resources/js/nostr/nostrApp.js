@@ -184,7 +184,7 @@ export default (livewireComponent) => ({
         content = event.content.replace(/\n/g, ' <br> ');
 
         // replace all images with img tags
-        content = content.replace(/(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.gif))/g, '<div class="max-w-sm py-2"><a target="_blank" href="$1"><img class="aspect-[3/2] w-full rounded-2xl object-cover" src="$1" /></a></div>');
+        content = content.replace(/(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.gif|\.wepb))/g, '<div class="max-w-sm py-2"><a target="_blank" href="$1"><img class="aspect-[3/2] w-full rounded-2xl object-cover" src="$1" /></a></div>');
 
         // replace all YouTube links with embedded videos
         content = content.replace(/(https?:\/\/[^\s]+(\.youtube\.com\/watch\?v=|\.youtu\.be\/))([^\s]+)/g, '<div class="aspect-w-16 aspect-h-9 py-2"><iframe src="https://www.youtube.com/embed/$3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>');

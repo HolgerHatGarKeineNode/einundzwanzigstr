@@ -11,7 +11,7 @@
                                 <template x-if="authorMetaData[reply.pubkey]">
                                     <img class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-400 ring-8 ring-amber-500"
                                          :src="authorMetaData[reply.pubkey].image"
-                                         :alt="authorMetaData[reply.pubkey].display_name[0]"
+                                         :alt="authorMetaData[reply.pubkey].display_name && authorMetaData[reply.pubkey].display_name[0]"
                                     >
                                 </template>
                                 <span class="absolute -bottom-0.5 -right-1 rounded-tl bg-transparent px-0.5 py-px">

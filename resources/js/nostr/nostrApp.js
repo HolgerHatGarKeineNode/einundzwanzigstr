@@ -278,7 +278,6 @@ export default (livewireComponent) => ({
             }
             this.authorMetaData[latestEvent.pubkey] = profile;
         }
-        console.log(this.authorMetaData);
     },
 
     parseContent(event) {

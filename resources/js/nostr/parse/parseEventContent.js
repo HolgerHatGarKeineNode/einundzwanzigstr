@@ -15,9 +15,10 @@ export const parseEventContent = async (content, id, alpine) => {
         const c = await nostrFetcher(match, alpine);
 
         if (c.type === 'nevent') {
-            const parsed = await parseEventContent(c.data.content, c.data.id, alpine);
+            if (c.data) {
+                const parsed = await parseEventContent(c.data.content, c.data.id, alpine);
 
-            return `
+                return `
                 <div class="border border-amber-500 p-4 rounded flex flex-col">
                     <div class="flex justify-between p-2">
                         <div class="flex pb-4 justify-between">
@@ -32,6 +33,8 @@ export const parseEventContent = async (content, id, alpine) => {
                     <div>${parsed}</div>
                 </div>
             `;
+            }
+             return string;
         }
 
         if (c.type === 'npub') {

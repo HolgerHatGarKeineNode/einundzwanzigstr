@@ -107,6 +107,25 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="ml-12 p-4 bg-[#1b1b1b] shadow rounded-lg">
+                                            <div class="flex justify-between w-full">
+                                                <div class="cursor-pointer flex space-x-2" @click="openReactionPicker(r)">
+                                                    <x-fat-heart class="w-3 h-3 hover:text-amber-500"/>
+                                                </div>
+                                                <div class="cursor-pointer flex space-x-2" @click="zap(r)">
+                                                    <x-fat-bolt class="w-3 h-3 hover:text-amber-500"/>
+                                                </div>
+                                                <div class="cursor-pointer flex space-x-2" @click="repost(r)">
+                                                    <x-fat-arrows-turn-right class="w-3 h-3 hover:text-amber-500"/>
+                                                </div>
+                                                <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(r)">
+                                                    <x-fat-comment class="w-3 h-3 hover:text-amber-500"/>
+                                                </div>
+                                                <div class="cursor-pointer flex space-x-2" @click="console.log(JSON.parse(JSON.stringify(r)))">
+                                                    <x-fat-ban-bug class="w-3 h-3 hover:text-amber-500"/>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <template x-if="eventsReplies[r.id]">
                                             <ul role="list" class="ml-6 mb-3">
                                                 {{-- LEVEL3 --}}
@@ -150,6 +169,25 @@
                                                                     <div class="mt-2 text-sm text-gray-200">
                                                                         <p x-html="parseContent(r2)"></p>
                                                                     </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="ml-12 p-4 bg-[#1b1b1b] shadow rounded-lg">
+                                                            <div class="flex justify-between w-full">
+                                                                <div class="cursor-pointer flex space-x-2" @click="openReactionPicker(r2)">
+                                                                    <x-fat-heart class="w-3 h-3 hover:text-amber-500"/>
+                                                                </div>
+                                                                <div class="cursor-pointer flex space-x-2" @click="zap(r2)">
+                                                                    <x-fat-bolt class="w-3 h-3 hover:text-amber-500"/>
+                                                                </div>
+                                                                <div class="cursor-pointer flex space-x-2" @click="repost(r2)">
+                                                                    <x-fat-arrows-turn-right class="w-3 h-3 hover:text-amber-500"/>
+                                                                </div>
+                                                                <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(r2)">
+                                                                    <x-fat-comment class="w-3 h-3 hover:text-amber-500"/>
+                                                                </div>
+                                                                <div class="cursor-pointer flex space-x-2" @click="console.log(JSON.parse(JSON.stringify(r2)))">
+                                                                    <x-fat-ban-bug class="w-3 h-3 hover:text-amber-500"/>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -198,6 +236,25 @@
                                                                                     <div class="mt-2 text-sm text-gray-200">
                                                                                         <p x-html="parseContent(r3)"></p>
                                                                                     </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="ml-12 p-4 bg-[#1b1b1b] shadow rounded-lg">
+                                                                            <div class="flex justify-between w-full">
+                                                                                <div class="cursor-pointer flex space-x-2" @click="openReactionPicker(r3)">
+                                                                                    <x-fat-heart class="w-3 h-3 hover:text-amber-500"/>
+                                                                                </div>
+                                                                                <div class="cursor-pointer flex space-x-2" @click="zap(r3)">
+                                                                                    <x-fat-bolt class="w-3 h-3 hover:text-amber-500"/>
+                                                                                </div>
+                                                                                <div class="cursor-pointer flex space-x-2" @click="repost(r3)">
+                                                                                    <x-fat-arrows-turn-right class="w-3 h-3 hover:text-amber-500"/>
+                                                                                </div>
+                                                                                <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(r3)">
+                                                                                    <x-fat-comment class="w-3 h-3 hover:text-amber-500"/>
+                                                                                </div>
+                                                                                <div class="cursor-pointer flex space-x-2" @click="console.log(JSON.parse(JSON.stringify(r3)))">
+                                                                                    <x-fat-ban-bug class="w-3 h-3 hover:text-amber-500"/>
                                                                                 </div>
                                                                             </div>
                                                                         </div>

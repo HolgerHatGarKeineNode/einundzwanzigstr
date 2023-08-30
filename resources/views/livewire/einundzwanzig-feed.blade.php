@@ -61,7 +61,7 @@
             </header>--}}
 
             <!-- CONTENT -->
-            <div class="px-2 sm:px-12">
+            <div class="px-2 sm:px-12 pb-32">
                 <ul role="list" class="space-y-3">
 
                     <template x-if="rejected">

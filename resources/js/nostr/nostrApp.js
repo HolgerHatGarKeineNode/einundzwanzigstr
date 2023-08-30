@@ -294,9 +294,22 @@ export default (livewireComponent) => ({
             if (!profile.display_name) {
                 profile.display_name = profile.name;
             }
+            // loop through profile values and sanitize them
+            for (const [key, value] of Object.entries(profile)) {
+                // remove malformed strings from values
+                if (typeof value === 'string' && (key === 'about' || key === 'display_name')) {
+                    profile[key] = value.replace(/[^a-zA-Z0-9_\- ]/g, '');
+                }
+            }
+            console.log(profile);
+
             this.authorMetaData[latestEvent.pubkey] = profile;
             // hit cache
-            this.$wire.call('updateNpubsCache', profile);
+            try {
+                this.$wire.call('updateNpubsCache', profile);
+            } catch (e) {
+                console.error(e);
+            }
         }
     },
 

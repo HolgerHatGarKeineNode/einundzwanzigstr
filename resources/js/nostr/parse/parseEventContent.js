@@ -21,7 +21,7 @@ export const parseEventContent = async (content, id, alpine) => {
                 <div class="border border-amber-500 p-4 rounded flex flex-col">
                     <div class="flex justify-between">
                         <div class="flex pb-4 justify-between">
-                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-14 w-14 rounded-full" src="${alpine.authorMetaData[c.data.pubkey].image}"/></div>
+                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-14 w-14 rounded-full" alt="${alpine.authorMetaData[c.data.pubkey].display_name ?? 'A'}" src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
                             <div>
                                 <h4 class="text-lg font-bold">${alpine.authorMetaData[c.data.pubkey].display_name}</h4>
                                 <h4 class="text-md font-bold">${alpine.authorMetaData[c.data.pubkey].nip05}</h4>
@@ -34,12 +34,12 @@ export const parseEventContent = async (content, id, alpine) => {
             `;
         }
 
-        if(c.type === 'npub') {
+        if (c.type === 'npub') {
             return `
                 <div class="border border-dashed border-amber-500 p-4 rounded flex flex-col my-2">
                     <div class="flex justify-between">
                         <div class="flex justify-between">
-                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-8 w-8 rounded-full" src="${alpine.authorMetaData[c.data].image}"/></div>
+                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-8 w-8 rounded-full" alt="${alpine.authorMetaData[c.data].display_name ?? 'A'}"  src="${alpine.authorMetaData[c.data].image ?? ''}"/></div>
                             <div>
                                 <h4 class="text-lg font-bold">${alpine.authorMetaData[c.data].display_name}</h4>
                                 <h4 class="text-md font-bold">${alpine.authorMetaData[c.data].nip05 ?? ''}</h4>

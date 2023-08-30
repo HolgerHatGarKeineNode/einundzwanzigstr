@@ -223,7 +223,7 @@
                                         class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
                                     >
                                         <!-- Title -->
-                                        <h2 class="text-3xl font-bold" :id="$id('modal-title')">Write your comment</h2>
+                                        <h2 class="text-3xl font-bold" :id="$id('modal-title')">Write your reply</h2>
 
                                         <!-- Content -->
                                         <div class="mt-3 text-gray-600">
@@ -248,7 +248,7 @@
                                                 <x-button amber
                                                           x-on:click="comment(); openCommentModal = false">
                                                     <x-fat-envelope class="mr-2"/>
-                                                    Comment
+                                                    Reply
                                                 </x-button>
                                             </div>
                                         </div>

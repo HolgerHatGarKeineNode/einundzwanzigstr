@@ -61,6 +61,8 @@ export default (livewireComponent) => ({
     limit:
         livewireComponent.entangle('limit'),
 
+    oldEventsLength: 0,
+    newEventsLength: 0,
     events: [],
     eventsReplies: {},
 
@@ -154,6 +156,7 @@ export default (livewireComponent) => ({
         Alpine.effect(async () => {
             if (this.$store.ndk.user) {
                 await this.fetchEvents();
+                this.oldEventsLength = this.events.length;
             }
         });
     },
@@ -568,9 +571,13 @@ export default (livewireComponent) => ({
         }
     },
 
-    loadMore() {
+    async loadMore() {
         this.$store.ndk.limit++;
-        this.fetchEvents();
+        await this.fetchEvents();
+        this.newEventsLength = this.events.length;
+        if (this.newEventsLength === this.oldEventsLength) {
+            await this.loadMore();
+        }
     }
 
 });

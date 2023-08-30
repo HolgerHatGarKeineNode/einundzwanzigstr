@@ -7,14 +7,21 @@ import JSConfetti from 'js-confetti';
 import {requestProvider} from "webln";
 import {compactNumber} from "./utils/number.js";
 import {parseEventContent} from "./parse/parseEventContent.js";
+import {nip19} from "nostr-tools";
 
 export default (livewireComponent) => ({
 
     open: false,
+    openCommentModal: false,
+    openReactionModal: false,
     currentEventToReact: null,
     openReactionPicker(event) {
         this.currentEventToReact = event;
-        this.open = true;
+        this.openReactionModal = true;
+    },
+    openCommentEditor(event) {
+        this.currentEventToReact = event;
+        this.openCommentModal = true;
     },
 
     numberFormat(number) {
@@ -176,19 +183,19 @@ export default (livewireComponent) => ({
         );
         if (events.length > 0) {
             const replies = new Set();
-            events.forEach((event) => {
-                const tags = event.tags.filter((el) => el[0] === 'e' && el[1] !== event.id);
+            events.forEach((ev) => {
+                const tags = ev.tags.filter((el) => el[0] === 'e' && el[1] !== ev.id);
                 if (tags.length > 0) {
                     tags.forEach((tag) => {
                         const rootIndex = events.findIndex((el) => el.id === tag[1]);
                         if (rootIndex !== -1) {
                             const rootEvent = events[rootIndex];
                             if (rootEvent && rootEvent.replies) {
-                                rootEvent.replies.push(event);
+                                rootEvent.replies.push(ev);
                             } else {
-                                rootEvent.replies = [event];
+                                rootEvent.replies = [ev];
                             }
-                            replies.add(event.id);
+                            replies.add(ev.id);
                         }
                     });
                 }
@@ -223,29 +230,23 @@ export default (livewireComponent) => ({
             });
             hexpubs.push(user.hexpubkey());
         }
-        this.events = await fetcher.fetchLatestEvents(
+        let fetchedEvents = await fetcher.fetchLatestEvents(
             this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], authors: hexpubs},
             this.limit,
         );
+        console.log('START', fetchedEvents);
         // find children of events
-        for (const event of this.events) {
-            if (
-                event.tags.find((el) => el[3] === 'reply')?.[1]
-                // or if event is a reply
-                || event.tags.find((el) => el[0] === 'e' && el[1] !== event.id)
-            ) {
-                // remove current event from this.events
-                const index = this.events.indexOf(event);
-                if (index > -1) {
-                    this.events.splice(index, 1);
-                }
+        for (const event of fetchedEvents) {
+            if (event.tags.find((el) => el[3] === 'root')?.[1]) {
+                // we will remove event from fetchedEvents
+                fetchedEvents = fetchedEvents.filter((el) => el.id !== event.id);
             } else {
                 await this.fetchAllRepliesOfEvent(event);
             }
         }
         // unique pubkeys from events
-        const authorIds = [...new Set(this.events.map((event) => event.pubkey))];
+        const authorIds = [...new Set(fetchedEvents.map((event) => event.pubkey))];
         // filter authorIds that are already in this.authorMetaData
         for (const authorId of authorIds) {
             if (this.authorMetaData[authorId]) {
@@ -256,7 +257,9 @@ export default (livewireComponent) => ({
             }
         }
         await this.getAuthorsMeta(authorIds);
-        await this.getReactions(this.events);
+        await this.getReactions(fetchedEvents);
+
+        this.events = fetchedEvents;
     },
 
     async getAuthorsMeta(authorIds) {
@@ -274,6 +277,9 @@ export default (livewireComponent) => ({
             if (!profile.image) {
                 profile.image = profile.picture;
             }
+            // convert latestEvent.id from hex to npub
+            const npub = nip19.npubEncode(latestEvent.id);
+            profile.npub = npub;
             if (!profile.display_name) {
                 profile.display_name = profile.displayName;
             }
@@ -291,168 +297,173 @@ export default (livewireComponent) => ({
     async getReactions(events) {
         if (this.$store.ndk.user) {
             console.log('connected to getReactions');
-            const eventIds = events.map((event) => event.id);
-            const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-            const reactionEvents = await fetcher.allEventsIterator(
-                this.$store.ndk.validatedRelays,
-                {kinds: [eventKind.reaction, eventKind.zap, eventKind.repost], '#e': eventIds,},
-                {},
-            );
-            for await (const ev of reactionEvents) {
-                const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
-                if (!reactedToEvent) {
-                    console.log('reactedToEvent not found', ev);
-                    continue;
-                }
-                switch (ev.kind) {
-                    case 6:
-                        if (!this.reactions.reposts[reactedToEvent]) {
-                            this.reactions.reposts[reactedToEvent] = {
-                                reposts: 0,
-                            };
-                        }
-                        if (!this.reactions.reposted[reactedToEvent]) {
-                            this.reactions.reposted[reactedToEvent] = {
-                                reposted: false,
-                            };
-                        }
-                        if (!this.reactions.reposted[reactedToEvent].reposted) {
-                            this.reactions.reposted[reactedToEvent].reposted = ev.pubkey === this.$store.ndk.user.hexpubkey();
-                        }
-                        if (!this.reactions.reactionRepostsData[reactedToEvent]) {
-                            this.reactions.reactionRepostsData[reactedToEvent] = [];
-                        }
-                        if (!this.reactions.reactionRepostsData[reactedToEvent].find((e) => e.id === ev.id)) {
-                            this.reactions.reposts[reactedToEvent].reposts += 1;
-                            this.reactions.reactionRepostsData[reactedToEvent].push(ev);
-                        }
-                        break;
-                    case 7:
-                        if (!this.reactions.reacted[reactedToEvent]) {
-                            this.reactions.reacted[reactedToEvent] = {
-                                reacted: false,
-                            };
-                        }
-                        if (!this.reactions.reacted[reactedToEvent].reacted) {
-                            this.reactions.reacted[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
-                        }
-                        if (!this.reactions.reactions[reactedToEvent]) {
-                            this.reactions.reactions[reactedToEvent] = {
-                                reactions: 0,
-                            };
-                        }
-                        if (!ev.content.includes('"kind":1')) {
-                            if (!this.reactions.reactionEventsData[reactedToEvent]) {
-                                this.reactions.reactionEventsData[reactedToEvent] = [];
-                            }
-                            if (!this.reactions.reactionEventsData[reactedToEvent].find((e) => e.id === ev.id)) {
-                                this.reactions.reactions[reactedToEvent].reactions += 1;
-                                this.reactions.reactionEventsData[reactedToEvent].push(ev);
-                            }
-                        }
-                        break;
-                    case 9735: {
-                        const bolt11 = ev.tags.find((tag) => tag[0] === 'bolt11')[1];
-                        if (bolt11) {
-                            const decoded = decode(bolt11);
-                            const amount = decoded.sections.find((item) => item.name === 'amount');
-                            const sats = amount.value / 1000;
-                            if (!this.reactions.zaps[reactedToEvent]) {
-                                this.reactions.zaps[reactedToEvent] = {
-                                    zaps: 0,
+            // if events is an array
+            if (events.length > 0) {
+                const eventIds = events.map((event) => event.id);
+                const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
+                const reactionEvents = await fetcher.allEventsIterator(
+                    this.$store.ndk.validatedRelays,
+                    {kinds: [eventKind.reaction, eventKind.zap, eventKind.repost], '#e': eventIds,},
+                    {},
+                );
+                for await (const ev of reactionEvents) {
+                    const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
+                    if (!reactedToEvent) {
+                        console.log('reactedToEvent not found', ev);
+                        continue;
+                    }
+                    switch (ev.kind) {
+                        case 6:
+                            if (!this.reactions.reposts[reactedToEvent]) {
+                                this.reactions.reposts[reactedToEvent] = {
+                                    reposts: 0,
                                 };
                             }
-                            if (!this.reactions.reactionZapsData[reactedToEvent]) {
-                                this.reactions.reactionZapsData[reactedToEvent] = [];
+                            if (!this.reactions.reposted[reactedToEvent]) {
+                                this.reactions.reposted[reactedToEvent] = {
+                                    reposted: false,
+                                };
                             }
-                            ev.indexId = 'zap_' + ev.id;
-                            ev.amount = sats;
-                            ev.senderPubkey = JSON.parse(ev.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
-                            if (!this.reactions.reactionZapsData[reactedToEvent].find((e) => e.id === ev.id)) {
-                                this.reactions.zaps[reactedToEvent].zaps += sats;
-                                this.reactions.reactionZapsData[reactedToEvent].push(ev);
+                            if (!this.reactions.reposted[reactedToEvent].reposted) {
+                                this.reactions.reposted[reactedToEvent].reposted = ev.pubkey === this.$store.ndk.user.hexpubkey();
                             }
+                            if (!this.reactions.reactionRepostsData[reactedToEvent]) {
+                                this.reactions.reactionRepostsData[reactedToEvent] = [];
+                            }
+                            if (!this.reactions.reactionRepostsData[reactedToEvent].find((e) => e.id === ev.id)) {
+                                this.reactions.reposts[reactedToEvent].reposts += 1;
+                                this.reactions.reactionRepostsData[reactedToEvent].push(ev);
+                            }
+                            break;
+                        case 7:
+                            if (!this.reactions.reacted[reactedToEvent]) {
+                                this.reactions.reacted[reactedToEvent] = {
+                                    reacted: false,
+                                };
+                            }
+                            if (!this.reactions.reacted[reactedToEvent].reacted) {
+                                this.reactions.reacted[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
+                            }
+                            if (!this.reactions.reactions[reactedToEvent]) {
+                                this.reactions.reactions[reactedToEvent] = {
+                                    reactions: 0,
+                                };
+                            }
+                            if (!ev.content.includes('"kind":1')) {
+                                if (!this.reactions.reactionEventsData[reactedToEvent]) {
+                                    this.reactions.reactionEventsData[reactedToEvent] = [];
+                                }
+                                if (!this.reactions.reactionEventsData[reactedToEvent].find((e) => e.id === ev.id)) {
+                                    this.reactions.reactions[reactedToEvent].reactions += 1;
+                                    this.reactions.reactionEventsData[reactedToEvent].push(ev);
+                                }
+                            }
+                            break;
+                        case 9735: {
+                            const bolt11 = ev.tags.find((tag) => tag[0] === 'bolt11')[1];
+                            if (bolt11) {
+                                const decoded = decode(bolt11);
+                                const amount = decoded.sections.find((item) => item.name === 'amount');
+                                const sats = amount.value / 1000;
+                                if (!this.reactions.zaps[reactedToEvent]) {
+                                    this.reactions.zaps[reactedToEvent] = {
+                                        zaps: 0,
+                                    };
+                                }
+                                if (!this.reactions.reactionZapsData[reactedToEvent]) {
+                                    this.reactions.reactionZapsData[reactedToEvent] = [];
+                                }
+                                ev.indexId = 'zap_' + ev.id;
+                                ev.amount = sats;
+                                ev.senderPubkey = JSON.parse(ev.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
+                                if (!this.reactions.reactionZapsData[reactedToEvent].find((e) => e.id === ev.id)) {
+                                    this.reactions.zaps[reactedToEvent].zaps += sats;
+                                    this.reactions.reactionZapsData[reactedToEvent].push(ev);
+                                }
+                            }
+                            break;
                         }
-                        break;
+                        default:
+                            break;
                     }
-                    default:
-                        break;
                 }
-            }
-            // if no reactions where found, set to empty object
-            for (const ev of events) {
-                if (!this.reactions.reposts) {
-                    this.reactions.reposts = {};
+                // if no reactions where found, set to empty object
+                for (const ev of events) {
+                    if (!this.reactions.reposts) {
+                        this.reactions.reposts = {};
+                    }
+                    if (!this.reactions.reactions) {
+                        this.reactions.reactions = {};
+                    }
+                    if (!this.reactions.zaps) {
+                        this.reactions.zaps = {};
+                    }
+                    if (!this.reactions.reacted) {
+                        this.reactions.reacted = {};
+                    }
+                    if (!this.reactions.reposts[ev.id]) {
+                        this.reactions.reposts[ev.id] = {
+                            reposts: 0,
+                        };
+                    }
+                    if (!this.reactions.reactions[ev.id]) {
+                        this.reactions.reactions[ev.id] = {
+                            reactions: 0,
+                        };
+                    }
+                    if (!this.reactions.zaps[ev.id]) {
+                        this.reactions.zaps[ev.id] = {
+                            zaps: 0,
+                        };
+                    }
+                    if (!this.reactions.reacted[ev.id]) {
+                        this.reactions.reacted[ev.id] = {
+                            reacted: false,
+                        };
+                    }
                 }
-                if (!this.reactions.reactions) {
-                    this.reactions.reactions = {};
-                }
-                if (!this.reactions.zaps) {
-                    this.reactions.zaps = {};
-                }
-                if (!this.reactions.reacted) {
-                    this.reactions.reacted = {};
-                }
-                if (!this.reactions.reposts[ev.id]) {
-                    this.reactions.reposts[ev.id] = {
-                        reposts: 0,
-                    };
-                }
-                if (!this.reactions.reactions[ev.id]) {
-                    this.reactions.reactions[ev.id] = {
-                        reactions: 0,
-                    };
-                }
-                if (!this.reactions.zaps[ev.id]) {
-                    this.reactions.zaps[ev.id] = {
-                        zaps: 0,
-                    };
-                }
-                if (!this.reactions.reacted[ev.id]) {
-                    this.reactions.reacted[ev.id] = {
-                        reacted: false,
-                    };
-                }
-            }
 
-            // collect unique pubkeys from reactionEventsData
-            let pubkeys = [];
-            for (const ev of Object.values(this.reactions.reactionEventsData)) {
-                for (const e of ev) {
-                    if (!pubkeys.includes(e.pubkey)) {
-                        pubkeys.push(e.pubkey);
+                // collect unique pubkeys from reactionEventsData
+                let pubkeys = [];
+                for (const ev of Object.values(this.reactions.reactionEventsData)) {
+                    for (const e of ev) {
+                        if (!pubkeys.includes(e.pubkey)) {
+                            pubkeys.push(e.pubkey);
+                        }
                     }
                 }
-            }
-            // collect unique pubkeys from reactionZapsData
-            for (const ev of Object.values(this.reactions.reactionZapsData)) {
-                for (const e of ev) {
-                    // get pubkey from description pubkey
-                    const pubkey = JSON.parse(e.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
-                    if (!pubkeys.includes(pubkey)) {
-                        pubkeys.push(pubkey);
+                // collect unique pubkeys from reactionZapsData
+                for (const ev of Object.values(this.reactions.reactionZapsData)) {
+                    for (const e of ev) {
+                        // get pubkey from description pubkey
+                        const pubkey = JSON.parse(e.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
+                        if (!pubkeys.includes(pubkey)) {
+                            pubkeys.push(pubkey);
+                        }
                     }
                 }
-            }
-            // collect unique pubkeys from reactionRepostsData
-            for (const ev of Object.values(this.reactions.reactionRepostsData)) {
-                for (const e of ev) {
-                    if (!pubkeys.includes(e.pubkey)) {
-                        pubkeys.push(e.pubkey);
+                // collect unique pubkeys from reactionRepostsData
+                for (const ev of Object.values(this.reactions.reactionRepostsData)) {
+                    for (const e of ev) {
+                        if (!pubkeys.includes(e.pubkey)) {
+                            pubkeys.push(e.pubkey);
+                        }
                     }
                 }
-            }
 
-            // filter pubkeys that are already in this.authorMetaData
-            for (const authorId of pubkeys) {
-                if (this.authorMetaData[authorId]) {
-                    const index = pubkeys.indexOf(authorId);
-                    if (index > -1) {
-                        pubkeys.splice(index, 1);
+                // filter pubkeys that are already in this.authorMetaData
+                for (const authorId of pubkeys) {
+                    if (this.authorMetaData[authorId]) {
+                        const index = pubkeys.indexOf(authorId);
+                        if (index > -1) {
+                            pubkeys.splice(index, 1);
+                        }
                     }
                 }
+                await this.getAuthorsMeta(pubkeys);
+            } else {
+                console.log('NO ARRAY', events.length);
             }
-            await this.getAuthorsMeta(pubkeys);
         }
     },
 
@@ -504,13 +515,6 @@ export default (livewireComponent) => ({
             emojis: ['🤙',],
         });
         setTimeout(async () => await this.getReactions([event]), 1000);
-    },
-
-    async comment(event) {
-        await this.jsConfetti.addConfetti({
-            emojiSize: 100,
-            emojis: ['🛠️',],
-        });
     },
 
     getReactionCount(tabName, event) {

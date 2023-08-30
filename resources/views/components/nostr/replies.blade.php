@@ -1,5 +1,5 @@
 <template x-if="eventsReplies[event.id]">
-    <div class="flow-root p-2">
+    <div class="flow-root p-2 pb-12">
         <ul role="list" class="-mb-8">
             <template x-for="(reply, index) in eventsReplies[event.id]" :key="reply.id">
                 <li class="outline outline-amber-500/5 outline-offset-1">

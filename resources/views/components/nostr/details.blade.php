@@ -30,15 +30,17 @@
                 <template x-if="authorMetaData[reaction.pubkey]">
                     <tr>
                         <td class="py-4 px-4 max-w-[150px]">
-                            <div class="flex items-center gap-x-4">
-                                <img
+                            <a :href="'/feed/' + authorMetaData[reaction.pubkey].npub">
+                                <div class="flex items-center gap-x-4">
+                                    <img
                                         :src="authorMetaData[reaction.pubkey].image"
                                         :alt="authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
                                         class="h-8 w-8 rounded-full bg-gray-800">
-                                <div
+                                    <div
                                         class="truncate text-sm font-medium leading-6 text-white"
                                         x-text="authorMetaData[reaction.pubkey].display_name"></div>
-                            </div>
+                                </div>
+                            </a>
                         </td>
                         <td class="py-4 pl-0 pr-4 sm:pr-8">
                             <div class="flex gap-x-3">
@@ -62,15 +64,17 @@
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">
                         <template x-if="authorMetaData[reaction.senderPubkey]">
-                            <div class="flex items-center gap-x-4">
-                                <img
+                            <a :href="'/feed/' + authorMetaData[reaction.senderPubkey].npub">
+                                <div class="flex items-center gap-x-4">
+                                    <img
                                         :src="authorMetaData[reaction.senderPubkey].image"
                                         :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
                                         class="h-8 w-8 rounded-full bg-gray-800">
-                                <div
+                                    <div
                                         class="truncate text-sm font-medium leading-6 text-white"
                                         x-text="authorMetaData[reaction.senderPubkey].display_name"></div>
-                            </div>
+                                </div>
+                            </a>
                         </template>
                     </td>
                     <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
@@ -93,15 +97,17 @@
             >
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">
-                        <div class="flex items-center gap-x-4">
-                            <img
+                        <a :href="'/feed/' + authorMetaData[reaction.pubkey].npub">
+                            <div class="flex items-center gap-x-4">
+                                <img
                                     :src="authorMetaData[reaction.pubkey].image"
                                     :alt="authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
                                     class="h-8 w-8 rounded-full bg-gray-800">
-                            <div
+                                <div
                                     class="truncate text-sm font-medium leading-6 text-white"
                                     x-text="authorMetaData[reaction.pubkey].display_name"></div>
-                        </div>
+                            </div>
+                        </a>
                     </td>
                     <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
 

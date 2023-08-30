@@ -12,11 +12,13 @@
 
     <!-- Scripts -->
     <wireui:scripts />
+    <script src="https://cdn.jsdelivr.net/simplemde/1.11/simplemde.min.js"></script>
     <script defer src="https://unpkg.com/@alpinejs/ui@3.13.0-beta.0/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/@alpinejs/focus@3.13.0/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/1.11/simplemde.min.css">
     @livewireStyles
 </head>
 <body class="overflow-y-auto bg-[#222222]">

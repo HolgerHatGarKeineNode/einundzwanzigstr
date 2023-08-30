@@ -35,19 +35,23 @@ export const parseEventContent = async (content, id, alpine) => {
         }
 
         if (c.type === 'npub') {
-            return `
-                <div class="border border-dashed border-amber-500 p-4 rounded flex flex-col my-2">
-                    <div class="flex justify-between">
+            if (alpine.authorMetaData[c.data]) {
+                return `
+                <a href="/feed/${alpine.authorMetaData[c.data].npub}">
+                    <div class="border border-dashed border-amber-500 p-4 rounded flex flex-col my-2">
                         <div class="flex justify-between">
-                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-8 w-8 rounded-full" alt="${alpine.authorMetaData[c.data].display_name ?? 'A'}"  src="${alpine.authorMetaData[c.data].image ?? ''}"/></div>
-                            <div>
-                                <h4 class="text-lg font-bold">${alpine.authorMetaData[c.data].display_name}</h4>
-                                <h4 class="text-md font-bold">${alpine.authorMetaData[c.data].nip05 ?? ''}</h4>
+                            <div class="flex justify-between">
+                                <div class="mr-4 flex-shrink-0"><img class="inline-block h-8 w-8 rounded-full" alt="${alpine.authorMetaData[c.data].display_name ?? 'A'}"  src="${alpine.authorMetaData[c.data].image ?? ''}"/></div>
+                                <div>
+                                    <h4 class="text-lg font-bold">${alpine.authorMetaData[c.data].display_name}</h4>
+                                    <h4 class="text-md font-bold">${alpine.authorMetaData[c.data].nip05 ?? ''}</h4>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             `;
+            }
         }
 
         return `${match}`;

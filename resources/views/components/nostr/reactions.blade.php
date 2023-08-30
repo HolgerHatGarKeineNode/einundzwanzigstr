@@ -1,7 +1,7 @@
 <div class="relative py-4 pl-16 ml-2 sticky bottom-0 bg-[#1b1b1b] shadow rounded-lg">
     <div class="flex justify-between w-full">
 
-        <div class="cursor-pointer flex space-x-2" @click="open = true">
+        <div class="cursor-pointer flex space-x-2" @click="openReactionModal = true">
             <div class="text-amber-500"
                  x-text="numberFormat(reactions.reactions[event.id] && reactions.reactions[event.id].reactions)"></div>
 
@@ -29,7 +29,7 @@
                 />
             </div>
         </template>
-        <div class="cursor-pointer flex space-x-2" @click="comment(event)">
+        <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(event)">
             <div class="text-amber-500">0</div>
             <x-fat-comment class="hover:text-amber-500"/>
         </div>

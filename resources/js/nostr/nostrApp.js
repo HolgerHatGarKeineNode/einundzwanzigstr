@@ -205,6 +205,10 @@ export default (livewireComponent) => ({
                 }
             }
             await this.getAuthorsMeta(authorIds);
+            // loop through replies and find replies of replies
+            for (const reply of this.eventsReplies[event.id]) {
+                await this.fetchAllRepliesOfEvent(reply);
+            }
         }
     },
 

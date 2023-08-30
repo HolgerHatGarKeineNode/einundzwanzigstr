@@ -235,7 +235,6 @@ export default (livewireComponent) => ({
             {kinds: [eventKind.text], authors: hexpubs},
             this.limit,
         );
-        console.log('START', fetchedEvents);
         // find children of events
         for (const event of fetchedEvents) {
             if (event.tags.find((el) => el[3] === 'root')?.[1]) {

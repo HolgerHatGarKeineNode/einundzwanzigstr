@@ -30,7 +30,7 @@
             </div>
         </template>
         <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(event)">
-            <div class="text-amber-500">0</div>
+            <div class="text-amber-500" x-text="eventsReplies[event.id].length"></div>
             <x-fat-comment class="hover:text-amber-500"/>
         </div>
         <div class="cursor-pointer flex space-x-2" @click="console.log(JSON.parse(JSON.stringify(event)))">

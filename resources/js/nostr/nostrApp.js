@@ -6,6 +6,7 @@ import {decode} from "light-bolt11-decoder";
 import JSConfetti from 'js-confetti';
 import {requestProvider} from "webln";
 import {compactNumber} from "./utils/number.js";
+import {parseEventContent} from "./parse/parseEventContent.js";
 
 export default (livewireComponent) => ({
 
@@ -280,21 +281,7 @@ export default (livewireComponent) => ({
     },
 
     parseContent(event) {
-        let content = event.content;
-
-        // replace \n with <br>
-        content = event.content.replace(/\n/g, ' <br> ');
-
-        // replace all images with img tags
-        content = content.replace(/(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.gif|\.webp))/g, '<div class="max-w-sm py-2"><a target="_blank" href="$1"><img class="aspect-[3/2] w-full rounded-2xl object-cover" src="$1" /></a></div>');
-
-        // replace all YouTube links with embedded videos
-        content = content.replace(/(https?:\/\/[^\s]+(\.youtube\.com\/watch\?v=|\.youtu\.be\/))([^\s]+)/g, '<div class="aspect-w-16 aspect-h-9 py-2"><iframe src="https://www.youtube.com/embed/$3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>');
-
-        // replace video links with embedded videos
-        content = content.replace(/(https?:\/\/[^\s]+(\.mp4|\.webm|\.ogg))/g, '<div class="aspect-w-16 aspect-h-9 py-2"><video controls><source src="$1" type="video/mp4"></video></div>');
-
-        return content;
+        return parseEventContent(event.content);
     },
 
     async getReactions(events) {

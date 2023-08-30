@@ -63,6 +63,10 @@ export default (livewireComponent) => ({
 
     oldEventsLength: 0,
     newEventsLength: 0,
+
+    eventsCache: livewireComponent.entangle('eventsCache'),
+    npubsCache: livewireComponent.entangle('npubsCache'),
+
     events: [],
     eventsReplies: {},
 
@@ -134,6 +138,9 @@ export default (livewireComponent) => ({
     },
 
     async init() {
+        this.authorMetaData = this.npubsCache;
+        console.log(this.authorMetaData);
+
         this.jsConfetti = new JSConfetti();
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         let explicitRelayUrls = [];
@@ -266,9 +273,18 @@ export default (livewireComponent) => ({
         await this.getReactions(fetchedEvents);
 
         this.events = fetchedEvents;
+        if (this.events.length === 0) {
+            // load more events
+            console.log('LOAD MORE');
+            await this.loadMore();
+        }
     },
 
     async getAuthorsMeta(authorIds) {
+        // filter authorIds that are already in this.authorMetaData with filter function
+        authorIds = authorIds.filter((authorId) => !this.authorMetaData[authorId]);
+        console.log('fetched AUTHORS META',authorIds.length);
+
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const latestEvents = await fetcher.fetchAllEvents(
@@ -286,6 +302,7 @@ export default (livewireComponent) => ({
             // convert latestEvent.id from hex to npub
             const npub = nip19.npubEncode(latestEvent.id);
             profile.npub = npub;
+            profile.pubkey = latestEvent.pubkey;
             if (!profile.display_name) {
                 profile.display_name = profile.displayName;
             }
@@ -293,6 +310,8 @@ export default (livewireComponent) => ({
                 profile.display_name = profile.name;
             }
             this.authorMetaData[latestEvent.pubkey] = profile;
+            // hit cache
+            this.$wire.call('updateNpubsCache', profile);
         }
     },
 
@@ -469,7 +488,6 @@ export default (livewireComponent) => ({
                 await this.getAuthorsMeta(pubkeys);
             } else {
                 console.log('NO ARRAY', events.length);
-                this.loadMore();
             }
         }
     },

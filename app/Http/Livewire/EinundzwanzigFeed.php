@@ -2,11 +2,14 @@
 
 namespace App\Http\Livewire;
 
+use App\Traits\NostrCacheTrait;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 
 class EinundzwanzigFeed extends Component
 {
+    use NostrCacheTrait;
+
     public ?string $pubkey = '';
     public array $currentNpubs = [];
     public int $limit = 10;

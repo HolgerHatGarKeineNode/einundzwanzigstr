@@ -237,7 +237,10 @@ export default (livewireComponent) => ({
         );
         // find children of events
         for (const event of fetchedEvents) {
-            if (event.tags.find((el) => el[3] === 'root')?.[1]) {
+            if (
+                event.tags.find((el) => el[3] === 'root')?.[1]
+                || event.tags.find((el) => el[3] === 'reply')?.[1]
+            ) {
                 // we will remove event from fetchedEvents
                 fetchedEvents = fetchedEvents.filter((el) => el.id !== event.id);
             } else {

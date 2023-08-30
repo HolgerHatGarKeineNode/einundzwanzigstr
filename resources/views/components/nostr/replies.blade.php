@@ -90,7 +90,7 @@
                                                 <li>
                                                     <div class="relative pb-8">
                                                         <span
-                                                                x-show="i2 + 1 !== eventsReplies[r2.id].length"
+                                                                x-show="i2 + 1 !== eventsReplies[r.id].length"
                                                                 class="absolute left-5 top-5 rotate-180 -ml-px h-full w-0.5 bg-amber-500"
                                                                 aria-hidden="true"></span>
                                                         <div class="relative flex items-start space-x-3">

@@ -264,7 +264,7 @@
                 <div class="flex justify-center mt-12">
                     <x-button amber @click="loadMore">
                         <x-fat-loader class="mr-2"/>
-                        <span>Load more...</span><span x-text="' ' + $store.ndk.limit"></span><span x-text="'OLD ' + oldEventsLength"></span><span x-text="'NEW ' + newEventsLength"></span>
+                        <span>Load more...</span>
                     </x-button>
                 </div>
             </div>

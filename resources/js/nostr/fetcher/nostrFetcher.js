@@ -12,6 +12,16 @@ export const nostrFetcher = async (string, alpine) => {
         }
     }
 
+    if (decoded.type === 'note') {
+        // Will return only the first event
+        const event = await alpine.$store.ndk.ndk.fetchEvent(decoded.data);
+
+        return {
+            data: event,
+            type: decoded.type,
+        };
+    }
+
     if (decoded.type === 'nevent') {
         // Will return only the first event
         const event = await alpine.$store.ndk.ndk.fetchEvent(decoded.data.id);

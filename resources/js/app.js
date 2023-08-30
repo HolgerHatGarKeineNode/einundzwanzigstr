@@ -26,6 +26,8 @@ Alpine.store('ndk', {
     loadSince: new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).getTime() / 1000,
     // validated relays
     validatedRelays: [],
+    // limit results
+    limit: 1,
 })
 
 Alpine.data('nostrApp', nostrApp);

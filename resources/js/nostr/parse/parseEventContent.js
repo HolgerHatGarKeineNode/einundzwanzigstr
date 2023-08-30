@@ -47,11 +47,32 @@ export const parseEventContent = async (content, id, alpine) => {
                                     <h4 class="text-md font-bold">${alpine.authorMetaData[c.data].nip05 ?? ''}</h4>
                                 </div>
                             </div>
+                            <div></div>
                         </div>
                     </div>
                 </a>
             `;
             }
+        }
+
+        if (c.type === 'note') {
+            const parsed = await parseEventContent(c.data.content, c.data.id, alpine);
+
+            return `
+                <div class="border border-amber-500 p-4 rounded flex flex-col my-2">
+                    <div class="flex justify-between">
+                        <div class="flex justify-between">
+                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-8 w-8 rounded-full" alt="${alpine.authorMetaData[c.data.pubkey].display_name ?? 'A'}"  src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
+                            <div>
+                                <h4 class="text-lg font-bold">${alpine.authorMetaData[c.data.pubkey].display_name}</h4>
+                                <h4 class="text-md font-bold">${alpine.authorMetaData[c.data.pubkey].nip05 ?? ''}</h4>
+                            </div>
+                        </div>
+                        <div><span class="text-gray-300 text-xs">${alpine.formatDate(c.data.created_at)}</span></div>
+                    </div>
+                    <div>${parsed}</div>
+                </div>
+            `;
         }
 
         return `${match}`;

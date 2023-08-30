@@ -233,12 +233,13 @@ export default (livewireComponent) => ({
         let fetchedEvents = await fetcher.fetchLatestEvents(
             this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], authors: hexpubs},
-            this.limit,
+            this.$store.ndk.limit,
         );
         // find children of events
         for (const event of fetchedEvents) {
             if (
-                event.tags.find((el) => el[3] === 'root')?.[1]
+                event.tags?.[0]?.[0] === 'e' && !event.tags?.[0]?.[3]
+                || event.tags.find((el) => el[3] === 'root')?.[1]
                 || event.tags.find((el) => el[3] === 'reply')?.[1]
             ) {
                 // we will remove event from fetchedEvents
@@ -465,6 +466,7 @@ export default (livewireComponent) => ({
                 await this.getAuthorsMeta(pubkeys);
             } else {
                 console.log('NO ARRAY', events.length);
+                this.loadMore();
             }
         }
     },
@@ -565,5 +567,10 @@ export default (livewireComponent) => ({
                 });
         }
     },
+
+    loadMore() {
+        this.$store.ndk.limit++;
+        this.fetchEvents();
+    }
 
 });

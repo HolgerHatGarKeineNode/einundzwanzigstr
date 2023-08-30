@@ -27,9 +27,9 @@
 ])
 
 <div
-    x-data="nostrApp(@this)"
-    wire:ignore
-    @keydown.window.escape="openReactionModal = false"
+        x-data="nostrApp(@this)"
+        wire:ignore
+        @keydown.window.escape="openReactionModal = false"
 >
 
     @include('layouts.partials.navigation')
@@ -65,6 +65,7 @@
 
             <!-- CONTENT -->
             <div class="px-2 sm:px-12 pb-32">
+
                 <ul role="list" class="space-y-3">
 
                     <template x-if="rejected">
@@ -92,7 +93,7 @@
                         <li :id="event.id">
                             <div class="grid grid-cols-7 gap-2">
                                 <div
-                                    class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                        class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <div class="flex flex-col justify-between space-y-2 h-full">
                                         <template x-if="authorMetaData[event.pubkey]">
                                             <div class="flex justify-between">
@@ -139,7 +140,7 @@
                                         <div class="flex space-x-2 justify-end pb-12">
                                             <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
                                                 <div
-                                                    class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                                        class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
                                                     <span x-text="tag[1]"></span>
                                                 </div>
                                             </template>
@@ -148,24 +149,24 @@
                                     </div>
                                 </div>
                                 <div
-                                    class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <x-nostr.replies/>
                                 </div>
                                 <div
-                                    class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <x-nostr.details/>
                                 </div>
                             </div>
 
                             <div
-                                x-show="openReactionModal"
-                                style="display: none"
-                                x-on:keydown.escape.prevent.stop="openReactionModal = false"
-                                role="dialog"
-                                aria-modal="true"
-                                x-id="['modal-title']"
-                                :aria-labelledby="$id('modal-title')"
-                                class="fixed inset-0 z-10 overflow-y-auto"
+                                    x-show="openReactionModal"
+                                    style="display: none"
+                                    x-on:keydown.escape.prevent.stop="openReactionModal = false"
+                                    role="dialog"
+                                    aria-modal="true"
+                                    x-id="['modal-title']"
+                                    :aria-labelledby="$id('modal-title')"
+                                    class="fixed inset-0 z-10 overflow-y-auto"
                             >
                                 <!-- Overlay -->
                                 <div x-show="openReactionModal" x-transition.opacity
@@ -173,13 +174,13 @@
 
                                 <!-- Panel -->
                                 <div
-                                    x-show="openReactionModal" x-transition
-                                    x-on:click="openReactionModal = false"
-                                    class="relative flex min-h-screen items-center justify-center p-4"
+                                        x-show="openReactionModal" x-transition
+                                        x-on:click="openReactionModal = false"
+                                        class="relative flex min-h-screen items-center justify-center p-4"
                                 >
                                     <div
-                                        x-on:click.stop
-                                        class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
+                                            x-on:click.stop
+                                            class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
                                     >
                                         <!-- Title -->
                                         <h2 class="text-3xl font-bold" :id="$id('modal-title')">Choose an emoji for your
@@ -189,8 +190,8 @@
                                         <div class="mt-3 text-gray-600">
                                             @foreach($reactionEmoticons as $r)
                                                 <div
-                                                    @click="love(currentEventToReact, '{{ $r }}'); openReactionModal = false"
-                                                    class="text-xl cursor-pointer relative z-30 inline-block h-10 w-10 rounded-full ring-1 ring-amber-500 hover:scale-125 pl-2 pt-1">{{ $r }}</div>
+                                                        @click="love(currentEventToReact, '{{ $r }}'); openReactionModal = false"
+                                                        class="text-xl cursor-pointer relative z-30 inline-block h-10 w-10 rounded-full ring-1 ring-amber-500 hover:scale-125 pl-2 pt-1">{{ $r }}</div>
                                             @endforeach
                                         </div>
                                     </div>
@@ -198,14 +199,14 @@
                             </div>
 
                             <div
-                                x-show="openCommentModal"
-                                style="display: none"
-                                x-on:keydown.escape.prevent.stop="openCommentModal = false"
-                                role="dialog"
-                                aria-modal="true"
-                                x-id="['modal-title']"
-                                :aria-labelledby="$id('modal-title')"
-                                class="fixed inset-0 z-10 overflow-y-auto"
+                                    x-show="openCommentModal"
+                                    style="display: none"
+                                    x-on:keydown.escape.prevent.stop="openCommentModal = false"
+                                    role="dialog"
+                                    aria-modal="true"
+                                    x-id="['modal-title']"
+                                    :aria-labelledby="$id('modal-title')"
+                                    class="fixed inset-0 z-10 overflow-y-auto"
                             >
                                 <!-- Overlay -->
                                 <div x-show="openCommentModal" x-transition.opacity
@@ -213,14 +214,14 @@
 
                                 <!-- Panel -->
                                 <div
-                                    x-show="openCommentModal" x-transition
-                                    x-on:click="openCommentModal = false"
-                                    class="relative flex min-h-screen items-center justify-center p-4"
+                                        x-show="openCommentModal" x-transition
+                                        x-on:click="openCommentModal = false"
+                                        class="relative flex min-h-screen items-center justify-center p-4"
                                 >
                                     <div
-                                        x-data="nostrCommentEditor"
-                                        x-on:click.stop
-                                        class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
+                                            x-data="nostrCommentEditor"
+                                            x-on:click.stop
+                                            class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
                                     >
                                         <!-- Title -->
                                         <h2 class="text-3xl font-bold" :id="$id('modal-title')">Write your reply</h2>
@@ -228,7 +229,7 @@
                                         <!-- Content -->
                                         <div class="mt-3 text-gray-600">
                                             <div
-                                                class="prose w-full"
+                                                    class="prose w-full"
                                             >
                                                 <textarea x-ref="editor"></textarea>
                                             </div>
@@ -259,6 +260,13 @@
                     </template>
 
                 </ul>
+
+                <div class="flex justify-center mt-12">
+                    <x-button amber @click="loadMore">
+                        <x-fat-loader class="mr-2"/>
+                        <span>Load more...</span>
+                    </x-button>
+                </div>
             </div>
 
         </main>

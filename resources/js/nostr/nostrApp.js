@@ -280,8 +280,8 @@ export default (livewireComponent) => ({
         }
     },
 
-    parseContent(event) {
-        return parseEventContent(event.content, event.id);
+    async parseContent(event) {
+        return await parseEventContent(event.content, event.id, this);
     },
 
     async getReactions(events) {

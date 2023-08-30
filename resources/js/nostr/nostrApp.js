@@ -230,7 +230,11 @@ export default (livewireComponent) => ({
         );
         // find children of events
         for (const event of this.events) {
-            if (event.tags.find((el) => el[3] === 'reply')?.[1]) {
+            if (
+                event.tags.find((el) => el[3] === 'reply')?.[1]
+                // or if event is a reply
+                || event.tags.find((el) => el[0] === 'e' && el[1] !== event.id)
+            ) {
                 // remove current event from this.events
                 const index = this.events.indexOf(event);
                 if (index > -1) {

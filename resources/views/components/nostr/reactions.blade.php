@@ -33,6 +33,10 @@
             <div class="text-amber-500">0</div>
             <x-fat-comment class="hover:text-amber-500"/>
         </div>
+        <div class="cursor-pointer flex space-x-2" @click="console.log(JSON.parse(JSON.stringify(event)))">
+            <div class="text-amber-500"></div>
+            <x-fat-ban-bug class="hover:text-amber-500"/>
+        </div>
     </div>
     <template x-if="!reactions.reacted || !reactions.reacted[event.id]">
         <div class="relative reaction-card block w-full rounded-lg border-dashed border-amber-500 p-12 text-center">

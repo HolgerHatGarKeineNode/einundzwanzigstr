@@ -87,7 +87,7 @@
                     <template x-for="event in events" :key="event.id">
                         <li :id="event.id">
                             <div class="grid grid-cols-7 gap-2">
-                                <div class="h-[52rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                <div class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <div class="flex flex-col justify-between space-y-2 h-full">
                                         <template x-if="authorMetaData[event.pubkey]">
                                             <div class="flex justify-between">
@@ -142,10 +142,10 @@
                                         <x-nostr.reactions/>
                                     </div>
                                 </div>
-                                <div class="h-[52rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                <div class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <x-nostr.replies/>
                                 </div>
-                                <div class="h-[52rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                                <div class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                                     <x-nostr.details/>
                                 </div>
                             </div>

@@ -50,7 +50,7 @@ export const parseEventContent = async (content, id, alpine) => {
             `;
         }
 
-        return ``;
+        return `${match}`;
     }
 
     function imageReplacer(match, p1, p2, p3, offset, string) {

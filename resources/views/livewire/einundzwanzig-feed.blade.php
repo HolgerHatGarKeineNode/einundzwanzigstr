@@ -137,12 +137,12 @@
                                             </div>
                                         </template>
                                         <div class="pl-16 ml-2 text-lg" x-html="parseContent(event)"></div>
-                                        <div class="flex space-x-2 justify-end pb-12">
+                                        <div x-show="event.tags.filter((tag) => tag[0] === 't').length" class="flex space-x-2 justify-end py-2">
                                             <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
-                                                <div
-                                                        class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
-                                                    <span x-text="tag[1]"></span>
-                                                </div>
+                                                        <div
+                                                                class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                                            <span x-text="tag[1]"></span>
+                                                        </div>
                                             </template>
                                         </div>
                                         <x-nostr.reactions/>

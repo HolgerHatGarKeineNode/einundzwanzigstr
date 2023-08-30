@@ -1,4 +1,4 @@
-<div class="relative py-4 pl-16 ml-2 sticky bottom-0 bg-[#1b1b1b] shadow rounded-lg">
+<div class="relative p-4 sticky bottom-0 bg-[#1b1b1b] shadow rounded-lg">
     <div class="flex justify-between w-full">
 
         <div class="cursor-pointer flex space-x-2" @click="openReactionModal = true">

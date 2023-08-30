@@ -6,7 +6,7 @@
                 {{-- LEVEL1 --}}
                 <template x-for="(reply, index) in eventsReplies[event.id]" :key="reply.id">
                     <li class="outline outline-amber-500/5 outline-offset-1">
-                        <div class="relative pb-8">
+                        <div class="relative pb-2">
                         <span x-show="eventsReplies[reply.id]"
                               class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-amber-500" aria-hidden="true"></span>
                             <div class="relative flex items-start space-x-3">
@@ -48,7 +48,7 @@
                                 {{-- LEVEL2 --}}
                                 <template x-for="(r, i) in eventsReplies[reply.id]">
                                     <li>
-                                        <div class="relative pb-8">
+                                        <div class="relative pb-2">
                                             <span
                                                     x-show="i + 1 !== eventsReplies[reply.id].length || eventsReplies[r.id]"
                                                     class="absolute left-5 top-5 rotate-180 -ml-px h-full w-0.5 bg-amber-500"
@@ -93,7 +93,7 @@
                                                 {{-- LEVEL3 --}}
                                                 <template x-for="(r2, i2) in eventsReplies[r.id]">
                                                     <li>
-                                                        <div class="relative pb-8">
+                                                        <div class="relative pb-2">
                                                             <span
                                                                     x-show="i2 + 1 !== eventsReplies[r.id].length"
                                                                     class="absolute left-5 top-5 rotate-180 -ml-px h-full w-0.5 bg-amber-500"
@@ -139,7 +139,7 @@
                                                                 {{-- LEVEL4 --}}
                                                                 <template x-for="(r3, i3) in eventsReplies[r.id]">
                                                                     <li>
-                                                                        <div class="relative pb-8">
+                                                                        <div class="relative pb-2">
                                                                             <span
                                                                                     x-show="i3 + 1 !== eventsReplies[r.id].length"
                                                                                     class="absolute left-5 top-5 rotate-180 -ml-px h-full w-0.5 bg-amber-500"
@@ -194,6 +194,25 @@
                                 </template>
                             </ul>
                         </template>
+                        <div class="p-4 bg-[#1b1b1b] shadow rounded-lg">
+                            <div class="flex justify-between w-full">
+                                <div class="cursor-pointer flex space-x-2" @click="openReactionPicker(reply)">
+                                    <x-fat-heart class="w-3 h-3 hover:text-amber-500"/>
+                                </div>
+                                <div class="cursor-pointer flex space-x-2" @click="zap(reply)">
+                                    <x-fat-bolt class="w-3 h-3 hover:text-amber-500"/>
+                                </div>
+                                <div class="cursor-pointer flex space-x-2" @click="repost(reply)">
+                                    <x-fat-arrows-turn-right class="w-3 h-3 hover:text-amber-500"/>
+                                </div>
+                                <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(reply)">
+                                    <x-fat-comment class="w-3 h-3 hover:text-amber-500"/>
+                                </div>
+                                <div class="cursor-pointer flex space-x-2" @click="console.log(JSON.parse(JSON.stringify(reply)))">
+                                    <x-fat-ban-bug class="w-3 h-3 hover:text-amber-500"/>
+                                </div>
+                            </div>
+                        </div>
                     </li>
                 </template>
             </ul>

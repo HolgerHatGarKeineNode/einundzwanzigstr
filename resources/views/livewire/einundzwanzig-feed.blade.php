@@ -248,7 +248,7 @@
                                             <div>
                                                 <x-button amber
                                                           x-on:click="comment()">
-                                                    <x-fat-envelope class="mr-2"/>
+                                                    <x-fat-envelope class="w-6 h-6 mr-2"/>
                                                     Reply
                                                 </x-button>
                                             </div>
@@ -263,7 +263,7 @@
 
                 <div class="flex justify-center mt-12">
                     <x-button amber @click="loadMore">
-                        <x-fat-loader class="mr-2"/>
+                        <x-fat-loader class="w-6 h-6 mr-2"/>
                         <span>Load more...</span>
                     </x-button>
                 </div>

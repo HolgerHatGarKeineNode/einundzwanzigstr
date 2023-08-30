@@ -98,6 +98,18 @@ export const parseEventContent = async (content, id, alpine) => {
         return h;
     }
 
+    function youtubeReplacer(match, p1, p2, p3, offset, string) {
+        //remove query string
+        p3 = p3.split('?')[0];
+        p3 = p3.split('&')[0];
+
+        return `
+        <div class="aspect-w-16 aspect-h-9 py-2">
+            <iframe height="300" width="100%" src="https://www.youtube.com/embed/${p3}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        `
+    }
+
     // replace \n with <br>
     body = body.replace(/\n/g, ' <br> ');
 
@@ -108,7 +120,7 @@ export const parseEventContent = async (content, id, alpine) => {
     body = await replaceAsync(body, /nostr:([^\s]+)/g, await nostrReplacer);
 
     // replace all YouTube links with embedded videos
-    body = body.replace(/(https?:\/\/[^\s]+(\.youtube\.com\/watch\?v=|\.youtu\.be\/))([^\s]+)/g, '<div class="aspect-w-16 aspect-h-9 py-2"><iframe src="https://www.youtube.com/embed/$3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>');
+    body = body.replace(/(https?:\/\/[^\s]+(\.youtube\.com\/watch\?v=|\.youtu\.be\/))([^\s]+)/g, youtubeReplacer);
 
     // replace video links with embedded videos
     body = body.replace(/(https?:\/\/[^\s]+(\.mp4|\.webm|\.ogg))/g, '<div class="aspect-w-16 aspect-h-9 py-2"><video controls><source src="$1" type="video/mp4"></video></div>');

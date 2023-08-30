@@ -110,20 +110,30 @@ export const parseEventContent = async (content, id, alpine) => {
         `
     }
 
+    function videoReplacer(match, p1, p2, p3, offset, string) {
+        return `
+            <div class="aspect-w-16 aspect-h-9 py-2">
+                <video controls>
+                    <source src="${p1}" type="video/mp4">
+                </video>
+            </div>
+        `
+    }
+
     // replace \n with <br>
     body = body.replace(/\n/g, ' <br> ');
 
     // replace all images with img tags
     body = body.replace(/(https?:\/\/[^\s]+(\.jpg|\.jpeg|\.png|\.gif|\.webp))/g, imageReplacer);
 
-    // check for nostr:
-    body = await replaceAsync(body, /nostr:([^\s]+)/g, await nostrReplacer);
-
     // replace all YouTube links with embedded videos
     body = body.replace(/(https?:\/\/[^\s]+(\.youtube\.com\/watch\?v=|\.youtu\.be\/))([^\s]+)/g, youtubeReplacer);
 
     // replace video links with embedded videos
-    body = body.replace(/(https?:\/\/[^\s]+(\.mp4|\.webm|\.ogg))/g, '<div class="aspect-w-16 aspect-h-9 py-2"><video controls><source src="$1" type="video/mp4"></video></div>');
+    body = body.replace(/(https?:\/\/[^\s]+(\.mp4|\.webm|\.ogg))/g, videoReplacer);
+
+    // check for nostr:
+    body = await replaceAsync(body, /nostr:([^\s]+)/g, await nostrReplacer);
 
     return body;
 }

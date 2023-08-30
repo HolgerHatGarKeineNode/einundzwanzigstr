@@ -24,7 +24,7 @@ class EinundzwanzigFeed extends Component
             default => [],
         };
         if ($this->pubkey) {
-            $this->currentNpubs = [$this->pubkey];
+            abort(404, 'work in progress, some issues with loading the events...');
         }
 
         $this->limit = match (true) {

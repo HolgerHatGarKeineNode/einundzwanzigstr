@@ -37,7 +37,8 @@ export default (event) => ({
             emojis: ['🗣️',],
         });
 
-        this.value = ''
+        this.value = '';
+        this.openCommentModal = false;
 
         const that = this;
         setTimeout(async function () {

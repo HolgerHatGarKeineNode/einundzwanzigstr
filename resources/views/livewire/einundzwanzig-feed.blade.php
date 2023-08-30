@@ -247,7 +247,7 @@
 
                                             <div>
                                                 <x-button amber
-                                                          x-on:click="comment(); openCommentModal = false">
+                                                          x-on:click="comment()">
                                                     <x-fat-envelope class="mr-2"/>
                                                     Reply
                                                 </x-button>

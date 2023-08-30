@@ -25,7 +25,7 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <template x-if="authorMetaData[reply.pubkey]">
-                                    <div class="flex justify-between">
+                                    <div class="flex justify-between px-2 pt-2">
                                         <div class="text-sm">
                                             <div class="font-bold text-gray-200"
                                                  x-text="authorMetaData[reply.pubkey].display_name"></div>

@@ -105,7 +105,7 @@
                 </li>
                 <li class="-mx-6 mt-auto">
                     <template x-if="$store.ndk.user && $store.ndk.user.profile">
-                        <a href="#"
+                        <a :href="'/my-feed/' + $store.ndk.user.npub"
                            class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-amber-500">
                             <img class="h-8 w-8 rounded-full bg-gray-800"
                                  :src="$store.ndk.user.profile.image"

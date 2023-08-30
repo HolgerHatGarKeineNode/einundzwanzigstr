@@ -73,22 +73,14 @@ export default (livewireComponent) => ({
     authorMetaData: {},
 
     reactions: {
-        reposts: {}
-        ,
-        reacted: {}
-        ,
-        reposted: {}
-        ,
-        reactions: {}
-        ,
-        zaps: {}
-        ,
-        reactionRepostsData: {}
-        ,
-        reactionEventsData: {}
-        ,
-        reactionZapsData: {}
-        ,
+        reposts: {},
+        reacted: {},
+        reposted: {},
+        reactions: {},
+        zaps: {},
+        reactionRepostsData: {},
+        reactionEventsData: {},
+        reactionZapsData: {},
     },
 
     async verifyRelays(relays) {
@@ -139,7 +131,6 @@ export default (livewireComponent) => ({
 
     async init() {
         this.authorMetaData = this.npubsCache;
-        console.log(this.authorMetaData);
 
         this.jsConfetti = new JSConfetti();
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
@@ -213,15 +204,8 @@ export default (livewireComponent) => ({
             this.eventsReplies[event.id] = events.filter((ev) => !replies.has(ev.id));
             // unique pubkeys from events
             const authorIds = [...new Set(this.eventsReplies[event.id].map((ev) => ev.pubkey))];
-            // filter authorIds that are already in this.authorMetaData
-            for (const authorId of authorIds) {
-                if (this.authorMetaData[authorId]) {
-                    const index = authorIds.indexOf(authorId);
-                    if (index > -1) {
-                        authorIds.splice(index, 1);
-                    }
-                }
-            }
+            // filter authorIds that are already in this.authorMetaData with filter method
+            authorIds.filter((authorId) => !this.authorMetaData[authorId]);
             await this.getAuthorsMeta(authorIds);
             // loop through replies and find replies of replies
             for (const reply of this.eventsReplies[event.id]) {
@@ -283,7 +267,7 @@ export default (livewireComponent) => ({
     async getAuthorsMeta(authorIds) {
         // filter authorIds that are already in this.authorMetaData with filter function
         authorIds = authorIds.filter((authorId) => !this.authorMetaData[authorId]);
-        console.log('fetched AUTHORS META',authorIds.length);
+        console.log('fetched AUTHORS META', authorIds.length, authorIds);
 
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
@@ -303,6 +287,7 @@ export default (livewireComponent) => ({
             const npub = nip19.npubEncode(latestEvent.id);
             profile.npub = npub;
             profile.pubkey = latestEvent.pubkey;
+            console.log(latestEvent);
             if (!profile.display_name) {
                 profile.display_name = profile.displayName;
             }
@@ -477,14 +462,7 @@ export default (livewireComponent) => ({
                 }
 
                 // filter pubkeys that are already in this.authorMetaData
-                for (const authorId of pubkeys) {
-                    if (this.authorMetaData[authorId]) {
-                        const index = pubkeys.indexOf(authorId);
-                        if (index > -1) {
-                            pubkeys.splice(index, 1);
-                        }
-                    }
-                }
+                pubkeys = pubkeys.filter((pubkey) => !this.authorMetaData[pubkey]);
                 await this.getAuthorsMeta(pubkeys);
             } else {
                 console.log('NO ARRAY', events.length);

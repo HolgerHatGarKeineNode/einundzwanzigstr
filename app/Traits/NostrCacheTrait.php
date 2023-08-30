@@ -8,6 +8,7 @@ trait NostrCacheTrait
 {
     public array $eventsCache = [];
     public array $npubCache = [];
+    public array $reactionsCache = [];
 
     public function rules()
     {

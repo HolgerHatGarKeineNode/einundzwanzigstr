@@ -1,4 +1,4 @@
-export const parseEventContent = (content) => {
+export const parseEventContent = (content, id) => {
     let body = content;
 
     function imageReplacer(match, p1, p2, p3, offset, string) {
@@ -8,9 +8,9 @@ export const parseEventContent = (content) => {
 
     function lightbox(url) {
         // md5 hash of the url
-        const id = hashCode(url);
+        const hash = hashCode(url);
 
-        return `<a href="#" class="lightbox" id="${id}"><span style="background-image: url(\'${url}\')"></span></a>`;
+        return `<a href="#${id}" class="lightbox" id="${hash}"><span style="background-image: url(\'${url}\')"></span></a>`;
     }
 
     function hashCode(s) {

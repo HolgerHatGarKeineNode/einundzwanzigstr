@@ -518,7 +518,7 @@ export default (livewireComponent) => ({
     },
 
     async loadMore() {
-        this.$store.ndk.hoursAgo += 6;
+        this.$store.ndk.hoursAgo += 24;
         console.log('>> NEW HOURS', this.$store.ndk.hoursAgo);
         await this.fetchEvents();
     }

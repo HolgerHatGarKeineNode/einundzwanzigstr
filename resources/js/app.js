@@ -29,7 +29,7 @@ Alpine.store('ndk', {
     // limit results
     limit: 1,
     // hours ago
-    hoursAgo: 6,
+    hoursAgo: 24,
 })
 
 Alpine.data('nostrApp', nostrApp);

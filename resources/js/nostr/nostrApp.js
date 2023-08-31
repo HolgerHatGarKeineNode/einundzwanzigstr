@@ -203,6 +203,7 @@ export default (livewireComponent) => ({
         this.events = {...this.newEvents, ...this.events};
         this.newEvents = [];
         this.hasNewEvents = false;
+        scrollToTop();
     },
 
     async loadProfile() {

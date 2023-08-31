@@ -11,11 +11,17 @@ import {nip19} from "nostr-tools";
 
 function transformToHexpubs() {
     let hexpubs = [];
+    // last part from current url
+    const npub = window.location.href.split('/').pop();
+    this.currentNpubs.push(npub);
     for (const npub of this.currentNpubs) {
-        const user = this.$store.ndk.ndk.getUser({
-            npub,
-        });
-        hexpubs.push(user.hexpubkey());
+        // convert npub to hexpub
+        const hexpub = nip19.decode(npub);
+        // check if hexpub is valid
+        if (hexpub) {
+            // add hexpub to hexpubs array
+            hexpubs.push(hexpub.data);
+        }
     }
     return hexpubs;
 }
@@ -160,21 +166,25 @@ export default (livewireComponent) => ({
 
         await this.loadProfile();
 
+        await this.fetchEvents();
+
+        // this.loadMore() until we have 2 events and stop after too many tries
+        let tries = 0;
+        while (Object.keys(this.events).length < 2 && tries < 2) {
+            await this.loadMore();
+            tries++;
+        }
+
         Alpine.effect(async () => {
             if (this.$store.ndk.user) {
-                await this.fetchEvents();
-                // this.loadMore() until we have 2 events and stop after too many tries
-                let tries = 0;
-                while (Object.keys(this.events).length < 2 && tries < 2) {
-                    await this.loadMore();
-                    tries++;
-                }
+                console.log('test');
+
             }
         });
     },
 
     async loadProfile() {
-        this.$store.ndk.nip07signer.user().then(async (user) => {
+        await this.$store.ndk.nip07signer.user().then(async (user) => {
             if (!!user.npub) {
                 console.log("Permission granted to read their public key:", user.npub);
                 this.$store.ndk.user = this.$store.ndk.ndk.getUser({

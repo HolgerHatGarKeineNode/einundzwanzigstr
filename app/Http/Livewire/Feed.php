@@ -15,8 +15,7 @@ class Feed extends Component
 
     public function mount()
     {
-        abort(404, 'work in progress, some issues with loading the events...');
-        $this->currentNpubs = [$this->pubkey];
+        //abort(404, 'work in progress, some issues with loading the events...');
     }
 
     public function render()

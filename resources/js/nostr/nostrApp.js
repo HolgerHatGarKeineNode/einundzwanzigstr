@@ -246,6 +246,7 @@ export default (livewireComponent) => ({
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         let hexpubs = transformToHexpubs.call(this);
+        console.log('???? SEARCH FOR HEXPUBS', hexpubs.length, hexpubs);
         // FILTER
         let fetchedEvents = await fetcher.fetchAllEvents(
             this.$store.ndk.validatedRelays,
@@ -320,7 +321,7 @@ export default (livewireComponent) => ({
                 profile.image = profile.picture;
             }
             // convert latestEvent.id from hex to npub
-            const npub = nip19.npubEncode(latestEvent.id);
+            const npub = nip19.npubEncode(latestEvent.pubkey);
             profile.npub = npub;
             profile.pubkey = latestEvent.pubkey;
             if (!profile.display_name) {

@@ -23,12 +23,10 @@
                                          ::class="events[event.id].reposted ? 'text-amber-500' : ''"
                 />
             </div>
-            <template x-if="events[event.id].replies">
-                <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(event)">
-                    <div class="text-amber-500" x-text="events[event.id].replies && events[event.id].replies.length"></div>
-                    <x-fat-comment class="w-6 h-6 hover:text-amber-500"/>
-                </div>
-            </template>
+            <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(event)">
+                <div class="text-amber-500" x-text="events[event.id].replies && events[event.id].replies.length"></div>
+                <x-fat-comment class="w-6 h-6 hover:text-amber-500"/>
+            </div>
             <div class="cursor-pointer flex space-x-2" @click="console.log(JSON.parse(JSON.stringify(event)))">
                 <div class="text-amber-500"></div>
                 <x-fat-ban-bug class="w-6 h-6 hover:text-amber-500"/>

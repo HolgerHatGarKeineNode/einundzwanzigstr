@@ -34,55 +34,51 @@
                     x-for="reaction in events[event.id] && events[event.id].reactionEventsData && events[event.id].reactionEventsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
                     :key="reaction.id"
             >
-                <template x-if="authorMetaData[reaction.pubkey]">
-                    <tr>
-                        <td class="py-4 px-4 max-w-[150px]">
-                            <a :href="'/feed/' + authorMetaData[reaction.pubkey].npub">
-                                <div class="flex items-center gap-x-4">
-                                    <img
-                                            :src="authorMetaData[reaction.pubkey].image"
-                                            :alt="authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
-                                            class="h-8 w-8 rounded-full bg-gray-800">
-                                    <div
-                                            class="truncate text-sm font-medium leading-6 text-white"
-                                            x-text="decodeURI(authorMetaData[reaction.pubkey].display_name ?? '')"></div>
-                                </div>
-                            </a>
-                        </td>
-                        <td class="py-4 pl-0 pr-4 sm:pr-8">
-                            <div class="flex gap-x-3">
-                                <div class="font-mono text-sm leading-6 text-gray-400"
-                                     x-text="reaction.content === '+' ? '🚀 boost' : reaction.content"></div>
+                <tr>
+                    <td class="py-4 px-4 max-w-[150px]">
+                        <a :href="authorMetaData[reaction.pubkey] ? '/feed/' + authorMetaData[reaction.pubkey].npub : '#'">
+                            <div class="flex items-center gap-x-4">
+                                <img
+                                        :src="authorMetaData[reaction.pubkey] ? authorMetaData[reaction.pubkey].image : '/img/nostr.png'"
+                                        :alt="authorMetaData[reaction.pubkey] && authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
+                                        class="h-8 w-8 rounded-full bg-gray-800">
+                                <div
+                                        class="truncate text-sm font-medium leading-6 text-white"
+                                        x-text="decodeURI(authorMetaData[reaction.pubkey] ? authorMetaData[reaction.pubkey].display_name : 'anon')"></div>
                             </div>
-                        </td>
-                        <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                            <time x-text="formatDate(reaction.created_at)"></time>
-                        </td>
-                    </tr>
-                </template>
+                        </a>
+                    </td>
+                    <td class="py-4 pl-0 pr-4 sm:pr-8">
+                        <div class="flex gap-x-3">
+                            <div class="font-mono text-sm leading-6 text-gray-400"
+                                 x-text="reaction.content === '+' ? '🚀 boost' : reaction.content"></div>
+                        </div>
+                    </td>
+                    <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                        <time x-text="formatDate(reaction.created_at)"></time>
+                    </td>
+                </tr>
             </template>
         </template>
 
         <template x-if="currentTab === 'zaps'">
             <template
-                    x-for="reaction in events[event.id].reactionZapsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
+                    x-for="reaction in events[event.id].reactionZapsData && events[event.id].reactionZapsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
                     :key="reaction.id"
             >
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">
-                        <template x-if="authorMetaData[reaction.senderPubkey]">
-                            <a :href="'/feed/' + authorMetaData[reaction.senderPubkey].npub">
-                                <div class="flex items-center gap-x-4">
-                                    <img
-                                            :src="authorMetaData[reaction.senderPubkey].image"
-                                            :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
-                                            class="h-8 w-8 rounded-full bg-gray-800">
-                                    <div
-                                            class="truncate text-sm font-medium leading-6 text-white"
-                                            x-text="decodeURI(authorMetaData[reaction.senderPubkey].display_name)"></div>
-                                </div>
-                            </a>
-                        </template>
+                        <a :href="'/feed/' + authorMetaData[reaction.senderPubkey].npub">
+                            <div class="flex items-center gap-x-4">
+                                <img
+                                        :src="authorMetaData[reaction.senderPubkey].image"
+                                        :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
+                                        class="h-8 w-8 rounded-full bg-gray-800">
+                                <div
+                                        class="truncate text-sm font-medium leading-6 text-white"
+                                        x-text="decodeURI(authorMetaData[reaction.senderPubkey] ? authorMetaData[reaction.senderPubkey].display_name : 'anon')"></div>
+                            </div>
+                        </a>
                     </td>
                     <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
                         <div class="flex gap-x-3">
@@ -104,19 +100,17 @@
             >
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">
-                        <template x-if="authorMetaData[reaction.pubkey]">
-                            <a :href="'/feed/' + authorMetaData[reaction.pubkey].npub">
-                                <div class="flex items-center gap-x-4">
-                                    <img
-                                            :src="authorMetaData[reaction.pubkey].image ?? '/img/nostr.png'"
-                                            :alt="authorMetaData[reaction.pubkey] && authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
-                                            class="h-8 w-8 rounded-full bg-gray-800">
-                                    <div
-                                            class="truncate text-sm font-medium leading-6 text-white"
-                                            x-text="authorMetaData[reaction.pubkey].display_name ?? 'anon'"></div>
-                                </div>
-                            </a>
-                        </template>
+                        <a :href="authorMetaData[reaction.pubkey] ? '/feed/' + authorMetaData[reaction.pubkey].npub : '/img/nostr.png'">
+                            <div class="flex items-center gap-x-4">
+                                <img
+                                        :src="authorMetaData[reaction.pubkey] ? authorMetaData[reaction.pubkey].image : '/img/nostr.png'"
+                                        :alt="authorMetaData[reaction.pubkey] && authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
+                                        class="h-8 w-8 rounded-full bg-gray-800">
+                                <div
+                                        class="truncate text-sm font-medium leading-6 text-white"
+                                        x-text="authorMetaData[reaction.pubkey] ? decodeURI(authorMetaData[reaction.pubkey].display_name) : 'anon'"></div>
+                            </div>
+                        </a>
                     </td>
                     <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
 

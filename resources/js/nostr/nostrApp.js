@@ -287,7 +287,11 @@ export default (livewireComponent) => ({
         console.log('NEW EVENTS OBJECT', this.events);
         // fetch all replies of events
         for (const f of fetchedEvents) {
-            this.events[f.id].replies = await this.fetchAllRepliesOfEvent(f);
+            const newReplies = await this.fetchAllRepliesOfEvent(f);
+            this.events[f.id].replies = newReplies
+            if (f.id === '9985ec1c27f968f6b3400cc3d4a5ecb5055c2e3ae8ef92f1962c568d6575d5eb') {
+                console.log('NEW REPLIES', newReplies);
+            }
         }
         // fetch authors metadata
         await this.getAuthorsMeta(hexpubs);

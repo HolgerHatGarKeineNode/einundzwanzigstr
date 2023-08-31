@@ -143,7 +143,7 @@ export const parseEventContent = async (content, id, alpine) => {
     body = body.replace(/(https?:\/\/[^\s]+(\.youtube\.com\/watch\?v=|\.youtu\.be\/))([^\s]+)/g, youtubeReplacer);
 
     // replace video links with embedded videos
-    body = body.replace(/(https?:\/\/[^\s]+(\.mp4|\.webm|\.ogg))/g, videoReplacer);
+    body = body.replace(/(https?:\/\/[^\s]+(\.mp4|\.webm|\.ogg|\.mov))/g, videoReplacer);
 
     // check for nostr:
     body = await replaceAsync(body, /nostr:([^\s]+)/g, await nostrReplacer);

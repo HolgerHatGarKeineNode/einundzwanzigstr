@@ -139,7 +139,7 @@
                                                 </div>
                                             </div>
                                         </template>
-                                        <div class="pl-16 ml-2 text-lg" x-html="parseContent(event)"></div>
+                                        <div class="pl-16 ml-2 text-lg pb-12" x-html="parseContent(event)"></div>
                                         <div x-show="event.tags.filter((tag) => tag[0] === 't').length"
                                              class="flex space-x-2 justify-end py-2">
                                             <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">

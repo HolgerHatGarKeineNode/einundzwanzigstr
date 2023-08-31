@@ -42,7 +42,6 @@ export default (event) => ({
 
         const that = this;
         setTimeout(async function () {
-            await that.getReactions([that.currentEventToReact]);
             await that.fetchAllRepliesOfEvent(that.currentEventToReact);
         }, 1000);
     },

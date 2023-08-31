@@ -88,6 +88,7 @@ export default (livewireComponent) => ({
 
     eventsCache: livewireComponent.entangle('eventsCache'),
     npubsCache: livewireComponent.entangle('npubsCache'),
+    usedMemory: livewireComponent.entangle('usedMemory'),
 
     events: [],
 

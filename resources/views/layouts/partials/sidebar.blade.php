@@ -101,6 +101,13 @@
                                 <span class="truncate">Profile</span>
                             </a>
                         </li>
+                        <li class="flex space-x-2 justify-end">
+                            <span class="text-xs text-amber-500 font-bold">
+                                <x-fat-database class="w-6 h-6"/>
+                            </span>
+                            <span class="text-xs text-amber-500 font-bold">Redis memory</span>
+                            <span class="text-xs text-amber-500" x-text="usedMemory"></span>
+                        </li>
                     </ul>
                 </li>
                 <li class="-mx-6 mt-auto">

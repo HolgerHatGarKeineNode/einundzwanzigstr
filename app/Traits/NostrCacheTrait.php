@@ -10,6 +10,8 @@ trait NostrCacheTrait
     public array $npubCache = [];
     public array $reactionsCache = [];
 
+    public string $usedMemory = '';
+
     public function rules()
     {
         return [
@@ -21,6 +23,9 @@ trait NostrCacheTrait
     public function mountNostrCacheTrait()
     {
         $redis = Redis::connection('nostr')->client();
+        // get Redis memory usage
+        $this->usedMemory = $redis->info('memory')['used_memory_human'];
+
         //$redis->del('events');
         //$redis->del('npubs');
         // load events cache from redis
@@ -53,16 +58,18 @@ trait NostrCacheTrait
 
     public function updateEventCache($value)
     {
+        $redis = Redis::connection('nostr')->client();
         foreach ($value as $item) {
-            $redis = Redis::connection('nostr')->client();
             $redis->hSet('events', $item['id'], json_encode($item, JSON_THROW_ON_ERROR));
         }
+        $this->usedMemory = $redis->info('memory')['used_memory_human'];
     }
 
     public function updateNpubsCache($value)
     {
         $redis = Redis::connection('nostr')->client();
         $redis->hSet('npubs', $value['pubkey'], json_encode($value, JSON_THROW_ON_ERROR));
+        $this->usedMemory = $redis->info('memory')['used_memory_human'];
     }
 
     public function getCache($what)

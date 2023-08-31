@@ -11,11 +11,13 @@
                         <div class="relative flex items-start space-x-3">
                             <div class="relative">
                                 <template x-if="authorMetaData[reply.pubkey]">
-                                    <img
-                                            class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-400 ring-8 ring-amber-500"
-                                            :src="authorMetaData[reply.pubkey].image"
-                                            :alt="authorMetaData[reply.pubkey].display_name && authorMetaData[reply.pubkey].display_name[0]"
-                                    >
+                                    <a :href="'/feed/' + authorMetaData[reply.pubkey].npub">
+                                        <img
+                                                class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-400 ring-8 ring-amber-500"
+                                                :src="authorMetaData[reply.pubkey].image"
+                                                :alt="authorMetaData[reply.pubkey].display_name && authorMetaData[reply.pubkey].display_name[0]"
+                                        >
+                                    </a>
                                 </template>
                                 <span class="absolute -bottom-0.5 -right-1 rounded-tl bg-transparent px-0.5 py-px">
                                   <svg class="h-5 w-5 text-purple-500" viewBox="0 0 20 20" fill="currentColor"

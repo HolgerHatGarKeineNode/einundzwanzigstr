@@ -34,11 +34,11 @@ export const parseEventContent = async (content, id, alpine) => {
                 </div>
             `;
             }
-             return string;
+            return string;
         }
 
         if (c.type === 'npub') {
-            if (alpine.authorMetaData[c.data]) {
+            if (c.data && alpine.authorMetaData[c.data]) {
                 return `
                 <a href="/feed/${alpine.authorMetaData[c.data].npub}">
                     <div class="border border-dashed border-amber-500 p-4 rounded flex flex-col my-2">
@@ -59,9 +59,10 @@ export const parseEventContent = async (content, id, alpine) => {
         }
 
         if (c.type === 'note') {
-            const parsed = await parseEventContent(c.data.content, c.data.id, alpine);
+            if (c.data) {
+                const parsed = await parseEventContent(c.data.content, c.data.id, alpine);
 
-            return `
+                return `
                 <div class="border border-amber-500 p-4 rounded flex flex-col my-2">
                     <div class="flex justify-between p-2">
                         <div class="flex justify-between">
@@ -76,6 +77,7 @@ export const parseEventContent = async (content, id, alpine) => {
                     <div>${parsed}</div>
                 </div>
             `;
+            }
         }
 
         return `${match}`;

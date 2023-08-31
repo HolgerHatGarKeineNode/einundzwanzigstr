@@ -28,6 +28,7 @@ trait NostrCacheTrait
         $this->npubsCache = array_map(function ($item) {
             return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
         }, $redis->hGetAll('npubs'));
+        //$redis->del('npubs');
     }
 
     public function updateEventCache($value)

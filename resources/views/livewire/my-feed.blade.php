@@ -1,4 +1,4 @@
-<div x-data="nostrApp" @keydown.window.escape="open = false">
+<div x-data="nostrApp" @keydown.window.escape="open = false" wire:ignore>
 
     @include('layouts.partials.navigation')
 
@@ -32,7 +32,7 @@
             </header>--}}
 
             <!-- CONTENT -->
-            <div class="px-2 sm:px-12" x-data="nostrMyFeed">
+            <div class="px-2 sm:px-12" x-data="nostrMyFeed" wire:ignore>
                 <ul role="list" class="space-y-3">
 
                     <template x-for="event in userEvents" :key="event.id"

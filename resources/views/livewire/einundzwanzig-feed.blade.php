@@ -106,7 +106,7 @@
                                                     </div>
                                                     <div>
                                                         <h4 class="text-lg font-bold"
-                                                            x-text="authorMetaData[event.pubkey].display_name"></h4>
+                                                            x-text="decodeURI(authorMetaData[event.pubkey].display_name)"></h4>
                                                         <h4 class="text-md font-bold"
                                                             x-text="authorMetaData[event.pubkey].nip05"></h4>
                                                     </div>
@@ -218,7 +218,7 @@
                                         x-on:click="openCommentModal = false"
                                         class="relative flex min-h-screen items-center justify-center p-4"
                                 >
-                                    <div
+                                    <div wire:ignore
                                             x-data="nostrCommentEditor"
                                             x-on:click.stop
                                             class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"

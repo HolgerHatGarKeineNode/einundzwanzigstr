@@ -31,7 +31,7 @@
                                         <div class="flex justify-between px-2 pt-2">
                                             <div class="text-sm">
                                                 <div class="font-bold text-gray-200"
-                                                     x-text="authorMetaData[reply.pubkey].display_name"></div>
+                                                     x-text="decodeURI(authorMetaData[reply.pubkey].display_name)"></div>
                                             </div>
                                             <p class="mt-0.5 text-sm text-gray-300 italic"
                                                x-text="formatDate(reply.created_at)"></p>
@@ -95,7 +95,7 @@
                                                         <div>
                                                             <div class="text-sm">
                                                                 <div class="font-bold text-gray-200"
-                                                                     x-text="authorMetaData[r.pubkey].display_name"></div>
+                                                                     x-text="decodeURI(authorMetaData[r.pubkey].display_name)"></div>
                                                             </div>
                                                             <p class="mt-0.5 text-sm text-gray-300 italic"
                                                                x-text="formatDate(r.created_at)"></p>
@@ -160,7 +160,7 @@
                                                                         <div>
                                                                             <div class="text-sm">
                                                                                 <div class="font-bold text-gray-200"
-                                                                                     x-text="authorMetaData[r2.pubkey].display_name"></div>
+                                                                                     x-text="decodeURI(authorMetaData[r2.pubkey].display_name)"></div>
                                                                             </div>
                                                                             <p class="mt-0.5 text-sm text-gray-300 italic"
                                                                                x-text="formatDate(r2.created_at)"></p>
@@ -227,7 +227,7 @@
                                                                                         <div>
                                                                                             <div class="text-sm">
                                                                                                 <div class="font-bold text-gray-200"
-                                                                                                     x-text="authorMetaData[r3.pubkey].display_name"></div>
+                                                                                                     x-text="decodeURI(authorMetaData[r3.pubkey].display_name)"></div>
                                                                                             </div>
                                                                                             <p class="mt-0.5 text-sm text-gray-300 italic"
                                                                                                x-text="formatDate(r3.created_at)"></p>

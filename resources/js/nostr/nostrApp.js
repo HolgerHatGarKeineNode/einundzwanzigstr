@@ -287,7 +287,6 @@ export default (livewireComponent) => ({
             const npub = nip19.npubEncode(latestEvent.id);
             profile.npub = npub;
             profile.pubkey = latestEvent.pubkey;
-            console.log(latestEvent);
             if (!profile.display_name) {
                 profile.display_name = profile.displayName;
             }
@@ -297,19 +296,14 @@ export default (livewireComponent) => ({
             // loop through profile values and sanitize them
             for (const [key, value] of Object.entries(profile)) {
                 // remove malformed strings from values
-                if (typeof value === 'string' && (key === 'about' || key === 'display_name')) {
-                    profile[key] = value.replace(/[^a-zA-Z0-9_\- ]/g, '');
+                if (typeof value === 'string' && (key === 'image' || key === 'picture' || key === 'banner' || key === 'display_name' || key === 'displayName')) {
+                    profile[key] = encodeURI(value);
                 }
             }
-            console.log(profile);
 
             this.authorMetaData[latestEvent.pubkey] = profile;
             // hit cache
-            try {
-                this.$wire.call('updateNpubsCache', profile);
-            } catch (e) {
-                console.error(e);
-            }
+            this.$wire.call('updateNpubsCache', profile);
         }
     },
 

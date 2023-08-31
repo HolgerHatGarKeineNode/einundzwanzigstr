@@ -1,6 +1,7 @@
 @props([
     'reactionEmoticons' => [
         '🫂',
+        '💜',
         '👍',
         '🔥',
         '🤙',

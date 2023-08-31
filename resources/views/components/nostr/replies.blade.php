@@ -6,14 +6,15 @@
             <template x-for="(reply, index) in events[event.id] && events[event.id].replies" :key="reply.id">
                 <li class="outline outline-amber-500/5 outline-offset-1">
                     <div class="relative pb-2">
-                        <span x-show="reply.replies" class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-amber-500" aria-hidden="true"></span>
+                        <span x-show="reply.replies" class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-amber-500"
+                              aria-hidden="true"></span>
                         <div class="relative flex items-start space-x-3">
                             <div class="relative">
                                 <template x-if="authorMetaData[reply.pubkey]">
                                     <img
-                                        class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-400 ring-8 ring-amber-500"
-                                        :src="authorMetaData[reply.pubkey].image"
-                                        :alt="authorMetaData[reply.pubkey].display_name && authorMetaData[reply.pubkey].display_name[0]"
+                                            class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-400 ring-8 ring-amber-500"
+                                            :src="authorMetaData[reply.pubkey].image"
+                                            :alt="authorMetaData[reply.pubkey].display_name && authorMetaData[reply.pubkey].display_name[0]"
                                     >
                                 </template>
                                 <span class="absolute -bottom-0.5 -right-1 rounded-tl bg-transparent px-0.5 py-px">
@@ -66,7 +67,7 @@
             </template>
         </ul>
     </div>
-    <template x-if="events[event.id]">
+    <template x-if="events[event.id] && !events[event.id].replies">
         <div>
             keine Antworten vorhanden
         </div>

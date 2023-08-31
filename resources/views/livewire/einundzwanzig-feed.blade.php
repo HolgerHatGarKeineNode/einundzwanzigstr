@@ -7,6 +7,7 @@
 
     <div class="xl:pl-72 relative">
         <div id="loader" class="fixed"></div>
+
         <!-- Sticky search header -->
         @include('layouts.partials.header')
 

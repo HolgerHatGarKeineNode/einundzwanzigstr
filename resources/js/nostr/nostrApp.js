@@ -172,6 +172,9 @@ export default (livewireComponent) => ({
 
     // events to render
     events: [],
+    // new events from poll
+    newEvents: [],
+    hasNewEvents: false,
 
     // holds author metadata
     authorMetaData: {},
@@ -184,13 +187,29 @@ export default (livewireComponent) => ({
     // init app
     async init() {
         await initApp.call(this);
+
+        // create poll function to check for new events
+        const poll = async () => {
+            await this.fetchEvents(true);
+            console.log('_______POLLING FOR NEW EVENTS_______');
+            setTimeout(poll, 30000);
+        }
+
+        // start polling
+        await poll();
+    },
+
+    mergeNewEvents() {
+        this.events = {...this.newEvents, ...this.events};
+        this.newEvents = [];
+        this.hasNewEvents = false;
     },
 
     async loadProfile() {
         await loadProfile.call(this);
     },
 
-    async fetchAllRepliesOfEvent(event) {
+    async fetchAllRepliesOfEvent(event, fromPoll) {
         console.log('connected to fetchAllRepliesOfEvents');
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         const events = await fetcher.fetchAllEvents(
@@ -219,7 +238,11 @@ export default (livewireComponent) => ({
                 }
             });
             const filtered = events.filter((ev) => !replies.has(ev.id));
-            this.events[event.id].replies = filtered;
+            if (fromPoll) {
+                this.newEvents[event.id].replies = filtered;
+            } else {
+                this.events[event.id].replies = filtered;
+            }
             // unique pubkeys from events
             const authorIds = [...new Set(this.events[event.id].replies.map((ev) => ev.pubkey))];
             // filter authorIds that are already in this.authorMetaData with filter method
@@ -233,9 +256,11 @@ export default (livewireComponent) => ({
         }
     },
 
-    async fetchEvents() {
+    async fetchEvents(fromPoll) {
         console.log('>>> fetchEvents');
-        document.querySelector("#loader").style.display = "block";
+        if (!fromPoll) {
+            document.querySelector("#loader").style.display = "block";
+        }
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         let hexpubs = transformToHexpubs.call(this);
@@ -267,35 +292,60 @@ export default (livewireComponent) => ({
 
                 console.log('????? SEARCH ON EVENTS CACHE', newEv.id, Alpine.raw(this.eventsCache[newEv.id] ?? {}));
 
-                if (this.eventsCache[newEv.id]) {
-                    this.events[newEv.id] = this.eventsCache[newEv.id];
-                }
-                if (!this.events[newEv.id]) {
-                    this.events[newEv.id] = newEv;
+                if (fromPoll) {
+                    if (this.newEvents[newEv.id]) {
+                        this.newEvents[newEv.id] = this.eventsCache[newEv.id];
+                    }
+                    if (!this.newEvents[newEv.id]) {
+                        this.newEvents[newEv.id] = newEv;
+                    }
+                } else {
+                    if (this.eventsCache[newEv.id]) {
+                        this.events[newEv.id] = this.eventsCache[newEv.id];
+                    }
+                    if (!this.events[newEv.id]) {
+                        this.events[newEv.id] = newEv;
+                    }
                 }
             }
         }
         console.log('NEW EVENTS OBJECT', Object.values(Alpine.raw(this.events)));
         // fetch all replies of events
         for (const f of fetchedEvents) {
-            const newReplies = await this.fetchAllRepliesOfEvent(f);
-            this.events[f.id].replies = newReplies
-            if (f.id === '9985ec1c27f968f6b3400cc3d4a5ecb5055c2e3ae8ef92f1962c568d6575d5eb') {
-                console.log('NEW REPLIES', newReplies);
+            const newReplies = await this.fetchAllRepliesOfEvent(f, fromPoll);
+            if (fromPoll) {
+                this.newEvents[f.id].replies = newReplies;
+            } else {
+                this.events[f.id].replies = newReplies;
             }
         }
         // fetch authors metadata
         await this.getAuthorsMeta(hexpubs);
         await this.getReactions(fetchedEvents);
-
-        // hit the cache
-        console.log('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
-        this.$wire.updateEventCache(Object.values(Alpine.raw(this.events)));
-        console.log('<<< HIT CACHE WITH EVENT IDS', eventsIds);
-        this.$wire.getEventsByIds(eventsIds).then(result => {
-            console.log('--- NEW CACHE RESULT', result);
-        });
-        document.querySelector("#loader").style.display = "none";
+        if (fromPoll) {
+            console.log('+++ HIT EVENTS CACHE UPDATE FROM POLL', Object.values(Alpine.raw(this.newEvents)));
+            this.$wire.updateEventCache(Object.values(Alpine.raw(this.newEvents)));
+            console.log('<<< HIT CACHE WITH EVENT IDS', eventsIds);
+            this.$wire.getEventsByIds(eventsIds).then(result => {
+                console.log('--- NEW CACHE RESULT', result);
+            });
+            // check if there are new events by id, compare to this.events
+            const newEventIds = Object.keys(this.newEvents);
+            const oldEventIds = Object.keys(this.events);
+            const diff = newEventIds.filter((x) => !oldEventIds.includes(x));
+            if (diff.length > 0) {
+                this.hasNewEvents = true;
+            }
+        } else {
+            // hit the cache
+            console.log('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
+            this.$wire.updateEventCache(Object.values(Alpine.raw(this.events)));
+            console.log('<<< HIT CACHE WITH EVENT IDS', eventsIds);
+            this.$wire.getEventsByIds(eventsIds).then(result => {
+                console.log('--- NEW CACHE RESULT', result);
+            });
+            document.querySelector("#loader").style.display = "none";
+        }
     },
 
     async getAuthorsMeta(authorIds) {

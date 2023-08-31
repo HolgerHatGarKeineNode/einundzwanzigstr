@@ -20,6 +20,13 @@
 
     </div>
 
+    <div class="flex justify-center py-4" x-show="hasNewEvents">
+        <x-button outline amber @click="mergeNewEvents">
+            <x-fat-rotate class="w-6 h-6 mr-2"/>
+            <span>Show new notes</span>
+        </x-button>
+    </div>
+
     <div>
         <x-button amber @click="openCreateNoteModal = true">
             <x-fat-pen-nib class="w-6 h-6 mr-2"/>

@@ -8,42 +8,136 @@ import {requestProvider} from "webln";
 import {compactNumber} from "./utils/number.js";
 import {parseEventContent} from "./parse/parseEventContent.js";
 import {nip19} from "nostr-tools";
+import {transformToHexpubs} from "./utils/transformToHexpubs.js";
+import {filterReplies} from "./utils/filterReplies.js";
+import {formatDate} from "./utils/formatDate.js";
+import {scrollToTop} from "./utils/scrollToTop.js";
 
-function transformToHexpubs() {
-    let hexpubs = [];
-    for (const npub of this.currentNpubs) {
-        // convert npub to hexpub
-        const hexpub = nip19.decode(npub);
-        // check if hexpub is valid
-        if (hexpub) {
-            // add hexpub to hexpubs array
-            hexpubs.push(hexpub.data);
+async function verifyRelays(relays) {
+    try {
+        const urls = relays.map((relay) => {
+            if (relay.startsWith('ws')) {
+                return relay.replace('ws', 'http');
+            }
+            if (relay.startsWith('wss')) {
+                return relay.replace('wss', 'https');
+            }
+        });
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
+
+        const requests = urls.map((url) =>
+            fetch(url, {
+                headers: {Accept: 'application/nostr+json'},
+                signal: controller.signal,
+            })
+        );
+        const responses = await Promise.all(requests);
+        const errors = responses.filter((response) => !response.ok);
+
+        if (errors.length > 0) {
+            throw errors.map((response) => Error(response.statusText));
         }
+
+        let verifiedRelays = responses.map((res) => {
+            if (res.url.startsWith('http')) {
+                return res.url.replace('http', 'ws');
+            }
+            if (res.url.startsWith('https')) {
+                return res.url.replace('https', 'wss');
+            }
+        });
+
+        // clear timeout
+        clearTimeout(timeoutId);
+
+        // return all validate relays
+        return verifiedRelays;
+    } catch (e) {
+        console.error(e);
     }
-    return hexpubs;
 }
 
-function filterReplies(fetchedEvents) {
-    for (const e of fetchedEvents) {
-        if (
-            e.tags?.[0]?.[0] === 'e' && !e.tags?.[0]?.[3]
-            || e.tags.find((el) => el[3] === 'root')?.[1]
-            || e.tags.find((el) => el[3] === 'reply')?.[1]
-        ) {
-            // we will remove event from fetchedEvents
-            fetchedEvents = fetchedEvents.filter((el) => el.id !== e.id);
+async function loadProfile() {
+    await this.$store.ndk.nip07signer.user().then(async (user) => {
+        if (!!user.npub) {
+            console.log("Permission granted to read their public key:", user.npub);
+            this.$store.ndk.user = this.$store.ndk.ndk.getUser({
+                npub: user.npub,
+            });
+            await this.$store.ndk.user.fetchProfile();
         }
+    }).catch((error) => {
+        this.rejected = true;
+    });
+}
+
+async function initApp() {
+    // set authorMetaData from cache
+    this.authorMetaData = this.npubsCache;
+
+    // init confetti
+    this.jsConfetti = new JSConfetti();
+
+    // verify relays
+    let explicitRelayUrls = [];
+    explicitRelayUrls = await this.verifyRelays(defaultRelays);
+    this.$store.ndk.validatedRelays = explicitRelayUrls;
+
+    // init NDK
+    const instance = new NDK({
+        explicitRelayUrls: this.$store.ndk.validatedRelays,
+        signer: this.$store.ndk.nip07signer,
+        cacheAdapter: this.$store.ndk.dexieAdapter,
+    });
+
+    // connect to NDK
+    try {
+        await instance.connect(10000);
+    } catch (error) {
+        throw new Error('NDK instance init failed: ', error);
     }
-    return fetchedEvents;
+    // store NDK instance in store
+    this.$store.ndk.ndk = instance;
+
+    // init nip07 signer and fetch profile
+    await this.loadProfile();
+
+    // fetch events
+    await this.fetchEvents();
+
+    // this.loadMore() until we have 2 events and stop after too many tries
+    let tries = 0;
+    while (Object.keys(this.events).length < 2 && tries < 2) {
+        await this.loadMore();
+        tries++;
+    }
+
+    Alpine.effect(async () => {
+        if (this.$store.ndk.user) {
+
+        }
+    });
+
+    // scroll to top
+    const scrollFunction = scrollToTop.call(this);
+    window.addEventListener("scroll", scrollFunction);
 }
 
 export default (livewireComponent) => ({
 
+    // loading indicator
     loading: false,
+
+    // mobile menu opened
     open: false,
+
+    // modals
     openCommentModal: false,
     openCreateNoteModal: false,
     openReactionModal: false,
+    // current modal event
     currentEventToReact: null,
     openReactionPicker(event) {
         this.currentEventToReact = event;
@@ -54,158 +148,46 @@ export default (livewireComponent) => ({
         this.openCommentModal = true;
     },
 
+    // utils
     numberFormat(number) {
         return compactNumber.format(number);
     },
-
     formatDate(date) {
-        // human readable age from timestamp in multiple formates (seconds, minutes, hours, days, weeks, months, years)
-        const time = Math.floor((Date.now() - date * 1000) / 1000);
-        if (time < 60) {
-            return time + 's ago';
-        }
-        if (time < 3600) {
-            return Math.floor(time / 60) + 'm ago';
-        }
-        if (time < 86400) {
-            return Math.floor(time / 3600) + 'h ago';
-        }
-        if (time < 604800) {
-            return Math.floor(time / 86400) + 'd ago';
-        }
-        if (time < 2629800) {
-            return Math.floor(time / 604800) + 'w ago';
-        }
-        if (time < 31557600) {
-            return Math.floor(time / 2629800) + 'm ago';
-        }
-        return Math.floor(time / 31557600) + 'y ago';
+        return formatDate(date);
     },
 
+    // if nip07 is rejected
     rejected: false,
 
+    // confetti instance
     jsConfetti: null,
 
+    // which npubs to fetch
     currentNpubs: livewireComponent.entangle('currentNpubs'),
-    limit: livewireComponent.entangle('limit'),
 
+    // cache
     eventsCache: livewireComponent.entangle('eventsCache'),
     npubsCache: livewireComponent.entangle('npubsCache'),
     usedMemory: livewireComponent.entangle('usedMemory'),
 
+    // events to render
     events: [],
 
+    // holds author metadata
     authorMetaData: {},
 
+    // verify relays
     async verifyRelays(relays) {
-        try {
-            const urls = relays.map((relay) => {
-                if (relay.startsWith('ws')) {
-                    return relay.replace('ws', 'http');
-                }
-                if (relay.startsWith('wss')) {
-                    return relay.replace('wss', 'https');
-                }
-            });
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
-
-            const requests = urls.map((url) =>
-                fetch(url, {
-                    headers: {Accept: 'application/nostr+json'},
-                    signal: controller.signal,
-                })
-            );
-            const responses = await Promise.all(requests);
-            const errors = responses.filter((response) => !response.ok);
-
-            if (errors.length > 0) {
-                throw errors.map((response) => Error(response.statusText));
-            }
-
-            let verifiedRelays = responses.map((res) => {
-                if (res.url.startsWith('http')) {
-                    return res.url.replace('http', 'ws');
-                }
-                if (res.url.startsWith('https')) {
-                    return res.url.replace('https', 'wss');
-                }
-            });
-
-            // clear timeout
-            clearTimeout(timeoutId);
-
-            // return all validate relays
-            return verifiedRelays;
-        } catch (e) {
-            console.error(e);
-        }
+        return await verifyRelays(relays);
     },
 
+    // init app
     async init() {
-        this.authorMetaData = this.npubsCache;
-
-        this.jsConfetti = new JSConfetti();
-        const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
-        let explicitRelayUrls = [];
-        explicitRelayUrls = await this.verifyRelays(defaultRelays);
-        this.$store.ndk.validatedRelays = explicitRelayUrls;
-        const instance = new NDK({
-            explicitRelayUrls: this.$store.ndk.validatedRelays,
-            signer: this.$store.ndk.nip07signer,
-            cacheAdapter: this.$store.ndk.dexieAdapter,
-        });
-        try {
-            await instance.connect(10000);
-        } catch (error) {
-            throw new Error('NDK instance init failed: ', error);
-        }
-        this.$store.ndk.ndk = instance;
-
-        await this.loadProfile();
-
-        await this.fetchEvents();
-
-        // this.loadMore() until we have 2 events and stop after too many tries
-        let tries = 0;
-        while (Object.keys(this.events).length < 2 && tries < 2) {
-            await this.loadMore();
-            tries++;
-        }
-
-        Alpine.effect(async () => {
-            if (this.$store.ndk.user) {
-
-            }
-        });
-
-        const scrollFunction = () => {
-            if (
-                document.body.scrollTop > 20 ||
-                document.documentElement.scrollTop > 20
-            ) {
-                this.$refs.scrollToTop.classList.remove("hidden");
-            } else {
-                this.$refs.scrollToTop.classList.add("hidden");
-            }
-        };
-
-        window.addEventListener("scroll", scrollFunction);
+        await initApp.call(this);
     },
 
     async loadProfile() {
-        await this.$store.ndk.nip07signer.user().then(async (user) => {
-            if (!!user.npub) {
-                console.log("Permission granted to read their public key:", user.npub);
-                this.$store.ndk.user = this.$store.ndk.ndk.getUser({
-                    npub: user.npub,
-                });
-                await this.$store.ndk.user.fetchProfile();
-            }
-        }).catch((error) => {
-            this.rejected = true;
-        });
+        await loadProfile.call(this);
     },
 
     async fetchAllRepliesOfEvent(event) {

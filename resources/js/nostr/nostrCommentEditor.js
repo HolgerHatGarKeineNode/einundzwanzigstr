@@ -31,6 +31,7 @@ export default (event) => ({
             ['p', this.currentEventToReact.pubkey],
         ];
         await ndkEvent.publish();
+        this.openCommentModal = false;
 
         await this.jsConfetti.addConfetti({
             emojiSize: 100,
@@ -38,7 +39,6 @@ export default (event) => ({
         });
 
         this.value = '';
-        this.openCommentModal = false;
 
         const that = this;
         setTimeout(async function () {

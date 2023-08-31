@@ -4,7 +4,6 @@
             <div class="cursor-pointer flex space-x-2" @click="openReactionModal = true">
                 <div class="text-amber-500"
                      x-text="numberFormat(events[event.id].reactions ?? 0)"></div>
-
                 <div class="flex justify-center">
                     <!-- Trigger -->
                     <x-fat-heart

@@ -81,10 +81,8 @@ export default (livewireComponent) => ({
 
     jsConfetti: null,
 
-    currentNpubs:
-        livewireComponent.entangle('currentNpubs'),
-    limit:
-        livewireComponent.entangle('limit'),
+    currentNpubs: livewireComponent.entangle('currentNpubs'),
+    limit: livewireComponent.entangle('limit'),
 
     eventsCache: livewireComponent.entangle('eventsCache'),
     npubsCache: livewireComponent.entangle('npubsCache'),
@@ -121,7 +119,7 @@ export default (livewireComponent) => ({
                 throw errors.map((response) => Error(response.statusText));
             }
 
-            const verifiedRelays = responses.map((res) => {
+            let verifiedRelays = responses.map((res) => {
                 if (res.url.startsWith('http')) {
                     return res.url.replace('http', 'ws');
                 }

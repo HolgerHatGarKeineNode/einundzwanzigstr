@@ -17,6 +17,8 @@ trait NostrCacheTrait
         return [
             'eventsCache' => 'required',
             'npubsCache' => 'required',
+            'currentNpubs' => 'required',
+            'pubkey' => 'pubkey',
         ];
     }
 

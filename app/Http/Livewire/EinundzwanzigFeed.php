@@ -24,10 +24,11 @@ class EinundzwanzigFeed extends Component
             request()->is('d11n-feed') => ['npub14j7wc366rf8efqvnnm8m68pazy04kkj8fgu6uqumh3eqlhfst0kqrngtpf'],
             request()->is('markus-turm-feed') => ['npub17fqtu2mgf7zueq2kdusgzwr2lqwhgfl2scjsez77ddag2qx8vxaq3vnr8y'],
             request()->is('snowden-feed') => ['npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'],
-            default => [],
+            default => [$this->pubkey],
         };
         if ($this->pubkey) {
-            abort(404, 'work in progress, some issues with loading the events...');
+            //abort(404, 'work in progress, some issues with loading the events...');
+            //$this->currentNpubs = [$this->pubkey];
         }
 
         $this->limit = match (true) {

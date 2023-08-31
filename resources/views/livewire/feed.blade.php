@@ -265,7 +265,7 @@
                 </ul>
 
                 <div class="flex justify-center mt-12">
-                    <x-button amber @click="loadMore">
+                    <x-button x-bind:disabled="loading" amber @click="loadMore" spinner loading-delay="shortest">
                         <x-fat-loader class="w-6 h-6 mr-2"/>
                         <span>Load more...</span>
                     </x-button>

@@ -11,11 +11,6 @@ import {nip19} from "nostr-tools";
 
 function transformToHexpubs() {
     let hexpubs = [];
-    // last part from current url
-    if (this.currentNpubs.length === 0) {
-        const npub = window.location.href.split('/').pop();
-        this.currentNpubs.push(npub);
-    }
     for (const npub of this.currentNpubs) {
         // convert npub to hexpub
         const hexpub = nip19.decode(npub);
@@ -183,6 +178,19 @@ export default (livewireComponent) => ({
 
             }
         });
+
+        const scrollFunction = () => {
+            if (
+                document.body.scrollTop > 20 ||
+                document.documentElement.scrollTop > 20
+            ) {
+                this.$refs.scrollToTop.classList.remove("hidden");
+            } else {
+                this.$refs.scrollToTop.classList.add("hidden");
+            }
+        };
+
+        window.addEventListener("scroll", scrollFunction);
     },
 
     async loadProfile() {

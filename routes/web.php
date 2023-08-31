@@ -20,7 +20,7 @@ Route::get('/', function () {
 
 
 Route::get('/my-feed/{pubkey?}', \App\Http\Livewire\EinundzwanzigFeed::class)->name('my-feed');
-Route::get('/feed/{pubkey?}', \App\Http\Livewire\Feed::class)->name('feed');
+Route::get('/feed/{pubkey?}', \App\Http\Livewire\EinundzwanzigFeed::class)->name('feed');
 Route::get('/einundzwanzig-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('einundzwanzig-feed');
 Route::get('/gigi-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('gigi-feed');
 Route::get('/d11n-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('d11n-feed');

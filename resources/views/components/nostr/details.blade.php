@@ -71,7 +71,7 @@
                         <a :href="'/feed/' + authorMetaData[reaction.senderPubkey].npub">
                             <div class="flex items-center gap-x-4">
                                 <img
-                                        :src="authorMetaData[reaction.senderPubkey].image"
+                                        :src="authorMetaData[reaction.senderPubkey] ? authorMetaData[reaction.senderPubkey].image : '/img/nostr.png'"
                                         :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
                                         class="h-8 w-8 rounded-full bg-gray-800">
                                 <div

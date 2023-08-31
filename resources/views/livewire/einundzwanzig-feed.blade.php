@@ -276,4 +276,9 @@
 
         </main>
     </div>
+
+    <x-button.circle x-ref="scrollToTop" amber lg class="!fixed hidden bottom-5 right-5"
+                     @click="window.scrollTo({ top: 0, behavior: 'smooth' });">
+        <x-fat-arrow-up class="w-6 h-6"/>
+    </x-button.circle>
 </div>

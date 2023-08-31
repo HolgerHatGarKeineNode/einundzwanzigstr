@@ -26,10 +26,6 @@ class EinundzwanzigFeed extends Component
             request()->is('snowden-feed') => ['npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'],
             default => [$this->pubkey],
         };
-        if ($this->pubkey) {
-            //abort(404, 'work in progress, some issues with loading the events...');
-            //$this->currentNpubs = [$this->pubkey];
-        }
 
         $this->limit = match (true) {
             request()->is('snowden-feed') => 3,

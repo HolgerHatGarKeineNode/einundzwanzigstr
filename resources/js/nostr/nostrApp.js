@@ -283,7 +283,7 @@ export default (livewireComponent) => ({
         if (fetchedEvents.length > 0) {
             for (const newEv of fetchedEvents) {
 
-                console.log('????? SEARCH ON EVENTS CACHE', newEv.id, this.eventsCache[newEv.id]);
+                console.log('????? SEARCH ON EVENTS CACHE', newEv.id, Alpine.raw(this.eventsCache[newEv.id] ?? {}));
 
                 if (this.eventsCache[newEv.id]) {
                     this.events[newEv.id] = this.eventsCache[newEv.id];
@@ -293,7 +293,7 @@ export default (livewireComponent) => ({
                 }
             }
         }
-        console.log('NEW EVENTS OBJECT', this.events);
+        console.log('NEW EVENTS OBJECT', Object.values(Alpine.raw(this.events)));
         // fetch all replies of events
         for (const f of fetchedEvents) {
             const newReplies = await this.fetchAllRepliesOfEvent(f);

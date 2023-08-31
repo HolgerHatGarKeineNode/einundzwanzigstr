@@ -14,6 +14,10 @@ export const parseEventContent = async (content, id, alpine) => {
     async function nostrReplacer(match, p1, p2, p3, offset, string) {
         const c = await nostrFetcher(match, alpine);
 
+        if (!c) {
+            return `${match}`;
+        }
+
         if (c.type === 'nevent') {
             if (c.data) {
                 const parsed = await parseEventContent(c.data.content, c.data.id, alpine);
@@ -22,7 +26,7 @@ export const parseEventContent = async (content, id, alpine) => {
                 <div class="border border-amber-500 p-4 rounded flex flex-col">
                     <div class="flex justify-between p-2">
                         <div class="flex pb-4 justify-between">
-                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-14 w-14 rounded-full" alt="${decodeURI(alpine.authorMetaData[c.data.pubkey].display_name)[0] ?? 'A'}" src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
+                            <div class="mr-4 flex-shrink-0"><img class="inline-block h-14 w-14 rounded-full" alt="${decodeURI(alpine.authorMetaData[c.data.pubkey] && alpine.authorMetaData[c.data.pubkey].display_name) ?? 'A'}" src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
                             <div>
                                 <h4 class="text-lg font-bold">${decodeURI(alpine.authorMetaData[c.data.pubkey].display_name)}</h4>
                                 <h4 class="text-md font-bold">${alpine.authorMetaData[c.data.pubkey].nip05}</h4>

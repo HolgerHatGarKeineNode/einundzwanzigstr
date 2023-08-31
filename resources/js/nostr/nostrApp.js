@@ -9,6 +9,31 @@ import {compactNumber} from "./utils/number.js";
 import {parseEventContent} from "./parse/parseEventContent.js";
 import {nip19} from "nostr-tools";
 
+function transformToHexpubs() {
+    let hexpubs = [];
+    for (const npub of this.currentNpubs) {
+        const user = this.$store.ndk.ndk.getUser({
+            npub,
+        });
+        hexpubs.push(user.hexpubkey());
+    }
+    return hexpubs;
+}
+
+function filterReplies(fetchedEvents) {
+    for (const e of fetchedEvents) {
+        if (
+            e.tags?.[0]?.[0] === 'e' && !e.tags?.[0]?.[3]
+            || e.tags.find((el) => el[3] === 'root')?.[1]
+            || e.tags.find((el) => el[3] === 'reply')?.[1]
+        ) {
+            // we will remove event from fetchedEvents
+            fetchedEvents = fetchedEvents.filter((el) => el.id !== e.id);
+        }
+    }
+    return fetchedEvents;
+}
+
 export default (livewireComponent) => ({
 
     open: false,
@@ -61,27 +86,12 @@ export default (livewireComponent) => ({
     limit:
         livewireComponent.entangle('limit'),
 
-    oldEventsLength: 0,
-    newEventsLength: 0,
-
     eventsCache: livewireComponent.entangle('eventsCache'),
     npubsCache: livewireComponent.entangle('npubsCache'),
 
     events: [],
-    eventsReplies: {},
 
     authorMetaData: {},
-
-    reactions: {
-        reposts: {},
-        reacted: {},
-        reposted: {},
-        reactions: {},
-        zaps: {},
-        reactionRepostsData: {},
-        reactionEventsData: {},
-        reactionZapsData: {},
-    },
 
     async verifyRelays(relays) {
         try {
@@ -154,7 +164,6 @@ export default (livewireComponent) => ({
         Alpine.effect(async () => {
             if (this.$store.ndk.user) {
                 await this.fetchEvents();
-                this.oldEventsLength = this.events.length;
             }
         });
     },
@@ -201,73 +210,84 @@ export default (livewireComponent) => ({
                     });
                 }
             });
-            this.eventsReplies[event.id] = events.filter((ev) => !replies.has(ev.id));
+            const filtered = events.filter((ev) => !replies.has(ev.id));
+            this.events[event.id].replies = filtered;
             // unique pubkeys from events
-            const authorIds = [...new Set(this.eventsReplies[event.id].map((ev) => ev.pubkey))];
+            const authorIds = [...new Set(this.events[event.id].replies.map((ev) => ev.pubkey))];
             // filter authorIds that are already in this.authorMetaData with filter method
             authorIds.filter((authorId) => !this.authorMetaData[authorId]);
             await this.getAuthorsMeta(authorIds);
             // loop through replies and find replies of replies
-            for (const reply of this.eventsReplies[event.id]) {
-                await this.fetchAllRepliesOfEvent(reply);
+            for (const reply of this.events[event.id].replies) {
+                //await this.fetchAllRepliesOfEvent(reply);
             }
+            return filtered;
         }
     },
 
     async fetchEvents() {
-        console.log('connected to fetchEvents');
+        console.log('>>> fetchEvents');
+        const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-        let hexpubs = [];
-        for (const npub of this.currentNpubs) {
-            const user = this.$store.ndk.ndk.getUser({
-                npub,
-            });
-            hexpubs.push(user.hexpubkey());
-        }
-        let fetchedEvents = await fetcher.fetchLatestEvents(
+        let hexpubs = transformToHexpubs.call(this);
+        // FILTER
+        let fetchedEvents = await fetcher.fetchAllEvents(
             this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], authors: hexpubs},
-            this.$store.ndk.limit,
+            {since: nHoursAgo(this.$store.ndk.hoursAgo)},
+            {sort: true}
         );
-        // find children of events
-        for (const event of fetchedEvents) {
-            if (
-                event.tags?.[0]?.[0] === 'e' && !event.tags?.[0]?.[3]
-                || event.tags.find((el) => el[3] === 'root')?.[1]
-                || event.tags.find((el) => el[3] === 'reply')?.[1]
-            ) {
-                // we will remove event from fetchedEvents
-                fetchedEvents = fetchedEvents.filter((el) => el.id !== event.id);
-            } else {
-                await this.fetchAllRepliesOfEvent(event);
+        console.log('UNTIL', this.formatDate(nHoursAgo(this.$store.ndk.hoursAgo)));
+        console.log('FOUND EVENTS', fetchedEvents.length, fetchedEvents);
+        // filter events that are replies or reposts
+        fetchedEvents = filterReplies(fetchedEvents);
+
+        // hit cache for events
+        const eventsIds = fetchedEvents.map((ev) => ev.id);
+        await this.$wire.getEventsByIds(eventsIds).then(result => {
+            console.log('+++ HIT EVENTS CACHE', result);
+            if (result > 0) {
+                console.log('*** EVENTS AFTER HITTING CACHE', this.eventsCache);
             }
-        }
-        // unique pubkeys from events
-        const authorIds = [...new Set(fetchedEvents.map((event) => event.pubkey))];
-        // filter authorIds that are already in this.authorMetaData
-        for (const authorId of authorIds) {
-            if (this.authorMetaData[authorId]) {
-                const index = authorIds.indexOf(authorId);
-                if (index > -1) {
-                    authorIds.splice(index, 1);
+        });
+        console.log('FILTERED EVENTS', fetchedEvents.length, fetchedEvents);
+        // init events object
+        if (fetchedEvents.length > 0) {
+            for (const newEv of fetchedEvents) {
+
+                console.log('????? SEARCH ON EVENTS CACHE', newEv.id, this.eventsCache[newEv.id]);
+
+                if (this.eventsCache[newEv.id]) {
+                    this.events[newEv.id] = this.eventsCache[newEv.id];
+                }
+                if (!this.events[newEv.id]) {
+                    this.events[newEv.id] = newEv;
                 }
             }
         }
-        await this.getAuthorsMeta(authorIds);
+        console.log('NEW EVENTS OBJECT', this.events);
+        // fetch all replies of events
+        for (const f of fetchedEvents) {
+            this.events[f.id].replies = await this.fetchAllRepliesOfEvent(f);
+        }
+        // fetch authors metadata
+        await this.getAuthorsMeta(hexpubs);
         await this.getReactions(fetchedEvents);
 
-        this.events = fetchedEvents;
-        if (this.events.length === 0) {
-            // load more events
-            console.log('LOAD MORE');
-            await this.loadMore();
-        }
+        // hit the cache
+        console.log('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
+        this.$wire.updateEventCache(Object.values(Alpine.raw(this.events)));
+        console.log('<<< HIT CACHE WITH EVENT IDS', eventsIds);
+        this.$wire.getEventsByIds(eventsIds).then(result => {
+            console.log('--- NEW CACHE RESULT', result);
+        });
     },
 
     async getAuthorsMeta(authorIds) {
         // filter authorIds that are already in this.authorMetaData with filter function
         authorIds = authorIds.filter((authorId) => !this.authorMetaData[authorId]);
-        console.log('fetched AUTHORS META', authorIds.length, authorIds);
+        console.log('SEARCH FOR NEW AUTHORS', authorIds.length, authorIds);
+        if (authorIds.length === 0) return;
 
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
@@ -303,6 +323,7 @@ export default (livewireComponent) => ({
 
             this.authorMetaData[latestEvent.pubkey] = profile;
             // hit cache
+            console.log('HIT AUTHORS CACHE UPDATE', profile);
             this.$wire.call('updateNpubsCache', profile);
         }
     },
@@ -325,54 +346,36 @@ export default (livewireComponent) => ({
                 );
                 for await (const ev of reactionEvents) {
                     const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
-                    if (!reactedToEvent) {
-                        console.log('reactedToEvent not found', ev);
+                    if (!this.events[reactedToEvent]) {
                         continue;
                     }
                     switch (ev.kind) {
                         case 6:
-                            if (!this.reactions.reposts[reactedToEvent]) {
-                                this.reactions.reposts[reactedToEvent] = {
-                                    reposts: 0,
-                                };
+                            if (!this.events[reactedToEvent].reactionRepostsData) {
+                                this.events[reactedToEvent].reactionRepostsData = [];
                             }
-                            if (!this.reactions.reposted[reactedToEvent]) {
-                                this.reactions.reposted[reactedToEvent] = {
-                                    reposted: false,
-                                };
-                            }
-                            if (!this.reactions.reposted[reactedToEvent].reposted) {
-                                this.reactions.reposted[reactedToEvent].reposted = ev.pubkey === this.$store.ndk.user.hexpubkey();
-                            }
-                            if (!this.reactions.reactionRepostsData[reactedToEvent]) {
-                                this.reactions.reactionRepostsData[reactedToEvent] = [];
-                            }
-                            if (!this.reactions.reactionRepostsData[reactedToEvent].find((e) => e.id === ev.id)) {
-                                this.reactions.reposts[reactedToEvent].reposts += 1;
-                                this.reactions.reactionRepostsData[reactedToEvent].push(ev);
+                            if (!this.events[reactedToEvent].reactionRepostsData.find((e) => e.id === ev.id)) {
+                                if (!this.events[reactedToEvent].reposts) {
+                                    this.events[reactedToEvent].reposts = 0;
+                                }
+                                this.events[reactedToEvent].reposts += 1;
+                                this.events[reactedToEvent].reactionRepostsData.push(ev);
                             }
                             break;
                         case 7:
-                            if (!this.reactions.reacted[reactedToEvent]) {
-                                this.reactions.reacted[reactedToEvent] = {
-                                    reacted: false,
-                                };
-                            }
-                            if (!this.reactions.reacted[reactedToEvent].reacted) {
-                                this.reactions.reacted[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
-                            }
-                            if (!this.reactions.reactions[reactedToEvent]) {
-                                this.reactions.reactions[reactedToEvent] = {
-                                    reactions: 0,
-                                };
+                            if (!this.events[reactedToEvent].reacted) {
+                                this.events[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
                             }
                             if (!ev.content.includes('"kind":1')) {
-                                if (!this.reactions.reactionEventsData[reactedToEvent]) {
-                                    this.reactions.reactionEventsData[reactedToEvent] = [];
+                                if (!this.events[reactedToEvent].reactions) {
+                                    this.events[reactedToEvent].reactions = 0;
                                 }
-                                if (!this.reactions.reactionEventsData[reactedToEvent].find((e) => e.id === ev.id)) {
-                                    this.reactions.reactions[reactedToEvent].reactions += 1;
-                                    this.reactions.reactionEventsData[reactedToEvent].push(ev);
+                                if (!this.events[reactedToEvent].reactionEventsData) {
+                                    this.events[reactedToEvent].reactionEventsData = [];
+                                }
+                                if (!this.events[reactedToEvent].reactionEventsData.find((e) => e.id === ev.id)) {
+                                    this.events[reactedToEvent].reactions += 1;
+                                    this.events[reactedToEvent].reactionEventsData.push(ev);
                                 }
                             }
                             break;
@@ -382,20 +385,18 @@ export default (livewireComponent) => ({
                                 const decoded = decode(bolt11);
                                 const amount = decoded.sections.find((item) => item.name === 'amount');
                                 const sats = amount.value / 1000;
-                                if (!this.reactions.zaps[reactedToEvent]) {
-                                    this.reactions.zaps[reactedToEvent] = {
-                                        zaps: 0,
-                                    };
-                                }
-                                if (!this.reactions.reactionZapsData[reactedToEvent]) {
-                                    this.reactions.reactionZapsData[reactedToEvent] = [];
-                                }
                                 ev.indexId = 'zap_' + ev.id;
                                 ev.amount = sats;
                                 ev.senderPubkey = JSON.parse(ev.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
-                                if (!this.reactions.reactionZapsData[reactedToEvent].find((e) => e.id === ev.id)) {
-                                    this.reactions.zaps[reactedToEvent].zaps += sats;
-                                    this.reactions.reactionZapsData[reactedToEvent].push(ev);
+                                if (!this.events[reactedToEvent].reactionZapsData) {
+                                    this.events[reactedToEvent].reactionZapsData = [];
+                                }
+                                if (!this.events[reactedToEvent].reactionZapsData.find((e) => e.id === ev.id)) {
+                                    if (!this.events[reactedToEvent].zaps) {
+                                        this.events[reactedToEvent].zaps = 0;
+                                    }
+                                    this.events[reactedToEvent].zaps += sats;
+                                    this.events[reactedToEvent].reactionZapsData.push(ev);
                                 }
                             }
                             break;
@@ -404,75 +405,11 @@ export default (livewireComponent) => ({
                             break;
                     }
                 }
-                // if no reactions where found, set to empty object
-                for (const ev of events) {
-                    if (!this.reactions.reposts) {
-                        this.reactions.reposts = {};
-                    }
-                    if (!this.reactions.reactions) {
-                        this.reactions.reactions = {};
-                    }
-                    if (!this.reactions.zaps) {
-                        this.reactions.zaps = {};
-                    }
-                    if (!this.reactions.reacted) {
-                        this.reactions.reacted = {};
-                    }
-                    if (!this.reactions.reposts[ev.id]) {
-                        this.reactions.reposts[ev.id] = {
-                            reposts: 0,
-                        };
-                    }
-                    if (!this.reactions.reactions[ev.id]) {
-                        this.reactions.reactions[ev.id] = {
-                            reactions: 0,
-                        };
-                    }
-                    if (!this.reactions.zaps[ev.id]) {
-                        this.reactions.zaps[ev.id] = {
-                            zaps: 0,
-                        };
-                    }
-                    if (!this.reactions.reacted[ev.id]) {
-                        this.reactions.reacted[ev.id] = {
-                            reacted: false,
-                        };
-                    }
-                }
 
-                // collect unique pubkeys from reactionEventsData
-                let pubkeys = [];
-                for (const ev of Object.values(this.reactions.reactionEventsData)) {
-                    for (const e of ev) {
-                        if (!pubkeys.includes(e.pubkey)) {
-                            pubkeys.push(e.pubkey);
-                        }
-                    }
-                }
-                // collect unique pubkeys from reactionZapsData
-                for (const ev of Object.values(this.reactions.reactionZapsData)) {
-                    for (const e of ev) {
-                        // get pubkey from description pubkey
-                        const pubkey = JSON.parse(e.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
-                        if (!pubkeys.includes(pubkey)) {
-                            pubkeys.push(pubkey);
-                        }
-                    }
-                }
-                // collect unique pubkeys from reactionRepostsData
-                for (const ev of Object.values(this.reactions.reactionRepostsData)) {
-                    for (const e of ev) {
-                        if (!pubkeys.includes(e.pubkey)) {
-                            pubkeys.push(e.pubkey);
-                        }
-                    }
-                }
-
-                // filter pubkeys that are already in this.authorMetaData
-                pubkeys = pubkeys.filter((pubkey) => !this.authorMetaData[pubkey]);
-                await this.getAuthorsMeta(pubkeys);
+                // todo: unique pubkeys from events
+                //await this.getAuthorsMeta(pubkeys);
             } else {
-                console.log('NO ARRAY', events.length);
+                console.log('NO NEW REACTIONS', events.length);
             }
         }
     },
@@ -527,18 +464,6 @@ export default (livewireComponent) => ({
         setTimeout(async () => await this.getReactions([event]), 1000);
     },
 
-    getReactionCount(tabName, event) {
-        if (tabName === 'reactions' && this.reactions.reactions && this.reactions.reactions[event.id]) {
-            return this.numberFormat(this.reactions.reactions[event.id].reactions);
-        }
-        if (tabName === 'reposts' && this.reactions.reposts && this.reactions.reposts[event.id]) {
-            return this.numberFormat(this.reactions.reposts[event.id].reposts);
-        }
-        if (tabName === 'zaps' && this.reactions.zaps && this.reactions.zaps[event.id]) {
-            return this.numberFormat(this.reactions.zaps[event.id].zaps);
-        }
-    },
-
     checkNip05(nip05) {
         if (nip05) {
             // split nip05 into parts
@@ -561,8 +486,6 @@ export default (livewireComponent) => ({
             fetch(nip05CheckUrl)
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data);
-                    return true;
                     if (data.names) {
                         // check if in data.names there is a name with the nip05
                         const nip05Name = nip05Parts[0];
@@ -575,12 +498,9 @@ export default (livewireComponent) => ({
     },
 
     async loadMore() {
-        this.$store.ndk.limit++;
+        this.$store.ndk.hoursAgo += 6;
+        console.log('>> NEW HOURS', this.$store.ndk.hoursAgo);
         await this.fetchEvents();
-        this.newEventsLength = this.events.length;
-        if (this.newEventsLength === this.oldEventsLength) {
-            await this.loadMore();
-        }
     }
 
 });

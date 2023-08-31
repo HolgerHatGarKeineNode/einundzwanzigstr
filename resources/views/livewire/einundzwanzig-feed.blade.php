@@ -89,7 +89,9 @@
                         </div>
                     </template>
 
-                    <template x-for="event in events" :key="event.id">
+                    <template
+                            x-for="event in Object.fromEntries(Object.entries(events).sort(([,a],[,b]) => b.created_at-a.created_at))"
+                            :key="event.id">
                         <li :id="event.id">
                             <div class="grid grid-cols-7 gap-2">
                                 <div
@@ -137,12 +139,13 @@
                                             </div>
                                         </template>
                                         <div class="pl-16 ml-2 text-lg" x-html="parseContent(event)"></div>
-                                        <div x-show="event.tags.filter((tag) => tag[0] === 't').length" class="flex space-x-2 justify-end py-2">
+                                        <div x-show="event.tags.filter((tag) => tag[0] === 't').length"
+                                             class="flex space-x-2 justify-end py-2">
                                             <template x-for="tag in event.tags.filter((tag) => tag[0] === 't')">
-                                                        <div
-                                                                class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
-                                                            <span x-text="tag[1]"></span>
-                                                        </div>
+                                                <div
+                                                        class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                                    <span x-text="tag[1]"></span>
+                                                </div>
                                             </template>
                                         </div>
                                         <x-nostr.reactions/>
@@ -219,9 +222,9 @@
                                         class="relative flex min-h-screen items-center justify-center p-4"
                                 >
                                     <div wire:ignore
-                                            x-data="nostrCommentEditor"
-                                            x-on:click.stop
-                                            class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
+                                         x-data="nostrCommentEditor"
+                                         x-on:click.stop
+                                         class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
                                     >
                                         <!-- Title -->
                                         <h2 class="text-3xl font-bold" :id="$id('modal-title')">Write your reply</h2>

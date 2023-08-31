@@ -6,9 +6,16 @@
                 <li>
                     <div @click="switchTab(tab.name)" :class="currentTab === tab.name ? 'text-amber-400' : ''"
                          class="cursor-pointer">
-                                <span class="pr-2"
-                                      x-text="getReactionCount(tab.name, event)"></span><span
-                                x-text="tab.label"></span>
+                        <template x-if="tab.name === 'reactions' && events[event.id]">
+                            <span class="pr-2" x-text="events[event.id].reactions"></span>
+                        </template>
+                        <template x-if="tab.name === 'zaps' && events[event.id]">
+                            <span class="pr-2" x-text="numberFormat(events[event.id].zaps ?? 0)"></span>
+                        </template>
+                        <template x-if="tab.name === 'reposts' && events[event.id]">
+                            <span class="pr-2" x-text="events[event.id].reposts"></span>
+                        </template>
+                        <span x-text="tab.label"></span>
                     </div>
             </template>
         </ul>
@@ -24,8 +31,8 @@
 
         <template x-if="currentTab === 'reactions'">
             <template
-                    x-for="reaction in reactions.reactionEventsData && reactions.reactionEventsData[event.id] && reactions.reactionEventsData[event.id].sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
-                    :key="reaction.id"
+                x-for="reaction in events[event.id] && events[event.id].reactionEventsData && events[event.id].reactionEventsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
+                :key="reaction.id"
             >
                 <template x-if="authorMetaData[reaction.pubkey]">
                     <tr>
@@ -38,7 +45,7 @@
                                         class="h-8 w-8 rounded-full bg-gray-800">
                                     <div
                                         class="truncate text-sm font-medium leading-6 text-white"
-                                        x-text="authorMetaData[reaction.pubkey].display_name"></div>
+                                        x-text="decodeURI(authorMetaData[reaction.pubkey].display_name)"></div>
                                 </div>
                             </a>
                         </td>
@@ -58,8 +65,8 @@
 
         <template x-if="currentTab === 'zaps'">
             <template
-                    x-for="reaction in reactions.reactionZapsData && reactions.reactionZapsData[event.id] && reactions.reactionZapsData[event.id].sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
-                    :key="reaction.id"
+                x-for="reaction in events[event.id].reactionZapsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
+                :key="reaction.id"
             >
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">
@@ -72,7 +79,7 @@
                                         class="h-8 w-8 rounded-full bg-gray-800">
                                     <div
                                         class="truncate text-sm font-medium leading-6 text-white"
-                                        x-text="authorMetaData[reaction.senderPubkey].display_name"></div>
+                                        x-text="decodeURI(authorMetaData[reaction.senderPubkey].display_name)"></div>
                                 </div>
                             </a>
                         </template>
@@ -92,8 +99,8 @@
 
         <template x-if="currentTab === 'reposts'">
             <template
-                    x-for="reaction in reactions.reactionRepostsData && reactions.reactionRepostsData[event.id] && reactions.reactionRepostsData[event.id].sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
-                    :key="reaction.id"
+                x-for="reaction in reactions.reactionRepostsData && reactions.reactionRepostsData[event.id] && reactions.reactionRepostsData[event.id].sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
+                :key="reaction.id"
             >
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">

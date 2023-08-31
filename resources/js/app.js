@@ -28,6 +28,8 @@ Alpine.store('ndk', {
     validatedRelays: [],
     // limit results
     limit: 1,
+    // hours ago
+    hoursAgo: 6,
 })
 
 Alpine.data('nostrApp', nostrApp);

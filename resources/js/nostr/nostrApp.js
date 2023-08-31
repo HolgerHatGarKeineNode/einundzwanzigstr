@@ -179,7 +179,6 @@ export default (livewireComponent) => ({
 
         Alpine.effect(async () => {
             if (this.$store.ndk.user) {
-                console.log('test');
 
             }
         });

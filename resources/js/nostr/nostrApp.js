@@ -164,6 +164,12 @@ export default (livewireComponent) => ({
         Alpine.effect(async () => {
             if (this.$store.ndk.user) {
                 await this.fetchEvents();
+                // this.loadMore() until we have 2 events and stop after too many tries
+                let tries = 0;
+                while (Object.keys(this.events).length < 2 && tries < 2) {
+                    await this.loadMore();
+                    tries++;
+                }
             }
         });
     },
@@ -286,7 +292,7 @@ export default (livewireComponent) => ({
     async getAuthorsMeta(authorIds) {
         // filter authorIds that are already in this.authorMetaData with filter function
         authorIds = authorIds.filter((authorId) => !this.authorMetaData[authorId]);
-        console.log('SEARCH FOR NEW AUTHORS', authorIds.length, authorIds);
+        // todo: console.log('SEARCH FOR NEW AUTHORS', authorIds.length, authorIds);
         if (authorIds.length === 0) return;
 
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));

@@ -19,30 +19,26 @@ export default (event) => ({
 
     },
 
-    async comment() {
+    async createNote() {
 
         // reply to event
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
-        ndkEvent.content = this.value;
         ndkEvent.kind = eventKind.text;
-        // set tags for a reply
-        ndkEvent.tags = [
-            ['e', this.currentEventToReact.id, '', 'root'],
-            ['p', this.currentEventToReact.pubkey],
-        ];
+        ndkEvent.content = this.value;
         await ndkEvent.publish();
-        this.openCommentModal = false;
+
+        this.openCreateNoteModal = false;
 
         this.value = '';
 
         await this.jsConfetti.addConfetti({
             emojiSize: 100,
-            emojis: ['🗣️',],
+            emojis: ['📣',],
         });
 
         const that = this;
         setTimeout(async function () {
-            await that.fetchAllRepliesOfEvent(that.currentEventToReact);
+            await that.fetchEvents();
         }, 1000);
     },
 });

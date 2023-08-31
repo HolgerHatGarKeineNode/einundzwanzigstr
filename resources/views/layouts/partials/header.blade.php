@@ -16,5 +16,14 @@
                 <input id="search-field" class="block h-full w-full border-0 bg-transparent py-0 pl-8 pr-0 text-white focus:ring-0 sm:text-sm" placeholder="Search..." type="search" name="search">
             </div>
         </form>--}}
+
+
+    </div>
+
+    <div>
+        <x-button amber @click="openCreateNoteModal = true">
+            <x-fat-pen-nib class="w-6 h-6 mr-2"/>
+            Erstelle eine Note
+        </x-button>
     </div>
 </div>

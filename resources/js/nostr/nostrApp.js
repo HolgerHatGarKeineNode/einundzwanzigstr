@@ -42,6 +42,7 @@ export default (livewireComponent) => ({
     loading: false,
     open: false,
     openCommentModal: false,
+    openCreateNoteModal: false,
     openReactionModal: false,
     currentEventToReact: null,
     openReactionPicker(event) {

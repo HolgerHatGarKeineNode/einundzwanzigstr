@@ -1,6 +1,7 @@
 import nostrApp from './nostr/nostrApp';
 import nostrDetails from './nostr/nostrDetails';
 import nostrReplies from './nostr/nostrReplies';
+import nostrNoteEditor from './nostr/nostrNoteEditor';
 import nostrCommentEditor from './nostr/nostrCommentEditor';
 
 import Alpine from 'alpinejs';
@@ -35,5 +36,6 @@ Alpine.store('ndk', {
 Alpine.data('nostrApp', nostrApp);
 Alpine.data('nostrDetails', nostrDetails);
 Alpine.data('nostrReplies', nostrReplies);
+Alpine.data('nostrNoteEditor', nostrNoteEditor);
 Alpine.data('nostrCommentEditor', nostrCommentEditor);
 Alpine.start();

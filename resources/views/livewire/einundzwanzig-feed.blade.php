@@ -33,10 +33,10 @@
         wire:ignore
         @keydown.window.escape="openReactionModal = false"
 >
-
     @include('layouts.partials.navigation')
 
-    <div class="xl:pl-72">
+    <div class="xl:pl-72 relative">
+        <div id="loader" class="fixed"></div>
         <!-- Sticky search header -->
         @include('layouts.partials.header')
 

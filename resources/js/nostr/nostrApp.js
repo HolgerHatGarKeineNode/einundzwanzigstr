@@ -244,7 +244,7 @@ export default (livewireComponent) => ({
 
     async fetchEvents() {
         console.log('>>> fetchEvents');
-        this.loading = true;
+        document.querySelector("#loader").style.display = "block";
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         let hexpubs = transformToHexpubs.call(this);
@@ -300,7 +300,7 @@ export default (livewireComponent) => ({
         this.$wire.getEventsByIds(eventsIds).then(result => {
             console.log('--- NEW CACHE RESULT', result);
         });
-        this.loading = false;
+        document.querySelector("#loader").style.display = "none";
     },
 
     async getAuthorsMeta(authorIds) {

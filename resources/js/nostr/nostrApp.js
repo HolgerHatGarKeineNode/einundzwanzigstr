@@ -12,8 +12,10 @@ import {nip19} from "nostr-tools";
 function transformToHexpubs() {
     let hexpubs = [];
     // last part from current url
-    const npub = window.location.href.split('/').pop();
-    this.currentNpubs.push(npub);
+    if (this.currentNpubs.length === 0) {
+        const npub = window.location.href.split('/').pop();
+        this.currentNpubs.push(npub);
+    }
     for (const npub of this.currentNpubs) {
         // convert npub to hexpub
         const hexpub = nip19.decode(npub);

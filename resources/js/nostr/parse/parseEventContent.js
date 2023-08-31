@@ -25,7 +25,7 @@ export const parseEventContent = async (content, id, alpine) => {
                 return `
                 <div class="border border-amber-500 p-4 rounded flex flex-col">
                     <div class="flex justify-between p-2">
-                        <a href="/feed/${alpine.authorMetaData[c.data.pubkey].npub}">
+                        <a href="/feed/${alpine.authorMetaData[c.data.pubkey]?.npub}">
                             <div class="flex pb-4 justify-between">
                                 <div class="mr-4 flex-shrink-0"><img class="inline-block h-14 w-14 rounded-full" alt="${decodeURI(alpine.authorMetaData[c.data.pubkey] && alpine.authorMetaData[c.data.pubkey].display_name) ?? 'A'}" src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
                                 <div>
@@ -46,7 +46,7 @@ export const parseEventContent = async (content, id, alpine) => {
         if (c.type === 'npub') {
             if (c.data && alpine.authorMetaData[c.data]) {
                 return `
-                <a href="/feed/${alpine.authorMetaData[c.data].npub}">
+                <a href="/feed/${alpine.authorMetaData[c.data]?.npub}">
                     <div class="border border-dashed border-amber-500 p-4 rounded flex flex-col my-2">
                         <div class="flex justify-between p-2">
                             <div class="flex justify-between">
@@ -71,12 +71,12 @@ export const parseEventContent = async (content, id, alpine) => {
                 return `
                 <div class="border border-amber-500 p-4 rounded flex flex-col my-2">
                     <div class="flex justify-between p-2">
-                        <a href="/feed/${alpine.authorMetaData[c.data.pubkey].npub}">
+                        <a href="/feed/${alpine.authorMetaData[c.data.pubkey]?.npub}">
                             <div class="flex justify-between">
-                                <div class="mr-4 flex-shrink-0"><img class="inline-block h-8 w-8 rounded-full" alt="${alpine.authorMetaData[c.data.pubkey].display_name[0] ?? 'A'}"  src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
+                                <div class="mr-4 flex-shrink-0"><img class="inline-block h-8 w-8 rounded-full" alt="${alpine.authorMetaData[c.data.pubkey]?.display_name[0] ?? 'A'}"  src="${alpine.authorMetaData[c.data.pubkey]?.image ?? ''}"/></div>
                                 <div>
-                                    <h4 class="text-lg font-bold">${decodeURI(alpine.authorMetaData[c.data.pubkey].display_name ?? 'anon')}</h4>
-                                    <h4 class="text-md font-bold">${alpine.authorMetaData[c.data.pubkey].nip05 ?? ''}</h4>
+                                    <h4 class="text-lg font-bold">${decodeURI(alpine.authorMetaData[c.data.pubkey]?.display_name ?? 'anon')}</h4>
+                                    <h4 class="text-md font-bold">${alpine.authorMetaData[c.data.pubkey]?.nip05 ?? ''}</h4>
                                 </div>
                             </div>
                         </a>

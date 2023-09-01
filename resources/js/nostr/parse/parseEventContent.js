@@ -27,7 +27,7 @@ export const parseEventContent = async (content, id, alpine) => {
                     <div class="flex justify-between p-2">
                         <a href="/feed/${alpine.authorMetaData[c.data.pubkey]?.npub}">
                             <div class="flex pb-4 justify-between">
-                                <div class="mr-4 flex-shrink-0"><img class="inline-block h-14 w-14 rounded-full" alt="${decodeURI(alpine.authorMetaData[c.data.pubkey] && alpine.authorMetaData[c.data.pubkey].display_name) ?? 'A'}" src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
+                                <div class="mr-4 flex-shrink-0"><img class="inline-block h-14 w-14 rounded-full" alt="${decodeURI(alpine.authorMetaData[c.data.pubkey] && alpine.authorMetaData[c.data.pubkey].display_name)}" src="${alpine.authorMetaData[c.data.pubkey].image ?? ''}"/></div>
                                 <div>
                                     <h4 class="text-lg font-bold">${decodeURI(alpine.authorMetaData[c.data.pubkey].display_name)}</h4>
                                     <h4 class="text-md font-bold">${alpine.authorMetaData[c.data.pubkey].nip05}</h4>

@@ -80,6 +80,16 @@ async function loadProfile() {
 async function initApp() {
     // set authorMetaData from cache
     this.authorMetaData = this.npubsCache;
+
+    // set currentFeedAuthor
+    if (this.isCustomFeed) {
+        // get last part of current path
+        // get hexpub from currentNpub
+        const currentHexpub = nip19.decode(this.currentNpubs[0]).data;
+        await this.getAuthorsMeta([currentHexpub]);
+        this.currentFeedAuthor = currentHexpub;
+    }
+
     //debug('INIT AUTHOR METADATA FROM CACHE', Object.values(Alpine.raw(this.authorMetaData)));
 
     // init confetti
@@ -233,15 +243,6 @@ export default (livewireComponent) => ({
     // init app
     async init() {
         await initApp.call(this);
-
-        // set currentFeedAuthor
-        if (this.isCustomFeed) {
-            // get last part of current path
-            // get hexpub from currentNpub
-            const currentHexpub = nip19.decode(this.currentNpubs[0]).data;
-            await this.getAuthorsMeta([currentHexpub]);
-            this.currentFeedAuthor = currentHexpub;
-        }
 
         // create poll function to check for new events
         const poll = async () => {

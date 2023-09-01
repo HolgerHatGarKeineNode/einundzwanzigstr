@@ -25,11 +25,13 @@ export default (event) => ({
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.content = this.value;
         ndkEvent.kind = eventKind.text;
-        // set tags for a reply
-        ndkEvent.tags = [
-            ['e', this.currentEventToReact.id, '', 'root'],
-            ['p', this.currentEventToReact.pubkey],
-        ];
+        // set tags from this.currentEventToReact.tags raw from proxy
+        let tags = Alpine.raw(this.currentEventToReact.tags);
+        tags.push(["e", Alpine.raw(this.currentEventToReact.id)]);
+        // if now ["p"] tag exists add it
+        tags.push(["p", Alpine.raw(this.currentEventToReact.pubkey)]);
+        // set tags
+        ndkEvent.tags = tags;
         await ndkEvent.publish();
         this.openCommentModal = false;
 

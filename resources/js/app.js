@@ -31,6 +31,8 @@ Alpine.store('ndk', {
     limit: 1,
     // hours ago
     hoursAgo: 24,
+    // hours step
+    hoursStep: 24,
 })
 
 Alpine.data('nostrApp', nostrApp);

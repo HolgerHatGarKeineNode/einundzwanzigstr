@@ -105,6 +105,18 @@ async function initApp() {
     // init nip07 signer and fetch profile
     await this.loadProfile();
 
+    // check if isMyFeed is true
+    if (this.isMyFeed) {
+        // fetch follows of currentUser
+        const follows= await this.$store.ndk.user.follows();
+        // add npubs to currentNpubs
+        this.currentNpubs = Array.from(follows).map((follow) => follow.npub);
+        // set hoursAgo to 1
+        this.$store.ndk.hoursAgo = 1;
+        // set hoursStep to 1
+        this.$store.ndk.hoursStep = 1;
+    }
+
     // fetch events
     await this.fetchEvents();
 
@@ -133,6 +145,9 @@ export default (livewireComponent) => ({
 
     // mobile menu opened
     open: false,
+
+    // isMyFeed switch
+    isMyFeed: livewireComponent.entangle('isMyFeed'),
 
     // modals
     openCommentModal: false,
@@ -565,7 +580,7 @@ export default (livewireComponent) => ({
     },
 
     async loadMore() {
-        this.$store.ndk.hoursAgo += 24;
+        this.$store.ndk.hoursAgo += this.$store.ndk.hoursStep;
         // debug('>> NEW HOURS', this.$store.ndk.hoursAgo);
         await this.fetchEvents();
     }

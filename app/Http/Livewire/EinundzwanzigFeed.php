@@ -14,6 +14,7 @@ class EinundzwanzigFeed extends Component
 
     public ?string $pubkey = '';
     public bool $isMyFeed = false;
+    public bool $isCustomFeed = false;
     public array $currentNpubs = [];
     public $shouldPoll = true;
 
@@ -31,6 +32,7 @@ class EinundzwanzigFeed extends Component
             default => [$this->pubkey],
         };
         $this->isMyFeed = request()->is('my-feed');
+        $this->isCustomFeed = request()->route()->getName() === 'feed';
     }
 
     public function render()

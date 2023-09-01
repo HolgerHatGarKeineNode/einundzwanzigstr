@@ -114,7 +114,6 @@ async function initApp() {
 
     // init nip07 signer and fetch profile
     await this.loadProfile();
-    console.log(this.$store.ndk.user);
 
     // check if isMyFeed is true
     if (this.isMyFeed) {
@@ -171,6 +170,8 @@ export default (livewireComponent) => ({
 
     // isMyFeed switch
     isMyFeed: livewireComponent.entangle('isMyFeed'),
+    // isCustomFeed switch
+    isCustomFeed: livewireComponent.entangle('isCustomFeed'),
 
     // get cachedRelays
     cachedRelays: livewireComponent.entangle('cachedRelays'),
@@ -222,6 +223,7 @@ export default (livewireComponent) => ({
     authorHexpubs: [],
     // holds author metadata
     authorMetaData: {},
+    currentFeedAuthor: null,
 
     // verify relays
     async verifyRelays(relays) {
@@ -231,6 +233,16 @@ export default (livewireComponent) => ({
     // init app
     async init() {
         await initApp.call(this);
+
+        // set currentFeedAuthor
+        // get last part of current path
+        const currentPath = window.location.pathname;
+        const currentPathParts = currentPath.split('/');
+        const currentNpub = currentPathParts[currentPathParts.length - 1];
+        // get hexpub from currentNpub
+        const currentHexpub = nip19.decode(currentNpub).data;
+        await this.getAuthorsMeta([currentHexpub]);
+        this.currentFeedAuthor = currentHexpub;
 
         // create poll function to check for new events
         const poll = async () => {

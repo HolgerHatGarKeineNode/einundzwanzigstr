@@ -135,9 +135,19 @@ async function initApp() {
         }
     });
 
+    function scrollToTop() {
+        if (
+            document.body.scrollTop > 20 ||
+            document.documentElement.scrollTop > 20
+        ) {
+            this.$refs.scrollToTop.classList.remove("hidden");
+        } else {
+            this.$refs.scrollToTop.classList.add("hidden");
+        }
+    }
+
     // scroll to top
-    const scrollFunction = scrollToTop.call(this);
-    window.addEventListener("scroll", scrollFunction);
+    window.addEventListener("scroll", scrollToTop);
 }
 
 export default (livewireComponent) => ({

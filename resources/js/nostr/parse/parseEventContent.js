@@ -117,9 +117,9 @@ export const parseEventContent = async (content, id, alpine) => {
         p3 = p3.split('&')[0];
 
         return `
-        <div class="aspect-w-16 aspect-h-9 py-2">
-            <iframe height="300" width="100%" src="https://www.youtube.com/embed/${p3}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
+            <div class="aspect-w-16 aspect-h-9 py-2">
+                <iframe height="300" width="100%" src="https://www.youtube.com/embed/${p3}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
         `
     }
 

@@ -11,7 +11,6 @@ import {nip19} from "nostr-tools";
 import {transformToHexpubs} from "./utils/transformToHexpubs.js";
 import {filterReplies} from "./utils/filterReplies.js";
 import {formatDate} from "./utils/formatDate.js";
-import {scrollToTop} from "./utils/scrollToTop.js";
 import {debug, error, warn} from 'high-console';
 import {nested} from "./utils/nested.js";
 

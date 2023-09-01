@@ -235,14 +235,13 @@ export default (livewireComponent) => ({
         await initApp.call(this);
 
         // set currentFeedAuthor
-        // get last part of current path
-        const currentPath = window.location.pathname;
-        const currentPathParts = currentPath.split('/');
-        const currentNpub = currentPathParts[currentPathParts.length - 1];
-        // get hexpub from currentNpub
-        const currentHexpub = nip19.decode(currentNpub).data;
-        await this.getAuthorsMeta([currentHexpub]);
-        this.currentFeedAuthor = currentHexpub;
+        if (this.isCustomFeed) {
+            // get last part of current path
+            // get hexpub from currentNpub
+            const currentHexpub = nip19.decode(this.currentNpubs[0]).data;
+            await this.getAuthorsMeta([currentHexpub]);
+            this.currentFeedAuthor = currentHexpub;
+        }
 
         // create poll function to check for new events
         const poll = async () => {

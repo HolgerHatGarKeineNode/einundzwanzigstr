@@ -1,20 +1,21 @@
 <div class="pb-6" x-show="isCustomFeed">
     <div>
-        <img class="h-32 w-full object-cover"
+        <img class="h-64 w-full object-cover"
              :src="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].banner"
-             alt="">
+             :alt="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].display_name">
     </div>
     <div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div class="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
             <div class="flex">
                 <img class="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32"
                      :src="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].image"
-                     alt=""
+                     :alt="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].display_name"
                 >
             </div>
             <div class="mt-6 sm:flex sm:min-w-0 sm:flex-1 sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
                 <div class="mt-6 min-w-0 flex-1 sm:hidden md:block">
-                    <h1 class="truncate text-2xl font-bold text-gray-200"></h1>
+                    <h1 class="truncate text-2xl font-bold text-gray-200"
+                        x-text="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].display_name"></h1>
                 </div>
                 <div class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-x-4 sm:space-y-0">
                     <button @click="follow" type="button"

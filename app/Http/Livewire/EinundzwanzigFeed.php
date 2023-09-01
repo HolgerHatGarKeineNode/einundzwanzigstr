@@ -32,7 +32,14 @@ class EinundzwanzigFeed extends Component
             default => [$this->pubkey],
         };
         $this->isMyFeed = request()->is('my-feed');
-        $this->isCustomFeed = request()->route()->getName() === 'feed';
+        $this->isCustomFeed = match (true) {
+            request()->is('gigi-feed') => true,
+            request()->is('d11n-feed') => true,
+            request()->is('markus-turm-feed') => true,
+            request()->is('snowden-feed') => true,
+            request()->route()->getName() === 'feed' => true,
+            default => false,
+        };
     }
 
     public function render()

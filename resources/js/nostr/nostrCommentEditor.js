@@ -21,7 +21,10 @@ export default (event) => ({
     },
 
     async comment() {
-
+        await this.jsConfetti.addConfetti({
+            emojis: ['🛠️',],
+        });
+        return;
         // reply to event
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.content = this.value;

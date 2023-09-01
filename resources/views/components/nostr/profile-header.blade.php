@@ -1,7 +1,7 @@
 <div class="pb-6" x-show="isCustomFeed">
     <div>
         <img class="h-64 w-full object-cover"
-             :src="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].banner"
+             :src="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].banner ? authorMetaData[currentFeedAuthor].banner : '/img/nostr.gif'"
              :alt="authorMetaData[currentFeedAuthor] && decodeURI(authorMetaData[currentFeedAuthor].display_name)">
     </div>
     <div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">

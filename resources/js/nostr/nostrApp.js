@@ -352,6 +352,10 @@ export default (livewireComponent) => ({
         for (const event of fetchedEvents) {
             // fetch replies
             const replies = await this.fetchAllRepliesOfEvent(event);
+            // loop through replies and push hexpubs to authorHexpubs
+            for (const reply of replies) {
+                this.authorHexpubs.push(reply.pubkey);
+            }
             //debug('FOUND REPLIES', replies);
             const combinedEventWithReplies = [event, ...replies];
             //debug('combined', combinedEventWithReplies);
@@ -367,7 +371,7 @@ export default (livewireComponent) => ({
         // filter this.authorHexpubs for unique values
         hexpubs = [...new Set(this.authorHexpubs)];
         //debug('hexpubs we want to fetch', hexpubs);
-        await this.getAuthorsMeta(hexpubs);
+        await this.getAuthorsMeta(Array.from(hexpubs));
         await this.getReactions(fetchedEvents);
         if (fromPoll) {
             // warn('+++ HIT EVENTS CACHE UPDATE FROM POLL', Object.values(Alpine.raw(this.newEvents)));

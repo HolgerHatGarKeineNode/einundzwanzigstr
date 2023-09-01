@@ -14,6 +14,8 @@
         <main>
             {{--<x-nostr.secondary-header/>--}}
 
+            <x-nostr.profile-header/>
+
             <!-- CONTENT -->
             <div class="px-2 sm:px-12 pb-32">
 

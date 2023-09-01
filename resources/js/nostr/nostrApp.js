@@ -114,6 +114,7 @@ async function initApp() {
 
     // init nip07 signer and fetch profile
     await this.loadProfile();
+    console.log(this.$store.ndk.user);
 
     // check if isMyFeed is true
     if (this.isMyFeed) {
@@ -563,6 +564,12 @@ export default (livewireComponent) => ({
             emojis: ['🤙',],
         });
         setTimeout(async () => await this.getReactions([event]), 1000);
+    },
+
+    async follow() {
+        await this.jsConfetti.addConfetti({
+            emojis: ['🛠️',],
+        });
     },
 
     checkNip05(nip05) {

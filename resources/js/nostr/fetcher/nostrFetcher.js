@@ -5,13 +5,8 @@ export const nostrFetcher = async (string, alpine) => {
     if (alpine.$store.ndk.ndk) {
         let decoded = null;
 
-        // nostr event after nostr:
-        let charactersToRemove = ["!", "?", "'s", "'", ","];
-        let regex = new RegExp("[" + charactersToRemove.join("") + "]+$", "g");
-        let newStr = string.replace('nostr:', '').replace('\'', '').replace(regex, "");
-
         try {
-            decoded = nip19.decode(newStr);
+            decoded = nip19.decode(string.replace('nostr:', '').replace('\'', ''));
         } catch (e) {
             return {
                 data: {},

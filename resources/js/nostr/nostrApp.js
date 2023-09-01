@@ -307,9 +307,9 @@ export default (livewireComponent) => ({
             //debug('combined', combinedEventWithReplies);
             const nestedReplies = nested(combinedEventWithReplies, [event.id], this.authorHexpubs);
             if (fromPoll) {
-                this.newEvents[event.id].replies = nestedReplies;
+                this.newEvents[event.id].replies = Array.from(nestedReplies);
             } else {
-                this.events[event.id].replies = nestedReplies;
+                this.events[event.id].replies = Array.from(nestedReplies);
             }
         }
 

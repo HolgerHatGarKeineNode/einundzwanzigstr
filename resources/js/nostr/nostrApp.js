@@ -63,7 +63,7 @@ async function verifyRelays(relays) {
 async function loadProfile() {
     await this.$store.ndk.nip07signer.user().then(async (user) => {
         if (!!user.npub) {
-            warn("Permission granted to read their public key:", user.npub);
+            // warn("Permission granted to read their public key:", user.npub);
             this.$store.ndk.user = this.$store.ndk.ndk.getUser({
                 npub: user.npub,
             });
@@ -187,14 +187,12 @@ export default (livewireComponent) => ({
 
     // init app
     async init() {
-        success('Success Message', {userId: '1234Abdsksk'});
-
         await initApp.call(this);
 
         // create poll function to check for new events
         const poll = async () => {
             await this.fetchEvents(true);
-            warn('_______POLLING FOR NEW EVENTS_______');
+            // warn('_______POLLING FOR NEW EVENTS_______');
             setTimeout(poll, 30000);
         }
 
@@ -214,7 +212,7 @@ export default (livewireComponent) => ({
     },
 
     async fetchAllRepliesOfEvent(event, fromPoll) {
-        warn('connected to fetchAllRepliesOfEvents');
+        // warn('connected to fetchAllRepliesOfEvents');
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         const events = await fetcher.fetchAllEvents(
             this.$store.ndk.validatedRelays,
@@ -261,14 +259,14 @@ export default (livewireComponent) => ({
     },
 
     async fetchEvents(fromPoll) {
-        warn('>>> fetchEvents');
+        // warn('>>> fetchEvents');
         if (!fromPoll) {
             document.querySelector("#loader").style.display = "block";
         }
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         let hexpubs = transformToHexpubs.call(this);
-        debug('???? SEARCH FOR HEXPUBS', hexpubs);
+        // debug('???? SEARCH FOR HEXPUBS', hexpubs);
         // FILTER
         let fetchedEvents = await fetcher.fetchAllEvents(
             this.$store.ndk.validatedRelays,
@@ -276,25 +274,25 @@ export default (livewireComponent) => ({
             {since: nHoursAgo(this.$store.ndk.hoursAgo)},
             {sort: true}
         );
-        debug('UNTIL', this.formatDate(nHoursAgo(this.$store.ndk.hoursAgo)));
-        debug('FOUND EVENTS', fetchedEvents);
+        // debug('UNTIL', this.formatDate(nHoursAgo(this.$store.ndk.hoursAgo)));
+        // debug('FOUND EVENTS', fetchedEvents);
         // filter events that are replies or reposts
         fetchedEvents = filterReplies(fetchedEvents);
 
         // hit cache for events
         const eventsIds = fetchedEvents.map((ev) => ev.id);
         await this.$wire.getEventsByIds(eventsIds).then(result => {
-            debug('+++ HIT EVENTS CACHE', result);
+            // debug('+++ HIT EVENTS CACHE', result);
             if (result > 0) {
-                warn('*** EVENTS AFTER HITTING CACHE', this.eventsCache);
+                // warn('*** EVENTS AFTER HITTING CACHE', this.eventsCache);
             }
         });
-        debug('FILTERED EVENTS', fetchedEvents);
+        // debug('FILTERED EVENTS', fetchedEvents);
         // init events object
         if (fetchedEvents.length > 0) {
             for (const newEv of fetchedEvents) {
 
-                debug('????? SEARCH ON EVENTS CACHE', Alpine.raw(this.eventsCache[newEv.id] ?? {}));
+                // debug('????? SEARCH ON EVENTS CACHE', Alpine.raw(this.eventsCache[newEv.id] ?? {}));
 
                 if (fromPoll) {
                     if (this.newEvents[newEv.id]) {
@@ -313,7 +311,7 @@ export default (livewireComponent) => ({
                 }
             }
         }
-        warn('NEW EVENTS OBJECT', Object.values(Alpine.raw(this.events)));
+        // warn('NEW EVENTS OBJECT', Object.values(Alpine.raw(this.events)));
         // fetch all replies of events
         for (const f of fetchedEvents) {
             const newReplies = await this.fetchAllRepliesOfEvent(f, fromPoll);
@@ -327,11 +325,11 @@ export default (livewireComponent) => ({
         await this.getAuthorsMeta(hexpubs);
         await this.getReactions(fetchedEvents);
         if (fromPoll) {
-            warn('+++ HIT EVENTS CACHE UPDATE FROM POLL', Object.values(Alpine.raw(this.newEvents)));
+            // warn('+++ HIT EVENTS CACHE UPDATE FROM POLL', Object.values(Alpine.raw(this.newEvents)));
             this.$wire.updateEventCache(Object.values(Alpine.raw(this.newEvents)));
-            warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
+            // warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
             this.$wire.getEventsByIds(eventsIds).then(result => {
-                warn('--- NEW CACHE RESULT', result);
+                // warn('--- NEW CACHE RESULT', result);
             });
             // check if there are new events by id, compare to this.events
             const newEventIds = Object.keys(this.newEvents);
@@ -342,11 +340,11 @@ export default (livewireComponent) => ({
             }
         } else {
             // hit the cache
-            warn('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
+            // warn('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
             this.$wire.updateEventCache(Object.values(Alpine.raw(this.events)));
-            warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
+            // warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
             this.$wire.getEventsByIds(eventsIds).then(result => {
-                warn('--- NEW CACHE RESULT', result);
+                // warn('--- NEW CACHE RESULT', result);
             });
             document.querySelector("#loader").style.display = "none";
         }
@@ -392,7 +390,7 @@ export default (livewireComponent) => ({
 
             this.authorMetaData[latestEvent.pubkey] = profile;
             // hit cache
-            debug('HIT AUTHORS CACHE UPDATE', profile);
+            // debug('HIT AUTHORS CACHE UPDATE', profile);
             this.$wire.call('updateNpubsCache', profile);
         }
     },
@@ -403,7 +401,7 @@ export default (livewireComponent) => ({
 
     async getReactions(events) {
         if (this.$store.ndk.user) {
-            warn('connected to getReactions');
+            // warn('connected to getReactions');
             // if events is an array
             if (events.length > 0) {
                 const eventIds = events.map((event) => event.id);
@@ -509,10 +507,10 @@ export default (livewireComponent) => ({
                 69000,
                 'This is a test zap from my experimental nostr web client at https://einundzwanzigstr.codingarena.de'
             );
-        debug(res, window.webln);
+        // debug(res, window.webln);
         await requestProvider();
         const payment = await window.webln.sendPayment(res);
-        debug(payment);
+        // debug(payment);
         await this.jsConfetti.addConfetti({
             emojis: ['⚡'],
         });
@@ -539,7 +537,7 @@ export default (livewireComponent) => ({
             const nip05Parts = nip05.split('@');
             // check if nip05 has 2 parts
             if (nip05Parts.length !== 2) {
-                warn('nip05 is invalid');
+                // warn('nip05 is invalid');
                 return;
             }
             // check if nip05 has a valid domain
@@ -560,7 +558,7 @@ export default (livewireComponent) => ({
                         const nip05Name = nip05Parts[0];
                         return data.names.find((name) => name === nip05Name);
                     } else {
-                        debug(data);
+                        // debug(data);
                     }
                 });
         }
@@ -568,7 +566,7 @@ export default (livewireComponent) => ({
 
     async loadMore() {
         this.$store.ndk.hoursAgo += 24;
-        debug('>> NEW HOURS', this.$store.ndk.hoursAgo);
+        // debug('>> NEW HOURS', this.$store.ndk.hoursAgo);
         await this.fetchEvents();
     }
 

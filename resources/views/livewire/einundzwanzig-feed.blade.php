@@ -17,9 +17,9 @@
             <!-- CONTENT -->
             <div class="px-2 sm:px-12 pb-32">
 
-                <ul role="list" class="space-y-3">
+                <x-nostr.no-nip07-alert/>
 
-                    <x-nostr.no-nip07-alert/>
+                <ul role="list" class="space-y-3">
 
                     <template
                             x-for="event in Object.fromEntries(Object.entries(events).sort(([,a],[,b]) => b.created_at-a.created_at))"

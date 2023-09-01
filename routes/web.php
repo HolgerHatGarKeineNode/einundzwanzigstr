@@ -27,6 +27,8 @@ Route::get('/d11n-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('d11
 Route::get('/markus-turm-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('markus-turm-feed');
 Route::get('/snowden-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('snowden-feed');
 
+Route::get('/settings/relays', \App\Http\Livewire\Settings\Relays::class)->name('settings.relays');
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');

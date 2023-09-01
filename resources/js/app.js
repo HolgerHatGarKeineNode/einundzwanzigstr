@@ -20,7 +20,7 @@ Alpine.store('ndk', {
     // signer
     nip07signer: new NDKNip07Signer(),
     // dexie cache adapter
-    dexieAdapter: new NDKCacheAdapterDexie({dbName: 'einundzwanzigNostrDB'}),
+    dexieAdapter: new NDKCacheAdapterDexie({dbName: 'einundzwanzigNostrDB', expirationTime: 60 * 60 * 24 * 7}),
     // current nostr user
     user: null,
     // loadSince
@@ -40,4 +40,5 @@ Alpine.data('nostrDetails', nostrDetails);
 Alpine.data('nostrReplies', nostrReplies);
 Alpine.data('nostrNoteEditor', nostrNoteEditor);
 Alpine.data('nostrCommentEditor', nostrCommentEditor);
+
 Alpine.start();

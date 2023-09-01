@@ -97,12 +97,12 @@
                     <div class="text-xs font-semibold leading-6 text-gray-400">Settings</div>
                     <ul role="list" class="-mx-2 mt-2 space-y-1">
                         <li>
-                            <a href="#"
-                               class="{{ $notActiveClass }}"
+                            <a href="{{ route('settings.relays') }}"
+                               class="{{ request()->route()->getName() === 'settings.relays' ? $activeClass : $notActiveClass }}"
                                x-state:on="Current" x-state:off="Default"
                                x-state-description="Current: &quot;bg-gray-800 text-white&quot;, Default: &quot;text-gray-400 hover:text-white hover:bg-gray-800&quot;">
-                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-500 text-[0.625rem] font-medium text-gray-100 group-hover:text-white">R</span>
-                                <span class="truncate">Relays</span>
+                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-500 text-[0.625rem] font-medium text-gray-100 group-hover:text-white">S</span>
+                                <span class="truncate">Settings</span>
                             </a>
                         </li>
                         <li>

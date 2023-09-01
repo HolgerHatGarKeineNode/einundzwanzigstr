@@ -1,5 +1,6 @@
 import {eventKind} from "nostr-fetch";
 import {NDKEvent} from "@nostr-dev-kit/ndk";
+import {parse} from "./nips/nip10.js";
 
 export default (event) => ({
     value: '',
@@ -44,7 +45,7 @@ export default (event) => ({
 
         const that = this;
         setTimeout(async function () {
-            await that.fetchAllRepliesOfEvent(that.currentEventToReact, false, 0, that.currentEventToReact);
+            await that.fetchEvents(true);
         }, 1000);
     },
 });

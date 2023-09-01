@@ -1,7 +1,6 @@
 import NDK, {NDKEvent} from '@nostr-dev-kit/ndk';
 import {eventKind, NostrFetcher} from 'nostr-fetch';
 import {ndkAdapter} from '@nostr-fetch/adapter-ndk';
-import defaultRelays from "./defaultRelays.js";
 import {decode} from "light-bolt11-decoder";
 import JSConfetti from 'js-confetti';
 import {requestProvider} from "webln";
@@ -13,6 +12,7 @@ import {filterReplies} from "./utils/filterReplies.js";
 import {formatDate} from "./utils/formatDate.js";
 import {debug, error, warn} from 'high-console';
 import {nested} from "./utils/nested.js";
+import defaultRelays from "./defaultRelays.js";
 
 async function verifyRelays(relays) {
     try {
@@ -68,6 +68,9 @@ async function loadProfile() {
                 npub: user.npub,
             });
             await this.$store.ndk.user.fetchProfile();
+            const relays = await this.$store.ndk.user.relayList();
+            const relayArray = Array.from(relays)[0]?.tags ?? [];
+            this.$wire.updateRelays(relayArray);
         }
     }).catch((error) => {
         this.rejected = true;
@@ -84,6 +87,12 @@ async function initApp() {
 
     // verify relays
     let explicitRelayUrls = [];
+    // pick second value from cachedRelays
+    // if (this.cachedRelays.length > 0) {
+    //     for (const relay of this.cachedRelays) {
+    //         explicitRelayUrls.push(relay[1]);
+    //     }
+    // }
     explicitRelayUrls = await this.verifyRelays(defaultRelays);
     this.$store.ndk.validatedRelays = explicitRelayUrls;
 
@@ -146,7 +155,7 @@ async function initApp() {
     }
 
     // scroll to top
-    window.addEventListener("scroll", scrollToTop);
+    window.addEventListener("scroll", scrollToTop.call(this));
 }
 
 export default (livewireComponent) => ({
@@ -157,8 +166,13 @@ export default (livewireComponent) => ({
     // mobile menu opened
     open: false,
 
+    shouldPoll: livewireComponent.entangle('shouldPoll'),
+
     // isMyFeed switch
     isMyFeed: livewireComponent.entangle('isMyFeed'),
+
+    // get cachedRelays
+    cachedRelays: livewireComponent.entangle('cachedRelays'),
 
     // modals
     openCommentModal: false,
@@ -225,14 +239,28 @@ export default (livewireComponent) => ({
         }
 
         // start polling
-        await poll();
+        if (this.shouldPoll) {
+            await poll();
+        }
     },
 
     mergeNewEvents() {
         this.events = {...this.newEvents, ...this.events};
         this.newEvents = [];
         this.hasNewEvents = false;
-        scrollToTop();
+
+        function scrollToTop() {
+            if (
+                document.body.scrollTop > 20 ||
+                document.documentElement.scrollTop > 20
+            ) {
+                this.$refs.scrollToTop.classList.remove("hidden");
+            } else {
+                this.$refs.scrollToTop.classList.add("hidden");
+            }
+        }
+
+        scrollToTop.call(this);
     },
 
     async loadProfile() {

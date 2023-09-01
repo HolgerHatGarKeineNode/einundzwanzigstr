@@ -12,7 +12,7 @@ import {transformToHexpubs} from "./utils/transformToHexpubs.js";
 import {filterReplies} from "./utils/filterReplies.js";
 import {formatDate} from "./utils/formatDate.js";
 import {scrollToTop} from "./utils/scrollToTop.js";
-import {debug, error} from 'high-console';
+import {debug, error, warn} from 'high-console';
 import {nested} from "./utils/nested.js";
 
 async function verifyRelays(relays) {
@@ -211,12 +211,12 @@ export default (livewireComponent) => ({
         // create poll function to check for new events
         const poll = async () => {
             await this.fetchEvents(true);
-            // warn('_______POLLING FOR NEW EVENTS_______');
+            warn('_______POLLING FOR NEW EVENTS_______');
             setTimeout(poll, 30000);
         }
 
         // start polling
-        //await poll();
+        await poll();
     },
 
     mergeNewEvents() {
@@ -272,6 +272,7 @@ export default (livewireComponent) => ({
             }
         });
         // debug('FILTERED EVENTS', fetchedEvents);
+
         // init events object
         if (fetchedEvents.length > 0) {
             for (const newEv of fetchedEvents) {
@@ -305,7 +306,11 @@ export default (livewireComponent) => ({
             const combinedEventWithReplies = [event, ...replies];
             //debug('combined', combinedEventWithReplies);
             const nestedReplies = nested(combinedEventWithReplies, [event.id], this.authorHexpubs);
-            this.events[event.id].replies = Array.from(nestedReplies);
+            if (fromPoll) {
+                this.newEvents[event.id].replies = nestedReplies;
+            } else {
+                this.events[event.id].replies = nestedReplies;
+            }
         }
 
         // fetch authors metadata

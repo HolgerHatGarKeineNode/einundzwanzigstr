@@ -68,11 +68,11 @@
             >
                 <tr>
                     <td class="py-4 px-4 max-w-[150px]">
-                        <a :href="'/feed/' + authorMetaData[reaction.senderPubkey].npub">
+                        <a :href="authorMetaData[reaction.senderPubkey] ? '/feed/' + authorMetaData[reaction.senderPubkey].npub : '#'">
                             <div class="flex items-center gap-x-4">
                                 <img
                                         :src="authorMetaData[reaction.senderPubkey] ? authorMetaData[reaction.senderPubkey].image : '/img/nostr.png'"
-                                        :alt="authorMetaData[reaction.senderPubkey].display_name[0]"
+                                        :alt="authorMetaData[reaction.senderPubkey] ? authorMetaData[reaction.senderPubkey].display_name[0] : 'anon'"
                                         class="h-8 w-8 rounded-full bg-gray-800">
                                 <div
                                         class="truncate text-sm font-medium leading-6 text-white"

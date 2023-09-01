@@ -42,7 +42,7 @@ export default (event) => ({
 
         const that = this;
         setTimeout(async function () {
-            await that.fetchAllRepliesOfEvent(that.currentEventToReact);
+            await that.fetchAllRepliesOfEvent(that.currentEventToReact, false, 0, that.currentEventToReact);
         }, 1000);
     },
 });

@@ -1,0 +1,34 @@
+p.tree,
+ul.tree,
+ul.tree ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.tree ul {
+    margin-left: 1.0em;
+}
+
+ul.tree li {
+    margin-left: 0.35em;
+    border-left: thin solid #f59e0b;
+}
+
+ul.tree li:last-child {
+    border-left: none;
+}
+
+ul.tree li:before {
+    width: 0.9em;
+    height: 0.6em;
+    margin-right: 0.1em;
+    vertical-align: top;
+    border-bottom: thin solid #f59e0b;
+    content: "";
+    display: inline-block;
+}
+
+ul.tree li:last-child:before {
+    border-left: thin solid #f59e0b;
+}

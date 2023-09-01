@@ -12,7 +12,8 @@ import {transformToHexpubs} from "./utils/transformToHexpubs.js";
 import {filterReplies} from "./utils/filterReplies.js";
 import {formatDate} from "./utils/formatDate.js";
 import {scrollToTop} from "./utils/scrollToTop.js";
-import { success, debug, warn, error } from 'high-console';
+import {debug, error} from 'high-console';
+import {nested} from "./utils/nested.js";
 
 async function verifyRelays(relays) {
     try {
@@ -77,6 +78,7 @@ async function loadProfile() {
 async function initApp() {
     // set authorMetaData from cache
     this.authorMetaData = this.npubsCache;
+    //debug('INIT AUTHOR METADATA FROM CACHE', Object.values(Alpine.raw(this.authorMetaData)));
 
     // init confetti
     this.jsConfetti = new JSConfetti();
@@ -108,7 +110,7 @@ async function initApp() {
     // check if isMyFeed is true
     if (this.isMyFeed) {
         // fetch follows of currentUser
-        const follows= await this.$store.ndk.user.follows();
+        const follows = await this.$store.ndk.user.follows();
         // add npubs to currentNpubs
         this.currentNpubs = Array.from(follows).map((follow) => follow.npub);
         // set hoursAgo to 1
@@ -192,6 +194,8 @@ export default (livewireComponent) => ({
     newEvents: [],
     hasNewEvents: false,
 
+    // holds all hexpubs from all authors we want to fetch
+    authorHexpubs: [],
     // holds author metadata
     authorMetaData: {},
 
@@ -212,7 +216,7 @@ export default (livewireComponent) => ({
         }
 
         // start polling
-        await poll();
+        //await poll();
     },
 
     mergeNewEvents() {
@@ -226,51 +230,15 @@ export default (livewireComponent) => ({
         await loadProfile.call(this);
     },
 
-    async fetchAllRepliesOfEvent(event, fromPoll) {
+    async fetchAllRepliesOfEvent(event) {
         // warn('connected to fetchAllRepliesOfEvents');
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-        const events = await fetcher.fetchAllEvents(
+        return await fetcher.fetchAllEvents(
             this.$store.ndk.validatedRelays,
             {kinds: [eventKind.text], '#e': [event.id],},
             {},
             {sort: true}
         );
-        if (events.length > 0) {
-            const replies = new Set();
-            events.forEach((ev) => {
-                const tags = ev.tags.filter((el) => el[0] === 'e' && el[1] !== ev.id);
-                if (tags.length > 0) {
-                    tags.forEach((tag) => {
-                        const rootIndex = events.findIndex((el) => el.id === tag[1]);
-                        if (rootIndex !== -1) {
-                            const rootEvent = events[rootIndex];
-                            if (rootEvent && rootEvent.replies) {
-                                rootEvent.replies.push(ev);
-                            } else {
-                                rootEvent.replies = [ev];
-                            }
-                            replies.add(ev.id);
-                        }
-                    });
-                }
-            });
-            const filtered = events.filter((ev) => !replies.has(ev.id));
-            if (fromPoll) {
-                this.newEvents[event.id].replies = filtered;
-            } else {
-                this.events[event.id].replies = filtered;
-            }
-            // unique pubkeys from events
-            const authorIds = [...new Set(this.events[event.id].replies.map((ev) => ev.pubkey))];
-            // filter authorIds that are already in this.authorMetaData with filter method
-            authorIds.filter((authorId) => !this.authorMetaData[authorId]);
-            await this.getAuthorsMeta(authorIds);
-            // loop through replies and find replies of replies
-            for (const reply of this.events[event.id].replies) {
-                //await this.fetchAllRepliesOfEvent(reply);
-            }
-            return filtered;
-        }
     },
 
     async fetchEvents(fromPoll) {
@@ -281,6 +249,8 @@ export default (livewireComponent) => ({
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         let hexpubs = transformToHexpubs.call(this);
+        // push all hexpubs to authorHexpubs
+        this.authorHexpubs.push(...hexpubs);
         // debug('???? SEARCH FOR HEXPUBS', hexpubs);
         // FILTER
         let fetchedEvents = await fetcher.fetchAllEvents(
@@ -290,10 +260,9 @@ export default (livewireComponent) => ({
             {sort: true}
         );
         // debug('UNTIL', this.formatDate(nHoursAgo(this.$store.ndk.hoursAgo)));
-        // debug('FOUND EVENTS', fetchedEvents);
+        //debug('FOUND EVENTS', fetchedEvents);
         // filter events that are replies or reposts
         fetchedEvents = filterReplies(fetchedEvents);
-
         // hit cache for events
         const eventsIds = fetchedEvents.map((ev) => ev.id);
         await this.$wire.getEventsByIds(eventsIds).then(result => {
@@ -327,16 +296,22 @@ export default (livewireComponent) => ({
             }
         }
         // warn('NEW EVENTS OBJECT', Object.values(Alpine.raw(this.events)));
-        // fetch all replies of events
-        for (const f of fetchedEvents) {
-            const newReplies = await this.fetchAllRepliesOfEvent(f, fromPoll);
-            if (fromPoll) {
-                this.newEvents[f.id].replies = newReplies;
-            } else {
-                this.events[f.id].replies = newReplies;
-            }
+
+        // replies
+        for (const event of fetchedEvents) {
+            // fetch replies
+            const replies = await this.fetchAllRepliesOfEvent(event);
+            //debug('FOUND REPLIES', replies);
+            const combinedEventWithReplies = [event, ...replies];
+            //debug('combined', combinedEventWithReplies);
+            const nestedReplies = nested(combinedEventWithReplies, [event.id], this.authorHexpubs);
+            this.events[event.id].replies = Array.from(nestedReplies);
         }
+
         // fetch authors metadata
+        // filter this.authorHexpubs for unique values
+        hexpubs = [...new Set(this.authorHexpubs)];
+        //debug('hexpubs we want to fetch', hexpubs);
         await this.getAuthorsMeta(hexpubs);
         await this.getReactions(fetchedEvents);
         if (fromPoll) {
@@ -363,6 +338,8 @@ export default (livewireComponent) => ({
             });
             document.querySelector("#loader").style.display = "none";
         }
+        debug('AUTHORS', Object.values(Alpine.raw(this.authorMetaData)));
+        debug('EVENTS', Object.values(Alpine.raw(this.events)));
     },
 
     async getAuthorsMeta(authorIds) {

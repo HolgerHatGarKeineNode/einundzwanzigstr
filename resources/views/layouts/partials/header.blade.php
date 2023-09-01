@@ -20,7 +20,7 @@
 
     </div>
 
-    <div class="flex justify-center py-4" x-show="hasNewEvents">
+    <div x-cloak class="flex justify-center py-4" x-show="hasNewEvents">
         <x-button outline amber @click="mergeNewEvents">
             <x-fat-rotate class="w-6 h-6 mr-2"/>
             <span>Show new notes</span>

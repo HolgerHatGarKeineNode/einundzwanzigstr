@@ -20,6 +20,9 @@
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/1.11/simplemde.min.css">
     @livewireStyles
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 <body class="overflow-y-auto bg-[#222222]">
 <x-notifications z-index="z-50"/>

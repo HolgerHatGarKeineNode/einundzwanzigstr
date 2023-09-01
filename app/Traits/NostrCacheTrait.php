@@ -62,6 +62,9 @@ trait NostrCacheTrait
     {
         $redis = Redis::connection('nostr')->client();
         foreach ($value as $item) {
+            if (!isset($item['id'])) {
+                dd($value);
+            }
             $redis->hSet('events', $item['id'], json_encode($item, JSON_THROW_ON_ERROR));
         }
         $this->usedMemory = $redis->info('memory')['used_memory_human'];
@@ -69,6 +72,9 @@ trait NostrCacheTrait
 
     public function updateNpubsCache($value)
     {
+        if (!isset($value['pubkey'])) {
+            dd($value);
+        }
         $redis = Redis::connection('nostr')->client();
         $redis->hSet('npubs', $value['pubkey'], json_encode($value, JSON_THROW_ON_ERROR));
         $this->usedMemory = $redis->info('memory')['used_memory_human'];

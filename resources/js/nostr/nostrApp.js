@@ -153,19 +153,18 @@ async function initApp() {
         }
     });
 
-    function scrollToTop() {
+    // scroll to top
+    const that = this;
+    window.addEventListener("scroll", function() {
         if (
             document.body.scrollTop > 20 ||
             document.documentElement.scrollTop > 20
         ) {
-            this.$refs.scrollToTop.classList.remove("hidden");
+            that.$refs.scrollToTop.classList.remove("hidden");
         } else {
-            this.$refs.scrollToTop.classList.add("hidden");
+            that.$refs.scrollToTop.classList.add("hidden");
         }
-    }
-
-    // scroll to top
-    window.addEventListener("scroll", scrollToTop.call(this));
+    });
 }
 
 export default (livewireComponent) => ({
@@ -262,18 +261,8 @@ export default (livewireComponent) => ({
         this.newEvents = [];
         this.hasNewEvents = false;
 
-        function scrollToTop() {
-            if (
-                document.body.scrollTop > 20 ||
-                document.documentElement.scrollTop > 20
-            ) {
-                this.$refs.scrollToTop.classList.remove("hidden");
-            } else {
-                this.$refs.scrollToTop.classList.add("hidden");
-            }
-        }
-
-        scrollToTop.call(this);
+        // scroll to top
+        window.scrollTo(0, 0, {behavior: 'smooth'});
     },
 
     async loadProfile() {

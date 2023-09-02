@@ -96,7 +96,7 @@
                 <li>
                     <div class="text-xs font-semibold leading-6 text-gray-400">Settings</div>
                     <ul role="list" class="-mx-2 mt-2 space-y-1">
-                        <li>
+                        {{--<li>
                             <a href="{{ route('settings.relays') }}"
                                class="{{ request()->route()->getName() === 'settings.relays' ? $activeClass : $notActiveClass }}"
                                x-state:on="Current" x-state:off="Default"
@@ -104,8 +104,8 @@
                                 <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-500 text-[0.625rem] font-medium text-gray-100 group-hover:text-white">S</span>
                                 <span class="truncate">Settings</span>
                             </a>
-                        </li>
-                        <li>
+                        </li>--}}
+                        {{--<li>
                             <a href="#"
                                class="{{ $notActiveClass }}"
                                x-state:on="Current" x-state:off="Default"
@@ -113,7 +113,7 @@
                                 <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-500 text-[0.625rem] font-medium text-gray-100 group-hover:text-white">P</span>
                                 <span class="truncate">Profile</span>
                             </a>
-                        </li>
+                        </li>--}}
                         <li class="flex space-x-2 justify-end">
                             <span class="text-xs text-amber-500 font-bold">
                                 <x-fat-database class="w-6 h-6"/>

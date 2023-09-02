@@ -19,6 +19,10 @@ Connect Einundzwanzig Portal data with the nost network.
         - [ ] better nested replies
     - [ ] Einundzwanzig Meetups overview (map)
     - [ ] save npub for Einundzwanzig Meetup
+- [ ] NIP-02 Contact List and Petnames
+- [ ] NIP-04 DMs
+- [ ] NIP-09 Event Deletion
+- [ ] NIP-23 Long-form Content
 - [x] NIP-25 Reactions
 - [x] NIP-18: Repost
 - [x] NIP-57: Zaps

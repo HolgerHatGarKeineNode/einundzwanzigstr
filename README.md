@@ -1,5 +1,9 @@
 [![Laravel Forge Site Deployment Status](https://img.shields.io/endpoint?url=https%3A%2F%2Fforge.laravel.com%2Fsite-badges%2F3a6bceca-0c4e-45a3-97cc-f9a656c1ba1e%3Fdate%3D1%26commit%3D1&style=plastic)](https://forge.laravel.com/servers/515495/sites/2081940)
 
+## Hosted instance
+
+[https://einundzwanzigstr.codingarena.de](https://einundzwanzigstr.codingarena.de)
+
 ## Features
 
 - [x] NIP-01
@@ -46,10 +50,6 @@ docker run --rm \
 #### Start docker development containers
 
 ```vendor/bin/sail up -d```
-
-### Migrate and seed the database
-
-```./vendor/bin/sail artisan migrate:fresh --seed```
 
 ### Laravel storage link
 

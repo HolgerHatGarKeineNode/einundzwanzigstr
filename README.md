@@ -13,8 +13,9 @@ Connect Einundzwanzig Portal data with the nost network.
 - [ ] real-time notifications
 - [ ] better error handling
     - [ ] frontend notifications
-- [x] NIP-01
+- [ ] never ending bugfixes
     - [ ] prevent re-rendering of posts (flickering)
+- [x] NIP-01
     - [ ] user profile
     - [ ] user profile settings
     - [ ] more meta info on all author components

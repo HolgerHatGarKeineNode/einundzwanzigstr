@@ -4,6 +4,10 @@
 
 [https://einundzwanzigstr.codingarena.de](https://einundzwanzigstr.codingarena.de)
 
+## Vision
+
+Connect Einundzwanzig Portal data with the nost network.
+
 ## Features
 
 - [x] NIP-01

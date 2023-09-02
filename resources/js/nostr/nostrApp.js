@@ -247,7 +247,7 @@ export default (livewireComponent) => ({
         const poll = async () => {
             await this.fetchEvents(true);
             warn('_______POLLING FOR NEW EVENTS_______');
-            setTimeout(poll, 30000);
+            setTimeout(poll, 60000);
         }
 
         // start polling

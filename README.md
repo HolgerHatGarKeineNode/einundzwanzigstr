@@ -24,6 +24,8 @@ Connect Einundzwanzig Portal data with the nost network.
     - [ ] Einundzwanzig Meetups overview (map)
     - [ ] save npub for Einundzwanzig Meetup
 - [ ] NIP-02 Contact List and Petnames
+    - [ ] follow/unfollow
+    - [ ] follow statistics
 - [ ] NIP-04 DMs
 - [ ] NIP-09 Event Deletion
 - [ ] NIP-23 Long-form Content

@@ -40,7 +40,7 @@
         <div>
             <x-button amber @click="openCreateNoteModal = true">
                 <x-fat-pen-nib class="w-6 h-6 mr-2"/>
-                Erstelle eine Note
+                Create a note
             </x-button>
         </div>
     @endif

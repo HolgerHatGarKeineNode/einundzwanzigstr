@@ -65,8 +65,6 @@ docker run --rm \
     composer install --ignore-platform-reqs
 ```
 
-*(you need a valid Laravel Nova license)*
-
 #### Start docker development containers
 
 ```vendor/bin/sail up -d```

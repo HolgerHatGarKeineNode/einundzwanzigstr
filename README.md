@@ -14,6 +14,9 @@ Connect Einundzwanzig Portal data with the nost network.
     - [ ] prevent re-rendering of posts (flickering)
     - [ ] user profile
     - [ ] user profile settings
+    - [ ] more meta info on all author components
+        - [ ] follow status
+        - [ ] NIP-05 validation
     - [x] fetch author metadata
     - [ ] reply
         - [ ] better nested replies

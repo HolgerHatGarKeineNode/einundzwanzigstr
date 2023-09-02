@@ -10,6 +10,7 @@ Connect Einundzwanzig Portal data with the nost network.
 
 ## Features
 
+- [ ] real-time notifications
 - [x] NIP-01
     - [ ] prevent re-rendering of posts (flickering)
     - [ ] user profile

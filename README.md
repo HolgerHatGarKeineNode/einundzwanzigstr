@@ -38,6 +38,7 @@ Connect Einundzwanzig Portal data with the nost network.
 - [x] NIP-57: Zaps
     - [x] LUD06
     - [x] LUD16
+    - [ ] custom zap amount and message
 - technical stuff
     - [ ] better relay connections
     - [x] cache

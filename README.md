@@ -7,6 +7,7 @@
 ## Features
 
 - [x] NIP-01
+    - [ ] prevent re-rendering of posts (flickering)
     - [ ] user profile
     - [ ] user profile settings
     - [x] fetch author metadata

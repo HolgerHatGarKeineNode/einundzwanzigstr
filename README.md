@@ -7,12 +7,16 @@
     - [ ] user profile settings
     - [x] fetch author metadata
     - [ ] reply
+        - [ ] better nested replies
+    - [ ] Einundzwanzig Meetups overview (map)
+    - [ ] save npub for Einundzwanzig Meetup
 - [x] NIP-25 Reactions
 - [x] NIP-18: Repost
 - [x] NIP-57: Zaps
     - [x] LUD06
     - [x] LUD16
 - technical stuff
+    - [ ] better relay connections
     - [x] cache
         - [x] redis
         - [x] dexie cache
@@ -20,6 +24,7 @@
     - [x] signing
         - [x] NIP-07
         - [ ] nsec bunker
+        - [ ] Nostr Connect
 
 ## Development
 

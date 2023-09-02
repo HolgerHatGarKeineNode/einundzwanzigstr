@@ -11,6 +11,7 @@ Connect Einundzwanzig Portal data with the nost network.
 ## Features
 
 - [ ] real-time notifications
+- [ ] image proxy
 - [ ] better error handling
     - [ ] frontend notifications
 - [ ] never ending bugfixes

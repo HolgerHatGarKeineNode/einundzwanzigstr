@@ -18,7 +18,9 @@ Alpine.store('ndk', {
     // current nostr user
     user: null,
     // hours ago
-    hoursAgo: 1,
+    lastEventTimestamp: null,
+    // hours ago
+    explicitRelayUrls: [],
 })
 
 Alpine.data('nostrApp', nostrApp);

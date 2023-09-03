@@ -1,13 +1,12 @@
 @props([
     'event',
+    'reactions',
+    'zaps',
+    'reposts',
 ])
 
 @php
     $redisClient = Illuminate\Support\Facades\Redis::connection('nostr')->client();
-    $replies = json_decode($redisClient->hGet('replies', $event['pubkey'] . ':' . $event['id']), true);
-    $reactions = json_decode($redisClient->hGet('reactions', $event['pubkey'] . ':' . $event['id']), true);
-    $zaps = json_decode($redisClient->hGet('zaps', $event['pubkey'] . ':' . $event['id']), true);
-    $repost = json_decode($redisClient->hGet('reposts', $event['pubkey'] . ':' . $event['id']), true);
 @endphp
 
 <div x-data="{
@@ -53,16 +52,14 @@
             @endphp
             <tr x-show="currentTab === 'reactions'" wire:key="reaction_{{ $reaction['id'] }}">
                 <td class="py-4 px-4 max-w-[150px]">
-                    <a
-                            {{--:href="authorMetaData[reaction.pubkey] ? '/feed/' + authorMetaData[reaction.pubkey].npub : '#'"--}}
-                    >
+                    <a href="{{ isset($author['npub']) ? '/feed/' . $author['npub'] : '#' }}" class="flex">
                         <div class="flex items-center gap-x-4">
                             <img
                                     src="{{ $author['profile']['image'] }}"
-                                    alt="{{ str($author['profile']['display_name'])->limit(1, '') }}"
+                                    alt="{{ isset($author['profile']['display_name']) ? str($author['profile']['display_name'])->limit(1, '') : 'A' }}"
                                     class="h-8 w-8 rounded-full bg-gray-800">
                             <div class="truncate text-sm font-medium leading-6 text-white">
-                                {{ urldecode($author['profile']['display_name']) }}
+                                {{ isset($author['profile']['display_name']) ? urldecode($author['profile']['display_name']) : 'anon' }}
                             </div>
                         </div>
                     </a>
@@ -70,7 +67,7 @@
                 <td class="py-4 pl-0 pr-4 sm:pr-8">
                     <div class="flex gap-x-3">
                         <div class="font-mono text-sm leading-6 text-gray-400">
-                            {{ $reaction['content'] }}
+                            {{ $reaction['content'] === '+' ? 'boost': $reaction['content'] }}
                         </div>
                     </div>
                 </td>
@@ -120,7 +117,7 @@
                 </td>
                 <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
                     <time>
-                        {{ \Illuminate\Support\Carbon::parse($reaction['created_at'])->diffForHumans() }}
+                        {{ \Illuminate\Support\Carbon::parse($zap['created_at'])->diffForHumans() }}
                     </time>
                 </td>
             </tr>

@@ -1,4 +1,4 @@
-import NDK from "@nostr-dev-kit/ndk";
+import NDK, {NDKEvent} from "@nostr-dev-kit/ndk";
 import JSConfetti from "js-confetti";
 import {error} from "high-console";
 import defaultRelays from "../nostr/defaultRelays.js";
@@ -56,8 +56,22 @@ async function verifyRelays(relays) {
 
 export default (livewireComponent) => ({
 
+    // hours ago
+    hoursAgo: 6,
+
     // mobile menu opened
     mobileMenuOpened: false,
+
+    // modals
+    openCommentModal: false,
+    openCreateNoteModal: false,
+    openReactionModal: false,
+    // current modal event
+    currentEventToReactId: null,
+    currentEventToReactPubkey: null,
+
+    // load from pubkey
+    pubkey: livewireComponent.entangle('pubkey'),
 
     // used memory in redis
     usedMemory: livewireComponent.entangle('usedMemory'),
@@ -85,9 +99,9 @@ export default (livewireComponent) => ({
         // init confetti
         this.jsConfetti = new JSConfetti();
 
-        const explicitRelayUrls = await this.verifyRelays(defaultRelays);
+        this.$store.ndk.explicitRelayUrls = await this.verifyRelays(defaultRelays);
         const instance = new NDK({
-            explicitRelayUrls: explicitRelayUrls,
+            explicitRelayUrls: this.$store.ndk.explicitRelayUrls,
             signer: this.$store.ndk.nip07signer,
             cacheAdapter: this.$store.ndk.dexieAdapter,
         });
@@ -115,18 +129,35 @@ export default (livewireComponent) => ({
 
         // fetch follows of currentUser
         const follows = await this.$store.ndk.user.follows();
-
-        // hexpubs of follows
-        const hexpubs = Array.from(follows).map((follow) => follow.hexpubkey());
+        let hexpubs = Array.from(follows).map((follow) => follow.hexpubkey());
         this.$wire.setFollowers(hexpubs);
 
-        // get all events from follows
+        // hexpubs current pubkey
+        if (this.pubkey) {
+            const pubkeyUser = this.$store.ndk.ndk.getUser({
+                npub: this.pubkey,
+            });
+            hexpubs = [pubkeyUser.hexpubkey()];
+        }
+
+        // call cache to load data
+        await this.$wire.setFeedHexpubs(hexpubs);
+
+        this.$wire.reloadFeed();
+
+        await this.fetchEvents(hexpubs);
+
+        this.$wire.reloadFeed();
+    },
+
+    fetchEvents: async function (hexpubs) {
+        // get all events from hexpubs
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         let fetchedEvents = await fetcher.fetchAllEvents(
-            explicitRelayUrls,
+            this.$store.ndk.explicitRelayUrls,
             {kinds: [eventKind.text], authors: hexpubs},
-            {since: nHoursAgo(this.$store.ndk.hoursAgo)},
+            {since: nHoursAgo(this.hoursAgo)},
             {sort: true}
         );
 
@@ -163,7 +194,7 @@ export default (livewireComponent) => ({
         let cachedReplies = {};
         for (const event of fetchedEvents) {
             const replies = await fetcher.fetchAllEvents(
-                explicitRelayUrls,
+                this.$store.ndk.explicitRelayUrls,
                 {kinds: [eventKind.text], '#e': [event.id],},
                 {},
                 {sort: true}
@@ -184,13 +215,16 @@ export default (livewireComponent) => ({
         let cachedZaps = {};
         const eventIds = fetchedEvents.map((event) => event.id);
         const reactionEvents = await fetcher.allEventsIterator(
-            explicitRelayUrls,
+            this.$store.ndk.explicitRelayUrls,
             {kinds: [eventKind.reaction, eventKind.zap, eventKind.repost], '#e': eventIds,},
             {},
         );
         for await (const ev of reactionEvents) {
             const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
-            const reactedToEventPubkey = ev.tags.find((tag) => tag[0] === 'p')[1];
+            const reactedToEventPubkey = ev.tags.find((tag) => tag[0] === 'p')?.[1];
+            if (!reactedToEventPubkey) {
+                continue;
+            }
             switch (ev.kind) {
                 case 6:
                     if (!cachedReposts[reactedToEvent]) {
@@ -273,8 +307,41 @@ export default (livewireComponent) => ({
         // set cached zaps
         await this.$wire.setCache(cachedZaps, 'zaps');
 
-        // call cache to load data
-        this.feedHexpubs = hexpubs;
+        // set last event timestamp
+        if (fetchedEvents.length > 0) {
+            this.$store.ndk.lastEventTimestamp = fetchedEvents[0].created_at;
+        }
     },
 
+    // load more events
+    async loadMoreEvents() {
+        this.loading = true;
+        this.hoursAgo += 6;
+        await this.fetchEvents(this.feedHexpubs);
+        this.loading = false;
+        console.log('hours ago', this.hoursAgo);
+        this.$wire.reloadFeed();
+    },
+
+    openReactionPicker(id, pubkey) {
+        console.log(id);
+        this.currentEventToReactId = id;
+        this.currentEventToReactPubkey = pubkey;
+        this.openReactionModal = true;
+    },
+
+    async love(id, pubkey, emoticon) {
+        // react to event
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
+        ndkEvent.content = emoticon;
+        ndkEvent.kind = eventKind.reaction;
+        ndkEvent.tags = [
+            ['e', id],
+            ['p', pubkey],
+        ];
+        await ndkEvent.publish();
+        await this.jsConfetti.addConfetti({
+            emojis: [emoticon,],
+        })
+    },
 });

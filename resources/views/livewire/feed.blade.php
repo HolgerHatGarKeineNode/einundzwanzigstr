@@ -22,22 +22,21 @@
 
                 <ul role="list" class="space-y-3">
 
-                    @foreach($events as $id => $event)
-
-                        <li wire:key="{{ $id }}">
+                    @foreach($events as $event)
+                        <li wire:key="{{ $event['id'] }}">
                             <x-nostr.events.loop :event="$event"/>
 
                             {{-- MODALS --}}
-                            {{--<x-nostr.modals.reaction/>
-                            <x-nostr.modals.comment/>
-                            <x-nostr.modals.create-note/>--}}
+                            <x-nostr.modals.reaction/>
+                            {{--<x-nostr.modals.comment/>--}}
+                            {{--<x-nostr.modals.create-note/>--}}
                         </li>
                     @endforeach
 
                 </ul>
 
                 <div class="flex justify-center mt-12">
-                    <x-button x-bind:disabled="loading" amber @click="loadMore" spinner loading-delay="shortest">
+                    <x-button x-bind:disabled="loading" amber @click="loadMoreEvents" spinner loading-delay="shortest">
                         <x-fat-loader class="w-6 h-6 mr-2"/>
                         <span>Load more...</span>
                     </x-button>

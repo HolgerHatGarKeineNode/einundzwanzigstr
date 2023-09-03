@@ -1,6 +1,6 @@
 <div
-        x-data="nostrApp(@this)"
-        @keydown.window.escape="openReactionModal = false"
+    x-data="nostrApp(@this)"
+    @keydown.window.escape="openReactionModal = false"
 >
     @include('layouts.partials.navigation')
 
@@ -16,20 +16,21 @@
             <x-nostr.profile-header/>
 
             <!-- CONTENT -->
-            <div class="px-2 sm:px-12 pb-32">
+            <div class="px-2 sm:px-12 pt-12 pb-32">
 
                 <x-nostr.no-nip07-alert/>
 
                 <ul role="list" class="space-y-3">
 
-                    @foreach($eventsCache as $id => $event)
+                    @foreach($events as $id => $event)
+
                         <li wire:key="{{ $id }}">
-                            <x-nostr.events.loop :event="$event" :npubsCache="$npubsCache" :renderedContentCache="$renderedContentCache"/>
+                            <x-nostr.events.loop :event="$event"/>
 
                             {{-- MODALS --}}
-                            <x-nostr.modals.reaction/>
+                            {{--<x-nostr.modals.reaction/>
                             <x-nostr.modals.comment/>
-                            <x-nostr.modals.create-note/>
+                            <x-nostr.modals.create-note/>--}}
                         </li>
                     @endforeach
 

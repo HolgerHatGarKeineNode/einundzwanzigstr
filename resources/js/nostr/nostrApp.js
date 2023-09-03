@@ -68,9 +68,9 @@ async function loadProfile() {
                 npub: user.npub,
             });
             await this.$store.ndk.user.fetchProfile();
-            const relays = await this.$store.ndk.user.relayList();
-            const relayArray = Array.from(relays)[0]?.tags ?? [];
-            this.$wire.updateRelays(relayArray);
+            //const relays = await this.$store.ndk.user.relayList();
+            //const relayArray = Array.from(relays)[0]?.tags ?? [];
+            //this.$wire.updateRelays(relayArray);
         }
     }).catch((error) => {
         this.rejected = true;
@@ -78,8 +78,6 @@ async function loadProfile() {
 }
 
 async function initApp() {
-    // set authorMetaData from cache
-    this.authorMetaData = this.npubsCache;
 
     // set currentFeedAuthor
     if (this.isCustomFeed) {
@@ -138,7 +136,7 @@ async function initApp() {
     }
 
     // fetch events
-    await this.fetchEvents();
+    //await this.fetchEvents(true);
 
     // this.loadMore() until we have 2 events and stop after too many tries
     let tries = 0;
@@ -155,7 +153,7 @@ async function initApp() {
 
     // scroll to top
     const that = this;
-    window.addEventListener("scroll", function() {
+    window.addEventListener("scroll", function () {
         if (
             document.body.scrollTop > 20 ||
             document.documentElement.scrollTop > 20
@@ -181,9 +179,6 @@ export default (livewireComponent) => ({
     isMyFeed: livewireComponent.entangle('isMyFeed'),
     // isCustomFeed switch
     isCustomFeed: livewireComponent.entangle('isCustomFeed'),
-
-    // get cachedRelays
-    cachedRelays: livewireComponent.entangle('cachedRelays'),
 
     // modals
     openCommentModal: false,
@@ -218,12 +213,17 @@ export default (livewireComponent) => ({
     currentNpubs: livewireComponent.entangle('currentNpubs'),
 
     // cache
+    renderedContentCache: livewireComponent.entangle('renderedContentCache'),
+    replies: {},
+    repliesCache: livewireComponent.entangle('repliesCache'),
+    reactionsCache: livewireComponent.entangle('reactionsCache'),
     eventsCache: livewireComponent.entangle('eventsCache'),
     npubsCache: livewireComponent.entangle('npubsCache'),
     usedMemory: livewireComponent.entangle('usedMemory'),
 
     // events to render
     events: [],
+    renderedEvents: [],
     // new events from poll
     newEvents: [],
     hasNewEvents: false,
@@ -245,14 +245,15 @@ export default (livewireComponent) => ({
 
         // create poll function to check for new events
         const poll = async () => {
-            await this.fetchEvents(true);
+            //await this.fetchEvents(true);
             warn('_______POLLING FOR NEW EVENTS_______');
             setTimeout(poll, 60000);
         }
 
         // start polling
         if (this.shouldPoll) {
-            await poll();
+            // wait 1 minute before polling
+            setTimeout(poll, 60000);
         }
     },
 
@@ -302,37 +303,12 @@ export default (livewireComponent) => ({
         //debug('FOUND EVENTS', fetchedEvents);
         // filter events that are replies or reposts
         fetchedEvents = filterReplies(fetchedEvents);
-        // hit cache for events
-        const eventsIds = fetchedEvents.map((ev) => ev.id);
-        await this.$wire.getEventsByIds(eventsIds).then(result => {
-            // debug('+++ HIT EVENTS CACHE', result);
-            if (result > 0) {
-                // warn('*** EVENTS AFTER HITTING CACHE', this.eventsCache);
-            }
-        });
-        // debug('FILTERED EVENTS', fetchedEvents);
 
         // init events object
         if (fetchedEvents.length > 0) {
             for (const newEv of fetchedEvents) {
-
-                // debug('????? SEARCH ON EVENTS CACHE', Alpine.raw(this.eventsCache[newEv.id] ?? {}));
-
-                if (fromPoll) {
-                    if (this.newEvents[newEv.id]) {
-                        this.newEvents[newEv.id] = this.eventsCache[newEv.id];
-                    }
-                    if (!this.newEvents[newEv.id]) {
-                        this.newEvents[newEv.id] = newEv;
-                    }
-                } else {
-                    if (this.eventsCache[newEv.id]) {
-                        this.events[newEv.id] = this.eventsCache[newEv.id];
-                    }
-                    if (!this.events[newEv.id]) {
-                        this.events[newEv.id] = newEv;
-                    }
-                }
+                // render content
+                await this.parseContent(newEv);
             }
         }
         // warn('NEW EVENTS OBJECT', Object.values(Alpine.raw(this.events)));
@@ -349,11 +325,7 @@ export default (livewireComponent) => ({
             const combinedEventWithReplies = [event, ...replies];
             //debug('combined', combinedEventWithReplies);
             const nestedReplies = nested(combinedEventWithReplies, [event.id], this.authorHexpubs);
-            if (fromPoll) {
-                this.newEvents[event.id].replies = Array.from(nestedReplies);
-            } else {
-                this.events[event.id].replies = Array.from(nestedReplies);
-            }
+            this.repliesCache[event.id] = Array.from(nestedReplies);
         }
 
         // fetch authors metadata
@@ -363,13 +335,6 @@ export default (livewireComponent) => ({
         await this.getAuthorsMeta(Array.from(hexpubs));
         await this.getReactions(fetchedEvents);
         if (fromPoll) {
-            // warn('+++ HIT EVENTS CACHE UPDATE FROM POLL', Object.values(Alpine.raw(this.newEvents)));
-            this.$wire.updateEventCache(Object.values(Alpine.raw(this.newEvents)));
-            // warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
-            this.$wire.getEventsByIds(eventsIds).then(result => {
-                // warn('--- NEW CACHE RESULT', result);
-            });
-            // check if there are new events by id, compare to this.events
             const newEventIds = Object.keys(this.newEvents);
             const oldEventIds = Object.keys(this.events);
             const diff = newEventIds.filter((x) => !oldEventIds.includes(x));
@@ -377,17 +342,46 @@ export default (livewireComponent) => ({
                 this.hasNewEvents = true;
             }
         } else {
-            // hit the cache
-            // warn('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
-            this.$wire.updateEventCache(Object.values(Alpine.raw(this.events)));
-            // warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
-            this.$wire.getEventsByIds(eventsIds).then(result => {
-                // warn('--- NEW CACHE RESULT', result);
-            });
-            document.querySelector("#loader").style.display = "none";
+            // // hit the cache
+            // // warn('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
+            // this.$wire.updateEventCache(Object.values(Alpine.raw(this.events)));
+            // console.log(this.reactionsCache);
+            // //this.$wire.updateReactionsCache(Object.values(Alpine.raw(this.reactionsCache)));
+            // // map repliesCache to array and key by event.id
+            // let repliesCache = [];
+            // for (const [key, value] of Object.entries(this.repliesCache)) {
+            //     repliesCache.push({
+            //         id: key,
+            //         replies: Object.values(Alpine.raw(value)),
+            //     });
+            // }
+            // this.$wire.updateRepliesCache(Object.values(Alpine.raw(repliesCache)));
+            // let renderedContentCache = [];
+            // for (const [key, value] of Object.entries(this.renderedContentCache)) {
+            //     renderedContentCache.push({
+            //         id: key,
+            //         content: value,
+            //     });
+            // }
+            // this.$wire.updateRenderedContentCache(Object.values(Alpine.raw(renderedContentCache)));
+            // let reactionsCache = [];
+            // for (const [key, value] of Object.entries(this.reactionsCache)) {
+            //     reactionsCache.push({
+            //         id: key,
+            //         reactions: value,
+            //     });
+            // }
+            // this.$wire.updateReactionsCache(Object.values(Alpine.raw(reactionsCache)));
+            // // warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
+            // this.$wire.getEventsByIds(eventsIds).then(result => {
+            //     // warn('--- NEW CACHE RESULT', result);
+            // });
+            // document.querySelector("#loader").style.display = "none";
         }
-        debug('AUTHORS', Object.values(Alpine.raw(this.authorMetaData)));
-        debug('EVENTS', Object.values(Alpine.raw(this.events)));
+        debug('AUTHOR META DATA', Alpine.raw(this.authorMetaData));
+        debug('EVENTS CACHE', Alpine.raw(this.eventsCache));
+        debug('REACTIONS CACHE', Alpine.raw(this.reactionsCache));
+        debug('RENDERED CONTENT CACHE', Alpine.raw(this.renderedContentCache));
     },
 
     async getAuthorsMeta(authorIds) {
@@ -436,12 +430,13 @@ export default (livewireComponent) => ({
     },
 
     async parseContent(event) {
-        return await parseEventContent(event.content, event.id, this);
+        // if (!this.renderedContentCache[event.id]) {
+        //     this.renderedContentCache[event.id] = await parseEventContent(event.content, event.id, this);
+        // }
     },
 
     async getReactions(events) {
         if (this.$store.ndk.user) {
-            // warn('connected to getReactions');
             // if events is an array
             if (events.length > 0) {
                 const eventIds = events.map((event) => event.id);
@@ -453,36 +448,38 @@ export default (livewireComponent) => ({
                 );
                 for await (const ev of reactionEvents) {
                     const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
-                    if (!this.events[reactedToEvent]) {
-                        continue;
+                    if (!this.reactionsCache[reactedToEvent]) {
+                        this.reactionsCache[reactedToEvent] = {
+                            id: reactedToEvent,
+                        };
                     }
                     switch (ev.kind) {
                         case 6:
-                            if (!this.events[reactedToEvent].reactionRepostsData) {
-                                this.events[reactedToEvent].reactionRepostsData = [];
+                            if (!this.reactionsCache[reactedToEvent].reactionRepostsData) {
+                                this.reactionsCache[reactedToEvent].reactionRepostsData = [];
                             }
-                            if (!this.events[reactedToEvent].reactionRepostsData.find((e) => e.id === ev.id)) {
-                                if (!this.events[reactedToEvent].reposts) {
-                                    this.events[reactedToEvent].reposts = 0;
+                            if (!this.reactionsCache[reactedToEvent].reactionRepostsData.find((e) => e.id === ev.id)) {
+                                if (!this.reactionsCache[reactedToEvent].reposts) {
+                                    this.reactionsCache[reactedToEvent].reposts = 0;
                                 }
-                                this.events[reactedToEvent].reposts += 1;
-                                this.events[reactedToEvent].reactionRepostsData.push(ev);
+                                this.reactionsCache[reactedToEvent].reposts += 1;
+                                this.reactionsCache[reactedToEvent].reactionRepostsData.push(ev);
                             }
                             break;
                         case 7:
-                            if (!this.events[reactedToEvent].reacted) {
-                                this.events[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
+                            if (!this.reactionsCache[reactedToEvent].reacted) {
+                                this.reactionsCache[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
                             }
                             if (!ev.content.includes('"kind":1')) {
-                                if (!this.events[reactedToEvent].reactions) {
-                                    this.events[reactedToEvent].reactions = 0;
+                                if (!this.reactionsCache[reactedToEvent].reactions) {
+                                    this.reactionsCache[reactedToEvent].reactions = 0;
                                 }
-                                if (!this.events[reactedToEvent].reactionEventsData) {
-                                    this.events[reactedToEvent].reactionEventsData = [];
+                                if (!this.reactionsCache[reactedToEvent].reactionEventsData) {
+                                    this.reactionsCache[reactedToEvent].reactionEventsData = [];
                                 }
-                                if (!this.events[reactedToEvent].reactionEventsData.find((e) => e.id === ev.id)) {
-                                    this.events[reactedToEvent].reactions += 1;
-                                    this.events[reactedToEvent].reactionEventsData.push(ev);
+                                if (!this.reactionsCache[reactedToEvent].reactionEventsData.find((e) => e.id === ev.id)) {
+                                    this.reactionsCache[reactedToEvent].reactions += 1;
+                                    this.reactionsCache[reactedToEvent].reactionEventsData.push(ev);
                                 }
                             }
                             break;
@@ -495,15 +492,15 @@ export default (livewireComponent) => ({
                                 ev.indexId = 'zap_' + ev.id;
                                 ev.amount = sats;
                                 ev.senderPubkey = JSON.parse(ev.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
-                                if (!this.events[reactedToEvent].reactionZapsData) {
-                                    this.events[reactedToEvent].reactionZapsData = [];
+                                if (!this.reactionsCache[reactedToEvent].reactionZapsData) {
+                                    this.reactionsCache[reactedToEvent].reactionZapsData = [];
                                 }
-                                if (!this.events[reactedToEvent].reactionZapsData.find((e) => e.id === ev.id)) {
-                                    if (!this.events[reactedToEvent].zaps) {
-                                        this.events[reactedToEvent].zaps = 0;
+                                if (!this.reactionsCache[reactedToEvent].reactionZapsData.find((e) => e.id === ev.id)) {
+                                    if (!this.reactionsCache[reactedToEvent].zaps) {
+                                        this.reactionsCache[reactedToEvent].zaps = 0;
                                     }
-                                    this.events[reactedToEvent].zaps += sats;
-                                    this.events[reactedToEvent].reactionZapsData.push(ev);
+                                    this.reactionsCache[reactedToEvent].zaps += sats;
+                                    this.reactionsCache[reactedToEvent].reactionZapsData.push(ev);
                                 }
                             }
                             break;
@@ -613,7 +610,7 @@ export default (livewireComponent) => ({
     async loadMore() {
         this.$store.ndk.hoursAgo += this.$store.ndk.hoursStep;
         // debug('>> NEW HOURS', this.$store.ndk.hoursAgo);
-        await this.fetchEvents();
+        //await this.fetchEvents();
     }
 
 });

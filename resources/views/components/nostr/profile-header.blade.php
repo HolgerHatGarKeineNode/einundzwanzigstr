@@ -1,5 +1,5 @@
-<div class="pb-6" x-show="isCustomFeed">
-    <div>
+<div class="pb-6" x-show="showProfileHeader">
+    {{--<div>
         <img class="h-64 w-full object-cover"
              :src="authorMetaData[currentFeedAuthor] && authorMetaData[currentFeedAuthor].banner ? authorMetaData[currentFeedAuthor].banner : '/img/nostr.gif'"
              :alt="authorMetaData[currentFeedAuthor] && decodeURI(authorMetaData[currentFeedAuthor].display_name)">
@@ -26,5 +26,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>--}}
 </div>

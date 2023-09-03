@@ -18,8 +18,7 @@
         x-on:click="openCreateNoteModal = false"
         class="relative flex min-h-screen items-center justify-center p-4"
     >
-        <div wire:ignore
-             x-data="nostrNoteEditor"
+        <div x-data="nostrNoteEditor"
              x-on:click.stop
              class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
         >

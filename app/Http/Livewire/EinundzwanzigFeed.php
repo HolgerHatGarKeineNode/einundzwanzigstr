@@ -3,14 +3,12 @@
 namespace App\Http\Livewire;
 
 use App\Traits\NostrCacheTrait;
-use App\Traits\RelaysTrait;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 
 class EinundzwanzigFeed extends Component
 {
     use NostrCacheTrait;
-    use RelaysTrait;
 
     public ?string $pubkey = '';
     public bool $isMyFeed = false;

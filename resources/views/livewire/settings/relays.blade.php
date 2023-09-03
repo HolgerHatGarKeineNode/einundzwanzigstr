@@ -1,5 +1,4 @@
 <div x-data="nostrApp(@this)"
-     wire:ignore
      @keydown.window.escape="openReactionModal = false">
 
     @include('layouts.partials.navigation')

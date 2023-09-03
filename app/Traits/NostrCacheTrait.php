@@ -6,8 +6,10 @@ use Illuminate\Support\Facades\Redis;
 
 trait NostrCacheTrait
 {
+    public array $renderedContentCache = [];
     public array $eventsCache = [];
-    public array $npubCache = [];
+    public array $repliesCache = [];
+    public array $npubsCache = [];
     public array $reactionsCache = [];
 
     public string $usedMemory = '';
@@ -15,6 +17,9 @@ trait NostrCacheTrait
     public function rules()
     {
         return [
+            'renderedContentCache' => 'required',
+            'repliesCache' => 'required',
+            'reactionsCache' => 'required',
             'eventsCache' => 'required',
             'npubsCache' => 'required',
             'currentNpubs' => 'required',
@@ -28,15 +33,27 @@ trait NostrCacheTrait
         // get Redis memory usage
         $this->usedMemory = $redis->info('memory')['used_memory_human'];
 
-        //$redis->del('events');
-        //$redis->del('npubs');
-        // load events cache from redis
-        // $this->eventsCache = array_map(function ($item) {
-        //    return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
-        // }, $redis->hGetAll('events'));
+        $this->eventsCache = array_map(function ($item) {
+            return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+        }, $redis->hGetAll('events'));
+
         $this->npubsCache = array_map(function ($item) {
             return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
         }, $redis->hGetAll('npubs'));
+
+        $this->repliesCache = array_map(function ($item) {
+            return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+        }, $redis->hGetAll('replies'));
+
+        $this->renderedContentCache = array_map(function ($item) {
+            return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+        }, $redis->hGetAll('renderedContent'));
+
+        $this->reactionsCache = array_map(function ($item) {
+            return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+        }, $redis->hGetAll('reactions'));
+
+
         //dd($redis->hGet('events', '2060259c44e198af67616e7d1776bed37d76ec0b448c98d335bc881a104acfa3'));
     }
 
@@ -77,6 +94,43 @@ trait NostrCacheTrait
         }
         $redis = Redis::connection('nostr')->client();
         $redis->hSet('npubs', $value['pubkey'], json_encode($value, JSON_THROW_ON_ERROR));
+        $this->usedMemory = $redis->info('memory')['used_memory_human'];
+    }
+
+    public function updateRepliesCache($value)
+    {
+        $redis = Redis::connection('nostr')->client();
+        foreach ($value as $item) {
+            if (!isset($item['id'])) {
+                dd($value);
+            }
+            $redis->hSet('replies', $item['id'], json_encode($item['replies'], JSON_THROW_ON_ERROR));
+        }
+        $this->usedMemory = $redis->info('memory')['used_memory_human'];
+    }
+
+
+    public function updateReactionsCache($value)
+    {
+        $redis = Redis::connection('nostr')->client();
+        foreach ($value as $item) {
+            if (!isset($item['id'])) {
+                dd($value);
+            }
+            $redis->hSet('reactions', $item['id'], json_encode($item['reactions'], JSON_THROW_ON_ERROR));
+        }
+        $this->usedMemory = $redis->info('memory')['used_memory_human'];
+    }
+
+    public function updateRenderedContentCache($value)
+    {
+        $redis = Redis::connection('nostr')->client();
+        foreach ($value as $item) {
+            if (!isset($item['id'])) {
+                dd($value);
+            }
+            $redis->hSet('renderedContent', $item['id'], json_encode($item['content'], JSON_THROW_ON_ERROR));
+        }
         $this->usedMemory = $redis->info('memory')['used_memory_human'];
     }
 

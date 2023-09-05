@@ -1,20 +1,16 @@
 @props([
     'event',
+    'author',
     'npubsCache',
     'renderedContentCache',
+    'reactionsCount',
+    'zapsCount',
+    'repostsCount',
+    'replies',
+    'reactions',
+    'zaps',
+    'reposts',
 ])
-
-@php
-    $redisClient = Illuminate\Support\Facades\Redis::connection('nostr')->client();
-    $author = json_decode($redisClient->hGet('authors', $event['pubkey'] . ':' . $event['pubkey']), true);
-    $reactions = json_decode($redisClient->hGet('reactions', $event['pubkey'] . ':' . $event['id']), true);
-    $reactionsCount= count($reactions ?? []);
-    $zaps = json_decode($redisClient->hGet('zaps', $event['pubkey'] . ':' . $event['id']), true);
-    $zapsCount = collect($zaps)->sum('sats');
-    $reposts = json_decode($redisClient->hGet('reposts', $event['pubkey'] . ':' . $event['id']), true);
-    $repostsCount = count($reposts ?? []);
-    $replies = json_decode($redisClient->hGet('replies', $event['pubkey'] . ':' . $event['id']), true);
-@endphp
 
 <div class="grid grid-cols-7 gap-2">
     <div
@@ -58,16 +54,19 @@
         </div>
     </div>
     <div
-        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
         <x-nostr.replies :event="$event" :replies="$replies"/>
     </div>
     <div
-        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
         <x-nostr.details
             :event="$event"
             :reactions="$reactions"
             :zaps="$zaps"
             :reposts="$reposts"
+            :reactionsCount="$reactionsCount"
+            :zapsCount="$zapsCount"
+            :repostsCount="$repostsCount"
         />
     </div>
 </div>

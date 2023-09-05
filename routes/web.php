@@ -22,11 +22,11 @@ Route::get('/', function () {
 Route::get('/my-feed', \App\Http\Livewire\Feed::class)->name('my-feed');
 
 Route::get('/feed/{pubkey?}', \App\Http\Livewire\Feed::class)->name('feed');
-Route::get('/einundzwanzig-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('einundzwanzig-feed');
-Route::get('/gigi-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('gigi-feed');
-Route::get('/d11n-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('d11n-feed');
-Route::get('/markus-turm-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('markus-turm-feed');
-Route::get('/snowden-feed', \App\Http\Livewire\EinundzwanzigFeed::class)->name('snowden-feed');
+Route::get('/einundzwanzig-feed', \App\Http\Livewire\Feed::class)->name('einundzwanzig-feed');
+Route::get('/gigi-feed', \App\Http\Livewire\Feed::class)->name('gigi-feed');
+Route::get('/d11n-feed', \App\Http\Livewire\Feed::class)->name('d11n-feed');
+Route::get('/markus-turm-feed', \App\Http\Livewire\Feed::class)->name('markus-turm-feed');
+Route::get('/snowden-feed', \App\Http\Livewire\Feed::class)->name('snowden-feed');
 
 Route::get('/settings/relays', \App\Http\Livewire\Settings\Relays::class)->name('settings.relays');
 

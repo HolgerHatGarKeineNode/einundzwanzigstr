@@ -23,8 +23,30 @@
                 <ul role="list" class="space-y-3">
 
                     @foreach($events as $event)
+                        @php
+                            $redisClient = Illuminate\Support\Facades\Redis::connection('nostr')->client();
+                            $author = json_decode($redisClient->hGet('authors', $event['pubkey'] . ':' . $event['pubkey']), true);
+                            $reactions = json_decode($redisClient->hGet('reactions', $event['pubkey'] . ':' . $event['id']), true);
+                            $reactionsCount= count($reactions ?? []);
+                            $zaps = json_decode($redisClient->hGet('zaps', $event['pubkey'] . ':' . $event['id']), true);
+                            $zapsCount = collect($zaps)->sum('sats');
+                            $reposts = json_decode($redisClient->hGet('reposts', $event['pubkey'] . ':' . $event['id']), true);
+                            $repostsCount = count($reposts ?? []);
+                            $replies = json_decode($redisClient->hGet('replies', $event['pubkey'] . ':' . $event['id']), true);
+                        @endphp
+
                         <li wire:key="{{ $event['id'] }}">
-                            <x-nostr.events.loop :event="$event"/>
+                            <x-nostr.events.loop
+                                :event="$event"
+                                :author="$author"
+                                :reactionsCount="$reactionsCount"
+                                :zapsCount="$zapsCount"
+                                :repostsCount="$repostsCount"
+                                :replies="$replies"
+                                :reactions="$reactions"
+                                :zaps="$zaps"
+                                :reposts="$reposts"
+                            />
 
                             {{-- MODALS --}}
                             <x-nostr.modals.reaction/>

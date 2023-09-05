@@ -7,6 +7,7 @@ import {ndkAdapter} from "@nostr-fetch/adapter-ndk";
 import {filterReplies} from "../nostr/utils/filterReplies.js";
 import {nested} from "../nostr/utils/nested.js";
 import {decode} from "light-bolt11-decoder";
+import {requestProvider} from "webln";
 
 async function verifyRelays(relays) {
     try {
@@ -55,20 +56,22 @@ async function verifyRelays(relays) {
 }
 
 async function fetchEventsByHexpubs(fetcher, hexpubs) {
-    const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
-    console.log('limit', this.limit);
-    let fetchedEvents = await fetcher.fetchLatestEvents(
+    console.log('fetch since', this.since);
+    console.log('fetch until', this.until);
+    let fetchedEvents = await fetcher.fetchAllEvents(
         this.$store.ndk.explicitRelayUrls,
         {kinds: [eventKind.text], authors: hexpubs},
-        this.limit
+        {until: this.until, since: this.since},
+        {sort: true}
     );
+
     return {fetcher, fetchedEvents};
 }
 
 async function cacheAuthors(fetchedEvents) {
     let cachedAuthors = {};
     for (const event of fetchedEvents) {
-        if (!cachedAuthors[event.pubkey]) {
+        if (!this.cachedAuthorHashpubkeys.includes(event.pubkey) && !cachedAuthors[event.pubkey]) {
             const user = await this.$store.ndk.ndk.getUser({hexpubkey: event.pubkey});
             await user.fetchProfile();
             if (!user.profile.display_name) {
@@ -89,6 +92,7 @@ async function cacheAuthors(fetchedEvents) {
             };
         }
     }
+    //console.log('cachedAuthors', cachedAuthors);
     return cachedAuthors;
 }
 
@@ -109,6 +113,7 @@ async function cacheReplies(fetchedEvents, fetcher) {
         };
     }
     // set cached replies
+    //console.log('cachedReplies', cachedReplies);
     await this.$wire.setCache(cachedReplies, 'replies');
 }
 
@@ -173,6 +178,9 @@ async function cacheReactions(fetchedEvents, fetcher, cachedAuthors) {
                         cachedZaps[reactedToEvent]['value'] = [];
                     }
                     if (!cachedZaps[reactedToEvent]['value'].find((e) => e.id === ev.id)) {
+                        // get pubkey from tags where key is description
+                        const description = ev.tags.find((tag) => tag[0] === 'description')[1];
+                        ev.sender = JSON.parse(description).pubkey;
                         cachedZaps[reactedToEvent]['value'].push({...ev, sats: sats});
                     }
                 }
@@ -201,16 +209,27 @@ async function cacheReactions(fetchedEvents, fetcher, cachedAuthors) {
             }
         }
     }
+    //console.log('cachedReposts', cachedReposts);
+    //console.log('cachedReactions', cachedReactions);
+    //console.log('cachedZaps', cachedZaps);
     return {cachedReposts, cachedReactions, cachedZaps};
 }
 
 export default (livewireComponent) => ({
 
     // hours ago
-    hoursAgo: 1,
+    hoursAgo: livewireComponent.entangle('hoursAgo'),
+    hoursSteps: livewireComponent.entangle('hoursSteps'),
+    tries: 0,
+
+    until: livewireComponent.entangle('until'),
+    since: livewireComponent.entangle('since'),
 
     // limit
     limit: 5,
+
+    // current fetchedEventsLength
+    fetchedEventsLength: 0,
 
     // mobile menu opened
     mobileMenuOpened: false,
@@ -224,7 +243,7 @@ export default (livewireComponent) => ({
     currentEventToReactPubkey: null,
 
     // load from pubkey
-    pubkey: livewireComponent.entangle('pubkey'),
+    pubkeys: livewireComponent.entangle('pubkeys'),
 
     // used memory in redis
     usedMemory: livewireComponent.entangle('usedMemory'),
@@ -238,6 +257,12 @@ export default (livewireComponent) => ({
     // feedHexpubs
     feedHexpubs: livewireComponent.entangle('feedHexpubs'),
 
+    // cachedEvents
+    cachedEvents: livewireComponent.entangle('cachedEvents'),
+
+    // cachedAuthorHashpubkeys
+    cachedAuthorHashpubkeys: livewireComponent.entangle('cachedAuthorHashpubkeys'),
+
     // showProfileHeader
     showProfileHeader: livewireComponent.entangle('showProfileHeader'),
 
@@ -249,6 +274,19 @@ export default (livewireComponent) => ({
     },
 
     async init() {
+        const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
+
+        Alpine.effect(async () => {
+            console.log('cachedEvents', this.cachedEvents);
+            console.log('cachedEventsLength', this.cachedEvents.length);
+            if (this.feedHexpubs.length > 0 && this.cachedEvents.length === 0 && this.tries < 20) {
+                this.since = nHoursAgo(this.hoursAgo);
+                this.until = Math.floor(Date.now() / 1000);
+                this.hoursAgo = this.hoursAgo + this.hoursSteps;
+                await this.fetchEvents();
+            }
+        });
+
         // init confetti
         this.jsConfetti = new JSConfetti();
 
@@ -286,74 +324,74 @@ export default (livewireComponent) => ({
         this.$wire.setFollowers(hexpubs);
 
         // hexpubs current pubkey
-        if (this.pubkey) {
-            const pubkeyUser = this.$store.ndk.ndk.getUser({
-                npub: this.pubkey,
-            });
-            hexpubs = [pubkeyUser.hexpubkey()];
+        if (this.pubkeys) {
+            hexpubs = [];
+            for (const pubkey of this.pubkeys) {
+                const pubkeyUser = this.$store.ndk.ndk.getUser({
+                    npub: pubkey,
+                });
+                hexpubs.push(pubkeyUser.hexpubkey());
+            }
         }
 
         // call cache to load data
         await this.$wire.setFeedHexpubs(hexpubs);
 
-        this.$wire.reloadFeed();
-
-        await this.fetchEvents(hexpubs);
-
-        this.$wire.reloadFeed();
+        // interval to fetch new events every minute
+        // setInterval(async () => {
+        //     await this.fetchEvents();
+        // }, 60000);
     },
 
-    fetchEvents: async function (hexpubs) {
+    fetchEvents: async function (reload = true) {
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
 
         // get all events from hexpubs
-        let {fetchedEvents} = await fetchEventsByHexpubs.call(this, fetcher, hexpubs);
+        let {fetchedEvents} = await fetchEventsByHexpubs.call(this, fetcher, this.feedHexpubs);
 
-        // cache every author of fetched events
-        let cachedAuthors = await cacheAuthors.call(this, fetchedEvents);
+        let cachedAuthors = {};
+        if (reload) {
+            // cache every author of fetched events
+            cachedAuthors = await cacheAuthors.call(this, fetchedEvents);
+        }
 
         // filter replies
         fetchedEvents = filterReplies(fetchedEvents);
-        await this.$wire.setCache(fetchedEvents, 'events');
+        if (fetchedEvents.length > 0) {
+            console.log('setCache EVENTS', fetchedEvents);
+            await this.$wire.setCache(fetchedEvents, 'events');
 
-        // replies
-        await cacheReplies.call(this, fetchedEvents, fetcher);
+            if (reload) {
+                // replies
+                await cacheReplies.call(this, fetchedEvents, fetcher);
 
+                // reactions
+                let {
+                    cachedReposts,
+                    cachedReactions,
+                    cachedZaps,
+                } = await cacheReactions.call(this, fetchedEvents, fetcher, cachedAuthors);
+
+                // set cached authors
+                await this.$wire.setCache(cachedAuthors, 'authors');
+                // set cached reposts
+                await this.$wire.setCache(cachedReposts, 'reposts');
+                // set cached reactions
+                await this.$wire.setCache(cachedReactions, 'reactions');
+                // set cached zaps
+                await this.$wire.setCache(cachedZaps, 'zaps');
+            }
+        }
+    },
+
+    reloadEventReactions: async function (events) {
+        const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
         // reactions
         let {
             cachedReposts,
             cachedReactions,
             cachedZaps,
-        } = await cacheReactions.call(this, fetchedEvents, fetcher, cachedAuthors);
-
-        // set cached authors
-        await this.$wire.setCache(cachedAuthors, 'authors');
-        // set cached reposts
-        await this.$wire.setCache(cachedReposts, 'reposts');
-        // set cached reactions
-        await this.$wire.setCache(cachedReactions, 'reactions');
-        // set cached zaps
-        await this.$wire.setCache(cachedZaps, 'zaps');
-
-        // set last event timestamp
-        if (fetchedEvents.length > 0) {
-            this.$store.ndk.lastEventTimestamp = fetchedEvents[0].created_at;
-        }
-    },
-
-    fetchCertainEvents: async function (events) {
-        const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-
-        // replies
-        await cacheReplies.call(this, events, fetcher);
-
-        // reactions
-        let {
-            cachedReposts,
-            cachedReactions,
-            cachedZaps
-        } = await cacheReactions.call(this, events, fetcher, []);
-
+        } = await cacheReactions.call(this, events, fetcher, {});
         // set cached reposts
         await this.$wire.setCache(cachedReposts, 'reposts');
         // set cached reactions
@@ -362,16 +400,16 @@ export default (livewireComponent) => ({
         await this.$wire.setCache(cachedZaps, 'zaps');
     },
 
-    // load more events
     async loadMoreEvents() {
-        this.loading = true;
-        this.hoursAgo += 1;
-        this.limit += 10;
-        await this.fetchEvents(this.feedHexpubs);
-        this.loading = false;
-        //console.log('hours ago', this.hoursAgo);
-        console.log('limit', this.limit);
-        this.$wire.reloadFeed();
+        const oldFetchedLength = this.fetchedEventsLength;
+        const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
+        while (this.fetchedEventsLength === oldFetchedLength) {
+            this.hoursAgo = this.hoursAgo + this.hoursSteps;
+            this.until = Math.floor(Date.now() / 1000);
+            this.since = nHoursAgo(this.hoursAgo);
+            await this.fetchEvents(false);
+        }
+        await this.fetchEvents(true);
     },
 
     openReactionPicker(id) {
@@ -380,21 +418,41 @@ export default (livewireComponent) => ({
     },
 
     async love(id, emoticon) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
         // react to event
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.content = emoticon;
         ndkEvent.kind = eventKind.reaction;
         ndkEvent.tags = [
-            ['e', id],
-            ['p', pubkey],
+            ['e', event.id],
+            ['p', event.pubkey],
         ];
         await ndkEvent.publish();
         await this.jsConfetti.addConfetti({
             emojis: [emoticon,],
         });
-        const event = await this.$store.ndk.ndk.fetchEvent(id);
-        await this.fetchCertainEvents([
-            event,
-        ]);
+        await this.reloadEventReactions([event]);
     },
+
+    async zap(id) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk, event);
+        const res = await ndkEvent
+            .zap(
+                69000,
+                'This is a test zap from my experimental nostr web client at https://einundzwanzigstr.codingarena.de'
+            );
+        // debug(res, window.webln);
+        await requestProvider();
+        const payment = await window.webln.sendPayment(res);
+        // debug(payment);
+        await this.jsConfetti.addConfetti({
+            emojis: ['⚡'],
+        });
+        // reload reactions after 10 seconds
+        setTimeout(async () => {
+            await this.reloadEventReactions([event]);
+        }, 3000);
+    },
+
 });

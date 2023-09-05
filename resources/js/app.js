@@ -1,4 +1,4 @@
-import nostrApp from './nostr2/nostrApp';
+import nostrApp from './nostr3/nostrApp';
 
 import Alpine from 'alpinejs';
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";

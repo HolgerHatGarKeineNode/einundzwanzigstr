@@ -32,8 +32,12 @@
                 >
                     <textarea x-ref="editor"></textarea>
                 </div>
-                <div class="text-xs"
-                     x-text="currentEventToReact && currentEventToReact.id"></div>
+                <div class="flex flex-col spacey-2">
+                    <div class="text-xs"
+                         x-text="currentEventToReactId"></div>
+                    <div class="text-xs"
+                         x-text="currentEventToReactPubkey"></div>
+                </div>
             </div>
 
             <!-- Buttons -->

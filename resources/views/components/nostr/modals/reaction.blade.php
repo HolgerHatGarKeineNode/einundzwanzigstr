@@ -65,9 +65,14 @@
             <div class="mt-3 text-gray-600">
                 @foreach($reactionEmoticons as $r)
                     <div
-                            @click="love(currentEventToReact, '{{ $r }}'); openReactionModal = false"
+                            @click="love(currentEventToReactId, '{{ $r }}'); openReactionModal = false"
                             class="text-xl cursor-pointer relative z-30 inline-block h-10 w-10 rounded-full ring-1 ring-amber-500 hover:scale-125 pl-2 pt-1">{{ $r }}</div>
                 @endforeach
+            </div>
+
+            <div class="flex flex-col py-4">
+                <div class="text-xs"
+                     x-text="currentEventToReactId"></div>
             </div>
         </div>
     </div>

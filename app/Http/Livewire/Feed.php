@@ -152,7 +152,7 @@ class Feed extends Component
                 dd($items, $kind);
             }
             $redisClient->hSet($kind, $item['pubkey'] . ':' . $key, json_encode($item['value']));
-            //$redisClient->expire($kind, 60 * 60);
+            $redisClient->expire($kind, 60 * 60);
         }
 
         if ($kind === 'events') {

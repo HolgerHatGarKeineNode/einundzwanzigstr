@@ -56,16 +56,21 @@ async function verifyRelays(relays) {
 }
 
 async function fetchEventsByHexpubs(fetcher, hexpubs) {
+    console.log('hexpubs', hexpubs);
     console.log('fetch since', this.since);
     console.log('fetch until', this.until);
-    let fetchedEvents = await fetcher.fetchAllEvents(
-        this.$store.ndk.explicitRelayUrls,
-        {kinds: [eventKind.text], authors: hexpubs},
-        {until: this.until, since: this.since},
-        {sort: true}
-    );
 
-    return {fetcher, fetchedEvents};
+    if (this.feedHexpubs.length > 0) {
+
+        let fetchedEvents = await fetcher.fetchAllEvents(
+            this.$store.ndk.explicitRelayUrls,
+            {kinds: [eventKind.text], authors: hexpubs},
+            {until: this.until, since: this.since},
+            {sort: true}
+        );
+
+        return {fetcher, fetchedEvents};
+    }
 }
 
 async function cacheAuthors(fetchedEvents) {
@@ -278,7 +283,11 @@ export default (livewireComponent) => ({
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
 
         Alpine.effect(async () => {
-            if (this.feedHexpubs.length > 0 && this.cachedEvents.length === 0 && this.tries < 20) {
+            if (
+                this.feedHexpubs.length > 0
+                && this.cachedEvents.length === 0
+                && this.tries < 20
+            ) {
                 console.log('cachedEvents', this.cachedEvents);
                 console.log('cachedEventsLength', this.cachedEvents.length);
                 document.querySelector("#loader").style.display = "block";
@@ -321,13 +330,9 @@ export default (livewireComponent) => ({
             this.rejected = true;
         });
 
-        // fetch follows of currentUser
-        const follows = await this.$store.ndk.user.follows();
-        let hexpubs = Array.from(follows).map((follow) => follow.hexpubkey());
-        this.$wire.setFollowers(hexpubs);
-
+        let hexpubs = [];
         // hexpubs current pubkey
-        if (this.pubkeys) {
+        if (this.pubkeys.length > 0) {
             hexpubs = [];
             for (const pubkey of this.pubkeys) {
                 const pubkeyUser = this.$store.ndk.ndk.getUser({
@@ -335,6 +340,11 @@ export default (livewireComponent) => ({
                 });
                 hexpubs.push(pubkeyUser.hexpubkey());
             }
+        } else {
+            // fetch follows of currentUser
+            const follows = await this.$store.ndk.user.follows();
+            hexpubs = Array.from(follows).map((follow) => follow.hexpubkey());
+            this.$wire.setFollowers(hexpubs);
         }
 
         // call cache to load data
@@ -354,37 +364,39 @@ export default (livewireComponent) => ({
         // get all events from hexpubs
         let {fetchedEvents} = await fetchEventsByHexpubs.call(this, fetcher, this.feedHexpubs);
 
-        let cachedAuthors = {};
-        if (reload) {
-            // cache every author of fetched events
-            cachedAuthors = await cacheAuthors.call(this, fetchedEvents);
-        }
-
-        // filter replies
-        fetchedEvents = filterReplies(fetchedEvents);
         if (fetchedEvents.length > 0) {
-            console.log('setCache EVENTS', fetchedEvents);
-            await this.$wire.setCache(fetchedEvents, 'events');
-
+            let cachedAuthors = {};
             if (reload) {
-                // replies
-                await cacheReplies.call(this, fetchedEvents, fetcher);
+                // cache every author of fetched events
+                cachedAuthors = await cacheAuthors.call(this, fetchedEvents);
+            }
 
-                // reactions
-                let {
-                    cachedReposts,
-                    cachedReactions,
-                    cachedZaps,
-                } = await cacheReactions.call(this, fetchedEvents, fetcher, cachedAuthors);
+            // filter replies
+            fetchedEvents = filterReplies(fetchedEvents);
+            if (fetchedEvents.length > 0) {
+                console.log('setCache EVENTS', fetchedEvents);
+                await this.$wire.setCache(fetchedEvents, 'events');
 
-                // set cached authors
-                await this.$wire.setCache(cachedAuthors, 'authors');
-                // set cached reposts
-                await this.$wire.setCache(cachedReposts, 'reposts');
-                // set cached reactions
-                await this.$wire.setCache(cachedReactions, 'reactions');
-                // set cached zaps
-                await this.$wire.setCache(cachedZaps, 'zaps');
+                if (reload) {
+                    // replies
+                    await cacheReplies.call(this, fetchedEvents, fetcher);
+
+                    // reactions
+                    let {
+                        cachedReposts,
+                        cachedReactions,
+                        cachedZaps,
+                    } = await cacheReactions.call(this, fetchedEvents, fetcher, cachedAuthors);
+
+                    // set cached authors
+                    await this.$wire.setCache(cachedAuthors, 'authors');
+                    // set cached reposts
+                    await this.$wire.setCache(cachedReposts, 'reposts');
+                    // set cached reactions
+                    await this.$wire.setCache(cachedReactions, 'reactions');
+                    // set cached zaps
+                    await this.$wire.setCache(cachedZaps, 'zaps');
+                }
             }
         }
     },

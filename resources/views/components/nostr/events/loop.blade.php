@@ -34,7 +34,7 @@
                         class="text-gray-300 text-xs">{{ \Illuminate\Support\Carbon::parse($event['created_at'])->diffForHumans() }}</span>
                 </div>
             </div>
-            <div class="ml-2 text-lg pb-12">{!! $this->renderHtml($event['content'], $event['id']) !!}</div>
+            <div class="ml-2 text-lg pb-12" wire:ignore>{!! $this->renderHtml($event['content'], $event['id']) !!}</div>
 
             <div class="flex flex-wrap space-x-2 justify-end py-2">
                 @foreach(collect($event['tags'])->filter(fn($tag) => $tag[0] === 't')->map(fn($tag) => $tag[1]) as $tag)

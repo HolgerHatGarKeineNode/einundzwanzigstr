@@ -17,7 +17,7 @@
         <div class="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
             <div class="flex">
                 <img class="h-24 w-24 rounded-full ring-4 ring-white sm:h-32 sm:w-32"
-                     src="{{ isset($author['profile']['image']) ? $author['profile']['image'] : '/img/nostr.gif' }}"
+                     src="{{ isset($author['profile']['image']) ? $author['profile']['image'] : '/img/nostr.png' }}"
                      alt="{{ isset($author['profile']['display_name']) ? $author['profile']['display_name'] : 'A' }}"
                 >
             </div>

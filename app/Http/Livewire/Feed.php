@@ -58,24 +58,28 @@ class Feed extends Component
         }
 
         if (request()->route()->getName() === 'gigi-feed') {
+            $this->showProfileHeader = true;
             $this->hoursAgo = 6;
             $this->hoursSteps = 6;
             $this->pubkeys = ['npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc'];
         }
 
         if (request()->route()->getName() === 'd11n-feed') {
+            $this->showProfileHeader = true;
             $this->hoursAgo = 24;
             $this->hoursSteps = 24;
             $this->pubkeys = ['npub14j7wc366rf8efqvnnm8m68pazy04kkj8fgu6uqumh3eqlhfst0kqrngtpf'];
         }
 
         if (request()->route()->getName() === 'markus-turm-feed') {
+            $this->showProfileHeader = true;
             $this->hoursAgo = 24;
             $this->hoursSteps = 24;
             $this->pubkeys = ['npub17fqtu2mgf7zueq2kdusgzwr2lqwhgfl2scjsez77ddag2qx8vxaq3vnr8y'];
         }
 
         if (request()->route()->getName() === 'snowden-feed') {
+            $this->showProfileHeader = true;
             $this->hoursAgo = 24;
             $this->hoursSteps = 24;
             $this->pubkeys = ['npub1sn0wdenkukak0d9dfczzeacvhkrgz92ak56egt7vdgzn8pv2wfqqhrjdv9'];

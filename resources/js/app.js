@@ -1,4 +1,4 @@
-import nostrApp from './nostr3/nostrApp';
+import nostrApp from './nostr/nostrApp';
 import nostrNoteEditor from './nostr/nostrNoteEditor';
 import nostrCommentEditor from './nostr/nostrCommentEditor';
 

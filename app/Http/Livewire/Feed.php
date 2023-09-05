@@ -167,15 +167,60 @@ class Feed extends Component
 
     protected function renderHtml($text, $id)
     {
-        // replace YouTube links by embed also with m.youtube.com
+        // parse urls to images to img tags
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:.+)\.(?:jpg|jpeg|gif|png|webp)/',
+            '<div class="aspect-auto max-w-sm"><img src="$0" alt="image" class="rounded-lg"></div>',
+            $text
+        );
+
+        // parse urls with video like mp4, webm, ogg to video controls
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:.+)\.(?:mp4|webm|ogg)/',
+            '<div class="aspect-auto max-w-sm"><video controls><source src="$0" type="video/mp4"></video></div>',
+            $text
+        );
+
+        // parse video urls to video embeds
+        $text = $this->parseVideoUrls($text);
+
+        // replace \n by <br>
+        $text = str_replace("\n", '<br>', $text);
+
+        return $text;
+    }
+
+    protected function parseVideoUrls($text) {
         $text = preg_replace(
             '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/',
             '<div class=""><iframe src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>',
             $text
         );
-
-        // replace \n by <br>
-        $text = str_replace("\n", '<br>', $text);
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:vimeo\.com)\/(?:watch\?v=)?(.+)/',
+            '<div class=""><iframe src="https://player.vimeo.com/video/$1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>',
+            $text
+        );
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:twitch\.tv)\/(?:watch\?v=)?(.+)/',
+            '<div class=""><iframe src="https://player.twitch.tv/?channel=$1" frameborder="0" allowfullscreen></iframe></div>',
+            $text
+        );
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:twitter\.com)\/(?:watch\?v=)?(.+)/',
+            '<div class=""><iframe src="https://twitter.com/i/status/$1" frameborder="0" allowfullscreen></iframe></div>',
+            $text
+        );
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:instagram\.com)\/(?:watch\?v=)?(.+)/',
+            '<div class=""><iframe src="https://www.instagram.com/p/$1/embed" frameborder="0" allowfullscreen></iframe></div>',
+            $text
+        );
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:facebook\.com)\/(?:watch\?v=)?(.+)/',
+            '<div class=""><iframe src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2F$1&show_text=0&width=560" width="560" height="315" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen></iframe></div>',
+            $text
+        );
 
         return $text;
     }

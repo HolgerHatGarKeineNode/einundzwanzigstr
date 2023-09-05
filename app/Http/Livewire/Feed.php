@@ -167,19 +167,15 @@ class Feed extends Component
 
     protected function renderHtml($text, $id)
     {
+        // replace YouTube links by embed also with m.youtube.com
+        $text = preg_replace(
+            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/',
+            '<div class=""><iframe src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>',
+            $text
+        );
+
         // replace \n by <br>
         $text = str_replace("\n", '<br>', $text);
-
-        // replace links by a tag
-        $text = preg_replace_callback('/(https?:\/\/[^\s]+)/i',
-            function ($matches) {
-                // check if matches does not include images
-                if (preg_match('/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|mov|mp4|ogg))/i', $matches[1])) {
-                    return $matches[0];
-                }
-                return '<a class="text-amber-500 font-bold" href="' . $matches[1] . '" target="_blank">' . $matches[1] . '</a>';
-            },
-            $text);
 
         return $text;
     }

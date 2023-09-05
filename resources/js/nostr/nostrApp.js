@@ -453,7 +453,7 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: [emoticon,],
         });
-        await cacheAuthors.call([event]);
+        await cacheAuthors.call(this, [event]);
         await this.reloadEventReactions([event]);
     },
 

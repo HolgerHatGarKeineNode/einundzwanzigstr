@@ -229,13 +229,17 @@ export default (livewireComponent) => ({
     limit: 5,
 
     // current fetchedEventsLength
-    fetchedEventsLength: 0,
+    fetchedEventsLength: livewireComponent.entangle('fetchedEventsLength'),
 
     // mobile menu opened
     mobileMenuOpened: false,
 
     // modals
     openCommentModal: false,
+    openCommentEditor(event) {
+        this.currentEventToReactId = event;
+        this.openCommentModal = true;
+    },
     openCreateNoteModal: false,
     openReactionModal: false,
     // current modal event
@@ -280,10 +284,12 @@ export default (livewireComponent) => ({
             console.log('cachedEvents', this.cachedEvents);
             console.log('cachedEventsLength', this.cachedEvents.length);
             if (this.feedHexpubs.length > 0 && this.cachedEvents.length === 0 && this.tries < 20) {
+                document.querySelector("#loader").style.display = "block";
                 this.since = nHoursAgo(this.hoursAgo);
                 this.until = Math.floor(Date.now() / 1000);
                 this.hoursAgo = this.hoursAgo + this.hoursSteps;
                 await this.fetchEvents();
+                document.querySelector("#loader").style.display = "none";
             }
         });
 
@@ -401,15 +407,20 @@ export default (livewireComponent) => ({
     },
 
     async loadMoreEvents() {
+        document.querySelector("#loader").style.display = "block";
         const oldFetchedLength = this.fetchedEventsLength;
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
         while (this.fetchedEventsLength === oldFetchedLength) {
+            console.log('this.fetchedEventsLength', this.fetchedEventsLength);
+            console.log('oldFetchedLength', oldFetchedLength);
             this.hoursAgo = this.hoursAgo + this.hoursSteps;
             this.until = Math.floor(Date.now() / 1000);
             this.since = nHoursAgo(this.hoursAgo);
             await this.fetchEvents(false);
         }
         await this.fetchEvents(true);
+
+        document.querySelector("#loader").style.display = "none";
     },
 
     openReactionPicker(id) {
@@ -431,6 +442,7 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: [emoticon,],
         });
+        await cacheAuthors.call([event]);
         await this.reloadEventReactions([event]);
     },
 
@@ -454,5 +466,25 @@ export default (livewireComponent) => ({
             await this.reloadEventReactions([event]);
         }, 3000);
     },
+
+    async repost(id) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
+        ndkEvent.kind = eventKind.repost;
+        ndkEvent.tags = [
+            ['e', event.id, 'wss://relayable.org', 'root'],
+            ['p', event.pubkey],
+        ];
+        await ndkEvent.publish();
+        await this.jsConfetti.addConfetti({
+            emojis: ['🤙',],
+        });
+        await this.reloadEventReactions([event]);
+    },
+
+    async debug(id) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
+        console.log('event', event);
+    }
 
 });

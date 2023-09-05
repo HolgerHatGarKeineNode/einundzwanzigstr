@@ -30,20 +30,17 @@
             </div>
             <x-fat-bolt class="w-6 h-6 hover:text-amber-500"/>
         </div>
-        <div class="cursor-pointer flex space-x-2" @click="repost(event)">
+        <div class="cursor-pointer flex space-x-2" @click="repost('{{ $event['id'] }}')">
             <div class="text-amber-500">
                 {{ $human_readable->format($repostsCount) }}
             </div>
             <x-fat-arrows-turn-right class="w-6 h-6 hover:text-amber-500"
-                {{--::class="reactionsCache[event.id].reposted ? 'text-amber-500' : ''"--}}
             />
         </div>
-        <div class="cursor-pointer flex space-x-2" @click="openCommentEditor(event)">
+        <div class="cursor-pointer flex space-x-2" @click="openCommentEditor('{{ $event['id'] }}')">
             <x-fat-comment class="w-6 h-6 hover:text-amber-500"/>
         </div>
-        <div class="cursor-pointer flex space-x-2"
-            {{--@click="console.log(JSON.parse(JSON.stringify(event)))"--}}
-        >
+        <div class="cursor-pointer flex space-x-2" @click="debug('{{ $event['id'] }}')">
             <div class="text-amber-500"></div>
             <x-fat-ban-bug class="w-6 h-6 hover:text-amber-500"/>
         </div>

@@ -15,6 +15,7 @@ class Feed extends Component
     public int $since = 0;
     public int $limit = 5;
     public array $events = [];
+    public int $fetchedEventsLength = 0;
     public array $cachedEvents = [];
     public ?string $pubkey = null;
     public array $pubkeys = [];
@@ -104,12 +105,12 @@ class Feed extends Component
         $events = $collectEvents
             ->map(fn($event) => json_decode($event, true))
             ->sortByDesc('created_at')->values();
+
+        $this->fetchedEventsLength = $events->count();
         $this->events = $events->toArray();
 
         $this->since = $events->last()['created_at'] ?? 0;
         $this->until = $events->first()['created_at'] ?? 0;
-
-        $this->emit('loadEvents', $events->count());
         $this->cachedEvents = $events->toArray();
     }
 

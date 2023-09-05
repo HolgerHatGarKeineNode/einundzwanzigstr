@@ -5,7 +5,7 @@
     @include('layouts.partials.navigation')
 
     <div class="xl:pl-72 relative">
-        <div id="loader" class="fixed"></div>
+        <div id="loader" class="fixed" wire:ignore></div>
 
         <!-- Sticky search header -->
         @include('layouts.partials.header')
@@ -50,8 +50,8 @@
 
                             {{-- MODALS --}}
                             <x-nostr.modals.reaction/>
-                            {{--<x-nostr.modals.comment/>--}}
-                            {{--<x-nostr.modals.create-note/>--}}
+                            <x-nostr.modals.comment/>
+                            <x-nostr.modals.create-note/>
                         </li>
                     @endforeach
 

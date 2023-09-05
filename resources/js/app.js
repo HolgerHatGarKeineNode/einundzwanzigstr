@@ -1,4 +1,6 @@
 import nostrApp from './nostr3/nostrApp';
+import nostrNoteEditor from './nostr/nostrNoteEditor';
+import nostrCommentEditor from './nostr/nostrCommentEditor';
 
 import Alpine from 'alpinejs';
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
@@ -24,5 +26,7 @@ Alpine.store('ndk', {
 })
 
 Alpine.data('nostrApp', nostrApp);
+Alpine.data('nostrNoteEditor', nostrNoteEditor);
+Alpine.data('nostrCommentEditor', nostrCommentEditor);
 
 Alpine.start();

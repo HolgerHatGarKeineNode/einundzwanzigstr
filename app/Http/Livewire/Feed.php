@@ -54,7 +54,8 @@ class Feed extends Component
         }
 
         if (request()->route()->getName() === 'my-feed') {
-            $this->feedHexpubs = session()->get('feedHexpubs', []);
+            $this->hoursAgo = 1;
+            $this->hoursSteps = 1;
         }
 
         if (request()->route()->getName() === 'gigi-feed') {
@@ -133,7 +134,6 @@ class Feed extends Component
     public function setFeedHexpubs($hexpubs)
     {
         $this->feedHexpubs = $hexpubs;
-        session()->put('feedHexpubs', $hexpubs);
         if ($this->showProfileHeader) {
             $this->currentFeedAuthorHexpubkey = $hexpubs[0];
         }
@@ -169,8 +169,8 @@ class Feed extends Component
     {
         // parse urls to images to img tags
         $text = preg_replace(
-            '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:.+)\.(?:jpg|jpeg|gif|png|webp)/',
-            '<div class="aspect-auto max-w-sm"><img src="$0" alt="image" class="rounded-lg"></div>',
+            '/(https?:\/\/\S+\.(?:jpg|jpeg|png|gif|webp))/i',
+            '<div class="aspect-auto max-w-sm"><img src="$1" alt="image" class="rounded-lg"></div>',
             $text
         );
 
@@ -190,7 +190,8 @@ class Feed extends Component
         return $text;
     }
 
-    protected function parseVideoUrls($text) {
+    protected function parseVideoUrls($text)
+    {
         $text = preg_replace(
             '/(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/',
             '<div class=""><iframe src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>',

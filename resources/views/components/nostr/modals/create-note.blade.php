@@ -1,4 +1,5 @@
 <div
+    wire:ignore
     x-show="openCreateNoteModal"
     style="display: none"
     x-on:keydown.escape.prevent.stop="openCreateNoteModal = false"

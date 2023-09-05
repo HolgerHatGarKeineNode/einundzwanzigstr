@@ -13,7 +13,9 @@
         <main>
             {{--<x-nostr.secondary-header/>--}}
 
-            <x-nostr.profile-header/>
+            @if($currentFeedAuthorHexpubkey)
+                <x-nostr.profile-header :currentFeedAuthorHexpubkey="$currentFeedAuthorHexpubkey"/>
+            @endif
 
             <!-- CONTENT -->
             <div class="px-2 sm:px-12 pt-12 pb-32">

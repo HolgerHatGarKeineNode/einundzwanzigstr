@@ -267,9 +267,6 @@ export default (livewireComponent) => ({
     // cachedAuthorHashpubkeys
     cachedAuthorHashpubkeys: livewireComponent.entangle('cachedAuthorHashpubkeys'),
 
-    // showProfileHeader
-    showProfileHeader: livewireComponent.entangle('showProfileHeader'),
-
     // showSignerRejectedAlert
     showSignerRejectedAlert: livewireComponent.entangle('showSignerRejectedAlert'),
 
@@ -281,9 +278,9 @@ export default (livewireComponent) => ({
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
 
         Alpine.effect(async () => {
-            console.log('cachedEvents', this.cachedEvents);
-            console.log('cachedEventsLength', this.cachedEvents.length);
             if (this.feedHexpubs.length > 0 && this.cachedEvents.length === 0 && this.tries < 20) {
+                console.log('cachedEvents', this.cachedEvents);
+                console.log('cachedEventsLength', this.cachedEvents.length);
                 document.querySelector("#loader").style.display = "block";
                 this.since = nHoursAgo(this.hoursAgo);
                 this.until = Math.floor(Date.now() / 1000);
@@ -344,9 +341,11 @@ export default (livewireComponent) => ({
         await this.$wire.setFeedHexpubs(hexpubs);
 
         // interval to fetch new events every minute
-        // setInterval(async () => {
-        //     await this.fetchEvents();
-        // }, 60000);
+        setInterval(async () => {
+            this.until = Math.floor(Date.now() / 1000);
+            console.log('<<<<<< POLLING FOR NEW EVENTS >>>>>>')
+            await this.fetchEvents();
+        }, 60000);
     },
 
     fetchEvents: async function (reload = true) {

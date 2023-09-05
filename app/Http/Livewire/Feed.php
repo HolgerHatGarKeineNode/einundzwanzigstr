@@ -28,6 +28,8 @@ class Feed extends Component
 
     public array $cachedAuthorIds = [];
 
+    public ?string $currentFeedAuthorHexpubkey = null;
+
     public function rules()
     {
         return [
@@ -38,6 +40,7 @@ class Feed extends Component
             'usedMemory' => 'required',
             'feedHexpubs' => 'required',
             'cachedEvents' => 'required',
+            'currentFeedAuthorHexpubkey' => 'required',
         ];
     }
 
@@ -127,6 +130,9 @@ class Feed extends Component
     {
         $this->feedHexpubs = $hexpubs;
         session()->put('feedHexpubs', $hexpubs);
+        if ($this->showProfileHeader) {
+            $this->currentFeedAuthorHexpubkey = $hexpubs[0];
+        }
         $this->setEvents();
     }
 

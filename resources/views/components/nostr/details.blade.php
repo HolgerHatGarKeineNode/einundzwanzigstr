@@ -1,4 +1,25 @@
-<div x-data="nostrDetails" wire:ignore>
+@props([
+    'event',
+    'reactions',
+    'zaps',
+    'reposts',
+])
+
+@php
+    $redisClient = Illuminate\Support\Facades\Redis::connection('nostr')->client();
+@endphp
+
+<div x-data="{
+    currentTab: 'reactions',
+    tabs: [
+        { name: 'reactions', label: 'Reactions' },
+        { name: 'zaps', label: 'Zaps' },
+        { name: 'reposts', label: 'Reposts' },
+    ],
+    switchTab(tabName) {
+        this.currentTab = tabName;
+    },
+}">
     <nav class="flex border-b border-white/10">
         <ul role="list"
             class="flex min-w-full flex-none gap-x-6 px-4 text-sm font-semibold leading-6 text-gray-400 sm:px-6 lg:px-8">
@@ -6,15 +27,6 @@
                 <li>
                     <div @click="switchTab(tab.name)" :class="currentTab === tab.name ? 'text-amber-400' : ''"
                          class="cursor-pointer">
-                        <template x-if="tab.name === 'reactions' && events[event.id]">
-                            <span x-text="events[event.id].reactions"></span>
-                        </template>
-                        <template x-if="tab.name === 'zaps' && events[event.id]">
-                            <span x-text="numberFormat(events[event.id].zaps ?? 0)"></span>
-                        </template>
-                        <template x-if="tab.name === 'reposts' && events[event.id]">
-                            <span x-text="events[event.id].reposts"></span>
-                        </template>
                         <span x-text="tab.label"></span>
                     </div>
             </template>
@@ -27,100 +39,125 @@
             <col class="lg:w-1/12">
         </colgroup>
 
-        <tbody class="divide-y divide-white/5 overflow-x-hidden overflow-y-scroll">
+        <tbody class="divide-y divide-white/5">
 
-        <template x-if="currentTab === 'reactions'">
-            <template
-                x-for="reaction in events[event.id] && events[event.id].reactionEventsData && events[event.id].reactionEventsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
-                :key="reaction.id"
-            >
-                <tr>
-                    <td class="py-4 px-4 max-w-[150px]">
-                        <a :href="authorMetaData[reaction.pubkey] ? '/feed/' + authorMetaData[reaction.pubkey].npub : '#'">
-                            <div class="flex items-center gap-x-4">
-                                <img
-                                    :src="authorMetaData[reaction.pubkey] ? authorMetaData[reaction.pubkey].image : '/img/nostr.png'"
-                                    :alt="authorMetaData[reaction.pubkey] && authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
-                                    class="h-8 w-8 rounded-full bg-gray-800">
-                                <div
-                                    class="truncate text-sm font-medium leading-6 text-white"
-                                    x-text="decodeURI(authorMetaData[reaction.pubkey] ? authorMetaData[reaction.pubkey].display_name : 'anon')"></div>
+        {{-- REACTIONS --}}
+        @foreach($reactions ?? [] as $reaction)
+            @php
+                $author = json_decode($redisClient->hGet('authors', $reaction['pubkey'] . ':' . $reaction['pubkey']), true);
+                if (!isset($author['profile']['image'])) {
+                    $author['profile']['image'] = '/img/nostr.png';
+                    $author['profile']['display_name'] = 'anon';
+                }
+            @endphp
+            <tr x-show="currentTab === 'reactions'" wire:key="reaction_{{ $reaction['id'] }}">
+                <td class="py-4 px-4 max-w-[300px]">
+                    <a href="{{ isset($author['npub']) ? '/feed/' . $author['npub'] : '#' }}" class="flex">
+                        <div class="flex items-center gap-x-4">
+                            <img
+                                src="{{ $author['profile']['image'] }}"
+                                alt="{{ isset($author['profile']['display_name']) ? str($author['profile']['display_name'])->limit(1, '') : 'A' }}"
+                                class="h-8 w-8 rounded-full bg-gray-800">
+                            <div class=" max-w-[240px] truncate text-sm font-medium leading-6 text-white">
+                                {{ isset($author['profile']['display_name']) ? urldecode($author['profile']['display_name']) : 'anon' }}
                             </div>
-                        </a>
-                    </td>
-                    <td class="py-4 pl-0 pr-4 sm:pr-8">
-                        <div class="flex gap-x-3">
-                            <div class="font-mono text-sm leading-6 text-gray-400"
-                                 x-text="reaction.content === '+' ? '🚀 boost' : reaction.content"></div>
                         </div>
-                    </td>
-                    <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                        <time x-text="formatDate(reaction.created_at)"></time>
-                    </td>
-                </tr>
-            </template>
-        </template>
-
-        <template x-if="currentTab === 'zaps'">
-            <template
-                x-for="reaction in events[event.id].reactionZapsData && events[event.id].reactionZapsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
-                :key="reaction.id"
-            >
-                <tr>
-                    <td class="py-4 px-4 max-w-[150px]">
-                        <a :href="authorMetaData[reaction.senderPubkey] ? '/feed/' + authorMetaData[reaction.senderPubkey].npub : '#'">
-                            <div class="flex items-center gap-x-4">
-                                <img
-                                    :src="authorMetaData[reaction.senderPubkey] ? authorMetaData[reaction.senderPubkey].image : '/img/nostr.png'"
-                                    :alt="authorMetaData[reaction.senderPubkey] ? authorMetaData[reaction.senderPubkey].display_name[0] : 'anon'"
-                                    class="h-8 w-8 rounded-full bg-gray-800">
-                                <div
-                                    class="truncate text-sm font-medium leading-6 text-white"
-                                    x-text="decodeURI(authorMetaData[reaction.senderPubkey] ? authorMetaData[reaction.senderPubkey].display_name : 'anon')"></div>
-                            </div>
-                        </a>
-                    </td>
-                    <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                        <div class="flex gap-x-3">
-                            <div class="font-mono text-sm leading-6 text-amber-500"
-                                 x-text="numberFormat(reaction.amount) + ' sats'"></div>
+                    </a>
+                </td>
+                <td class="py-4 pl-0 pr-4 sm:pr-8 w-16">
+                    <div class="flex gap-x-3">
+                        <div class="font-mono text-sm leading-6 text-gray-400">
+                            {{ $reaction['content'] === '+' ? 'boost': $reaction['content'] }}
                         </div>
-                    </td>
-                    <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                        <time x-text="formatDate(reaction.created_at)"></time>
-                    </td>
-                </tr>
-            </template>
-        </template>
+                    </div>
+                </td>
+                <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                    <time>
+                        {{ \Illuminate\Support\Carbon::parse($reaction['created_at'])->diffForHumans() }}
+                    </time>
+                </td>
+            </tr>
+        @endforeach
 
-        <template x-if="currentTab === 'reposts'">
-            <template
-                x-for="reaction in events[event.id] && events[event.id].reactionRepostsData && events[event.id].reactionRepostsData.sort((a, b) => (a.created_at < b.created_at) ? 1 : -1)"
-                :key="reaction.id"
-            >
-                <tr>
-                    <td class="py-4 px-4 max-w-[150px]">
-                        <a :href="authorMetaData[reaction.pubkey] ? '/feed/' + authorMetaData[reaction.pubkey].npub : '/img/nostr.png'">
-                            <div class="flex items-center gap-x-4">
-                                <img
-                                    :src="authorMetaData[reaction.pubkey] ? authorMetaData[reaction.pubkey].image : '/img/nostr.png'"
-                                    :alt="authorMetaData[reaction.pubkey] && authorMetaData[reaction.pubkey].display_name && authorMetaData[reaction.pubkey].display_name[0]"
-                                    class="h-8 w-8 rounded-full bg-gray-800">
-                                <div
-                                    class="truncate text-sm font-medium leading-6 text-white"
-                                    x-text="authorMetaData[reaction.pubkey] ? decodeURI(authorMetaData[reaction.pubkey].display_name) : 'anon'"></div>
+        {{-- ZAPS --}}
+        @foreach($zaps ?? [] as $zap)
+            @php
+                $author = json_decode($redisClient->hGet('authors', $zap['sender'] . ':' . $zap['sender']), true);
+                if (!isset($author['profile']['image'])) {
+                    $author['profile']['image'] = '/img/nostr.png';
+                    $author['profile']['display_name'] = 'anon';
+                }
+            @endphp
+            <tr x-show="currentTab === 'zaps'" wire:key="zap_{{ $zap['id'] }}">
+                <td class="py-4 px-4 max-w-[150px]">
+                    <a
+                        {{--:href="authorMetaData[reaction.senderPubkey] ? '/feed/' + authorMetaData[reaction.senderPubkey].npub : '#'"--}}
+                    >
+                        <div class="flex items-center gap-x-4">
+                            <img
+                                src="{{ $author['profile']['image'] }}"
+                                alt="{{ str($author['profile']['display_name'])->limit(1, '') }}"
+                                class="h-8 w-8 rounded-full bg-gray-800">
+                            <div
+                                class="truncate text-sm font-medium leading-6 text-white"
+                            >
+                                {{ urldecode($author['profile']['display_name']) }}
                             </div>
-                        </a>
-                    </td>
-                    <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                        </div>
+                    </a>
+                </td>
+                <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                    <div class="flex gap-x-3">
+                        <div class="font-mono text-sm leading-6 text-amber-500"
+                            {{--x-text="numberFormat(reaction.amount) + ' sats'"--}}
+                        >
+                            {{ $zap['sats'] }} sats
+                        </div>
+                    </div>
+                </td>
+                <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                    <time>
+                        {{ \Illuminate\Support\Carbon::parse($zap['created_at'])->diffForHumans() }}
+                    </time>
+                </td>
+            </tr>
+        @endforeach
 
-                    </td>
-                    <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                        <time x-text="formatDate(reaction.created_at)"></time>
-                    </td>
-                </tr>
-            </template>
-        </template>
+        {{-- BOOSTS --}}
+        @foreach($reposts ?? [] as $repost)
+            @php
+                $author = json_decode($redisClient->hGet('authors', $repost['pubkey'] . ':' . $repost['pubkey']), true);
+                if (!isset($author['profile']['image'])) {
+                    $author['profile']['image'] = '/img/nostr.png';
+                    $author['profile']['display_name'] = 'anon';
+                }
+            @endphp
+            <tr x-show="currentTab === 'reposts'" wire:key="repost_{{ $repost['id'] }}">
+                <td class="py-4 px-4 max-w-[150px]">
+                    <a
+                        {{--:href="authorMetaData[reaction.pubkey] ? '/feed/' + authorMetaData[reaction.pubkey].npub : '/img/nostr.png'"--}}
+                    >
+                        <div class="flex items-center gap-x-4">
+                            <img
+                                src="{{ $author['profile']['image'] }}"
+                                alt="{{ str($author['profile']['display_name'])->limit(1, '') }}"
+                                class="h-8 w-8 rounded-full bg-gray-800">
+                            <div class="truncate text-sm font-medium leading-6 text-white">
+                                {{ urldecode($author['profile']['display_name']) }}
+                            </div>
+                        </div>
+                    </a>
+                </td>
+                <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+
+                </td>
+                <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+                    <time>
+                        {{ \Illuminate\Support\Carbon::parse($repost['created_at'])->diffForHumans() }}
+                    </time>
+                </td>
+            </tr>
+        @endforeach
 
         </tbody>
     </table>

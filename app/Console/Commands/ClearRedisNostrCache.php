@@ -27,7 +27,6 @@ class ClearRedisNostrCache extends Command
     public function handle()
     {
         $redis = Redis::connection('nostr')->client();
-        $redis->del('events');
-        $redis->del('npubs');
+        $redis->flushAll();
     }
 }

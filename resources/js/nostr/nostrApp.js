@@ -1,18 +1,13 @@
-import NDK, {NDKEvent} from '@nostr-dev-kit/ndk';
-import {eventKind, NostrFetcher} from 'nostr-fetch';
-import {ndkAdapter} from '@nostr-fetch/adapter-ndk';
+import NDK, {NDKEvent} from "@nostr-dev-kit/ndk";
+import JSConfetti from "js-confetti";
+import {error} from "high-console";
+import defaultRelays from "../nostr/defaultRelays.js";
+import {eventKind, NostrFetcher} from "nostr-fetch";
+import {ndkAdapter} from "@nostr-fetch/adapter-ndk";
+import {filterReplies} from "../nostr/utils/filterReplies.js";
+import {nested} from "../nostr/utils/nested.js";
 import {decode} from "light-bolt11-decoder";
-import JSConfetti from 'js-confetti';
 import {requestProvider} from "webln";
-import {compactNumber} from "./utils/number.js";
-import {parseEventContent} from "./parse/parseEventContent.js";
-import {nip19} from "nostr-tools";
-import {transformToHexpubs} from "./utils/transformToHexpubs.js";
-import {filterReplies} from "./utils/filterReplies.js";
-import {formatDate} from "./utils/formatDate.js";
-import {debug, error, warn} from 'high-console';
-import {nested} from "./utils/nested.js";
-import defaultRelays from "./defaultRelays.js";
 
 async function verifyRelays(relays) {
     try {
@@ -60,468 +55,380 @@ async function verifyRelays(relays) {
     }
 }
 
-async function loadProfile() {
-    await this.$store.ndk.nip07signer.user().then(async (user) => {
-        if (!!user.npub) {
-            // warn("Permission granted to read their public key:", user.npub);
-            this.$store.ndk.user = this.$store.ndk.ndk.getUser({
-                npub: user.npub,
-            });
-            await this.$store.ndk.user.fetchProfile();
-            const relays = await this.$store.ndk.user.relayList();
-            const relayArray = Array.from(relays)[0]?.tags ?? [];
-            this.$wire.updateRelays(relayArray);
-        }
-    }).catch((error) => {
-        this.rejected = true;
-    });
+async function fetchEventsByHexpubs(fetcher, hexpubs) {
+    console.log('fetch since', this.since);
+    console.log('fetch until', this.until);
+    let fetchedEvents = await fetcher.fetchAllEvents(
+        this.$store.ndk.explicitRelayUrls,
+        {kinds: [eventKind.text], authors: hexpubs},
+        {until: this.until, since: this.since},
+        {sort: true}
+    );
+
+    return {fetcher, fetchedEvents};
 }
 
-async function initApp() {
-    // set authorMetaData from cache
-    this.authorMetaData = this.npubsCache;
-
-    // set currentFeedAuthor
-    if (this.isCustomFeed) {
-        // get last part of current path
-        // get hexpub from currentNpub
-        const currentHexpub = nip19.decode(this.currentNpubs[0]).data;
-        await this.getAuthorsMeta([currentHexpub]);
-        this.currentFeedAuthor = currentHexpub;
-    }
-
-    //debug('INIT AUTHOR METADATA FROM CACHE', Object.values(Alpine.raw(this.authorMetaData)));
-
-    // init confetti
-    this.jsConfetti = new JSConfetti();
-
-    // verify relays
-    let explicitRelayUrls = [];
-    // pick second value from cachedRelays
-    // if (this.cachedRelays.length > 0) {
-    //     for (const relay of this.cachedRelays) {
-    //         explicitRelayUrls.push(relay[1]);
-    //     }
-    // }
-    explicitRelayUrls = await this.verifyRelays(defaultRelays);
-    this.$store.ndk.validatedRelays = explicitRelayUrls;
-
-    // init NDK
-    const instance = new NDK({
-        explicitRelayUrls: this.$store.ndk.validatedRelays,
-        signer: this.$store.ndk.nip07signer,
-        cacheAdapter: this.$store.ndk.dexieAdapter,
-    });
-
-    // connect to NDK
-    try {
-        await instance.connect(10000);
-    } catch (error) {
-        throw new Error('NDK instance init failed: ', error);
-    }
-    // store NDK instance in store
-    this.$store.ndk.ndk = instance;
-
-    // init nip07 signer and fetch profile
-    await this.loadProfile();
-
-    // check if isMyFeed is true
-    if (this.isMyFeed) {
-        // fetch follows of currentUser
-        const follows = await this.$store.ndk.user.follows();
-        // add npubs to currentNpubs
-        this.currentNpubs = Array.from(follows).map((follow) => follow.npub);
-        // set hoursAgo to 1
-        this.$store.ndk.hoursAgo = 1;
-        // set hoursStep to 1
-        this.$store.ndk.hoursStep = 1;
-    }
-
-    // fetch events
-    await this.fetchEvents();
-
-    // this.loadMore() until we have 2 events and stop after too many tries
-    let tries = 0;
-    while (Object.keys(this.events).length < 2 && tries < 2) {
-        await this.loadMore();
-        tries++;
-    }
-
-    Alpine.effect(async () => {
-        if (this.$store.ndk.user) {
-
+async function cacheAuthors(fetchedEvents) {
+    let cachedAuthors = {};
+    for (const event of fetchedEvents) {
+        if (!this.cachedAuthorHashpubkeys.includes(event.pubkey) && !cachedAuthors[event.pubkey]) {
+            const user = await this.$store.ndk.ndk.getUser({hexpubkey: event.pubkey});
+            await user.fetchProfile();
+            if (!user.profile.display_name) {
+                user.profile.display_name = user.profile.displayName;
+            }
+            if (!user.profile.display_name) {
+                user.profile.display_name = user.profile.name;
+            }
+            if (!user.profile.image) {
+                user.profile.image = user.profile.picture;
+            }
+            cachedAuthors[event.pubkey] = {
+                pubkey: event.pubkey,
+                value: {
+                    npub: user.npub,
+                    profile: {...user.profile}
+                }
+            };
         }
-    });
-
-    // scroll to top
-    const that = this;
-    window.addEventListener("scroll", function() {
-        if (
-            document.body.scrollTop > 20 ||
-            document.documentElement.scrollTop > 20
-        ) {
-            that.$refs.scrollToTop.classList.remove("hidden");
-        } else {
-            that.$refs.scrollToTop.classList.add("hidden");
-        }
-    });
+    }
+    //console.log('cachedAuthors', cachedAuthors);
+    return cachedAuthors;
 }
 
-export default (livewireComponent) => ({
-
-    // loading indicator
-    loading: false,
-
-    // mobile menu opened
-    open: false,
-
-    shouldPoll: livewireComponent.entangle('shouldPoll'),
-
-    // isMyFeed switch
-    isMyFeed: livewireComponent.entangle('isMyFeed'),
-    // isCustomFeed switch
-    isCustomFeed: livewireComponent.entangle('isCustomFeed'),
-
-    // get cachedRelays
-    cachedRelays: livewireComponent.entangle('cachedRelays'),
-
-    // modals
-    openCommentModal: false,
-    openCreateNoteModal: false,
-    openReactionModal: false,
-    // current modal event
-    currentEventToReact: null,
-    openReactionPicker(event) {
-        this.currentEventToReact = event;
-        this.openReactionModal = true;
-    },
-    openCommentEditor(event) {
-        this.currentEventToReact = event;
-        this.openCommentModal = true;
-    },
-
-    // utils
-    numberFormat(number) {
-        return compactNumber.format(number);
-    },
-    formatDate(date) {
-        return formatDate(date);
-    },
-
-    // if nip07 is rejected
-    rejected: false,
-
-    // confetti instance
-    jsConfetti: null,
-
-    // which npubs to fetch
-    currentNpubs: livewireComponent.entangle('currentNpubs'),
-
-    // cache
-    eventsCache: livewireComponent.entangle('eventsCache'),
-    npubsCache: livewireComponent.entangle('npubsCache'),
-    usedMemory: livewireComponent.entangle('usedMemory'),
-
-    // events to render
-    events: [],
-    // new events from poll
-    newEvents: [],
-    hasNewEvents: false,
-
-    // holds all hexpubs from all authors we want to fetch
-    authorHexpubs: [],
-    // holds author metadata
-    authorMetaData: {},
-    currentFeedAuthor: null,
-
-    // verify relays
-    async verifyRelays(relays) {
-        return await verifyRelays(relays);
-    },
-
-    // init app
-    async init() {
-        await initApp.call(this);
-
-        // create poll function to check for new events
-        const poll = async () => {
-            await this.fetchEvents(true);
-            warn('_______POLLING FOR NEW EVENTS_______');
-            setTimeout(poll, 60000);
-        }
-
-        // start polling
-        if (this.shouldPoll) {
-            await poll();
-        }
-    },
-
-    mergeNewEvents() {
-        this.events = {...this.newEvents, ...this.events};
-        this.newEvents = [];
-        this.hasNewEvents = false;
-
-        // scroll to top
-        window.scrollTo(0, 0, {behavior: 'smooth'});
-    },
-
-    async loadProfile() {
-        await loadProfile.call(this);
-    },
-
-    async fetchAllRepliesOfEvent(event) {
-        // warn('connected to fetchAllRepliesOfEvents');
-        const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-        return await fetcher.fetchAllEvents(
-            this.$store.ndk.validatedRelays,
+async function cacheReplies(fetchedEvents, fetcher) {
+    let cachedReplies = {};
+    for (const event of fetchedEvents) {
+        const replies = await fetcher.fetchAllEvents(
+            this.$store.ndk.explicitRelayUrls,
             {kinds: [eventKind.text], '#e': [event.id],},
             {},
             {sort: true}
         );
+        const combinedEventWithReplies = [event, ...replies];
+        const nestedReplies = nested(combinedEventWithReplies, [event.id]);
+        cachedReplies[event.id] = {
+            pubkey: event.pubkey,
+            value: Array.from(nestedReplies)
+        };
+    }
+    // set cached replies
+    //console.log('cachedReplies', cachedReplies);
+    await this.$wire.setCache(cachedReplies, 'replies');
+}
+
+async function cacheReactions(fetchedEvents, fetcher, cachedAuthors) {
+    let cachedReposts = {};
+    let cachedReactions = {};
+    let cachedZaps = {};
+    const eventIds = fetchedEvents.map((event) => event.id);
+    const reactionEvents = await fetcher.allEventsIterator(
+        this.$store.ndk.explicitRelayUrls,
+        {kinds: [eventKind.reaction, eventKind.zap, eventKind.repost], '#e': eventIds,},
+        {},
+    );
+    for await (const ev of reactionEvents) {
+        const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
+        const reactedToEventPubkey = ev.tags.find((tag) => tag[0] === 'p')?.[1];
+        if (!reactedToEventPubkey) {
+            continue;
+        }
+        switch (ev.kind) {
+            case 6:
+                if (!cachedReposts[reactedToEvent]) {
+                    cachedReposts[reactedToEvent] = {};
+                }
+                if (!cachedReposts[reactedToEvent]['pubkey']) {
+                    cachedReposts[reactedToEvent]['pubkey'] = reactedToEventPubkey;
+                }
+                if (!cachedReposts[reactedToEvent]['value']) {
+                    cachedReposts[reactedToEvent]['value'] = [];
+                }
+                if (!cachedReposts[reactedToEvent]['value'].find((e) => e.id === ev.id)) {
+                    cachedReposts[reactedToEvent]['value'].push(ev);
+                }
+                break;
+            case 7:
+                if (!cachedReactions[reactedToEvent]) {
+                    cachedReactions[reactedToEvent] = {};
+                }
+                if (!cachedReactions[reactedToEvent]['pubkey']) {
+                    cachedReactions[reactedToEvent]['pubkey'] = reactedToEventPubkey;
+                }
+                if (!cachedReactions[reactedToEvent]['value']) {
+                    cachedReactions[reactedToEvent]['value'] = [];
+                }
+                if (!cachedReactions[reactedToEvent]['value'].find((e) => e.id === ev.id)) {
+                    cachedReactions[reactedToEvent]['value'].push(ev);
+                }
+                break;
+            case 9735:
+                const bolt11 = ev.tags.find((tag) => tag[0] === 'bolt11')[1];
+                if (bolt11) {
+                    const decoded = decode(bolt11);
+                    const amount = decoded.sections.find((item) => item.name === 'amount');
+                    const sats = amount.value / 1000;
+                    if (!cachedZaps[reactedToEvent]) {
+                        cachedZaps[reactedToEvent] = {};
+                    }
+                    if (!cachedZaps[reactedToEvent]['pubkey']) {
+                        cachedZaps[reactedToEvent]['pubkey'] = reactedToEventPubkey;
+                    }
+                    if (!cachedZaps[reactedToEvent]['value']) {
+                        cachedZaps[reactedToEvent]['value'] = [];
+                    }
+                    if (!cachedZaps[reactedToEvent]['value'].find((e) => e.id === ev.id)) {
+                        // get pubkey from tags where key is description
+                        const description = ev.tags.find((tag) => tag[0] === 'description')[1];
+                        ev.sender = JSON.parse(description).pubkey;
+                        cachedZaps[reactedToEvent]['value'].push({...ev, sats: sats});
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        if (!cachedAuthors[ev.pubkey]) {
+            const user = await this.$store.ndk.ndk.getUser({hexpubkey: ev.pubkey});
+            await user.fetchProfile();
+            if (!user.profile.display_name) {
+                user.profile.display_name = user.profile.displayName;
+            }
+            if (!user.profile.display_name) {
+                user.profile.display_name = user.profile.name
+            }
+            if (!user.profile.image) {
+                user.profile.image = user.profile.picture;
+            }
+            cachedAuthors[ev.pubkey] = {
+                pubkey: ev.pubkey,
+                value: {
+                    npub: user.npub,
+                    profile: {...user.profile}
+                }
+            }
+        }
+    }
+    //console.log('cachedReposts', cachedReposts);
+    //console.log('cachedReactions', cachedReactions);
+    //console.log('cachedZaps', cachedZaps);
+    return {cachedReposts, cachedReactions, cachedZaps};
+}
+
+export default (livewireComponent) => ({
+
+    // hours ago
+    hoursAgo: livewireComponent.entangle('hoursAgo'),
+    hoursSteps: livewireComponent.entangle('hoursSteps'),
+    tries: 0,
+
+    until: livewireComponent.entangle('until'),
+    since: livewireComponent.entangle('since'),
+
+    // limit
+    limit: 5,
+
+    // current fetchedEventsLength
+    fetchedEventsLength: livewireComponent.entangle('fetchedEventsLength'),
+
+    // mobile menu opened
+    mobileMenuOpened: false,
+
+    // modals
+    openCommentModal: false,
+    openCommentEditor(event) {
+        this.currentEventToReactId = event;
+        this.openCommentModal = true;
+    },
+    openCreateNoteModal: false,
+    openReactionModal: false,
+    // current modal event
+    currentEventToReactId: null,
+    currentEventToReactPubkey: null,
+
+    // load from pubkey
+    pubkeys: livewireComponent.entangle('pubkeys'),
+
+    // used memory in redis
+    usedMemory: livewireComponent.entangle('usedMemory'),
+
+    // used memory in redis
+    loading: livewireComponent.entangle('loading'),
+
+    // hasNewEvents
+    hasNewEvents: livewireComponent.entangle('hasNewEvents'),
+
+    // feedHexpubs
+    feedHexpubs: livewireComponent.entangle('feedHexpubs'),
+
+    // cachedEvents
+    cachedEvents: livewireComponent.entangle('cachedEvents'),
+
+    // cachedAuthorHashpubkeys
+    cachedAuthorHashpubkeys: livewireComponent.entangle('cachedAuthorHashpubkeys'),
+
+    // showSignerRejectedAlert
+    showSignerRejectedAlert: livewireComponent.entangle('showSignerRejectedAlert'),
+
+    async verifyRelays(relays) {
+        return await verifyRelays(relays);
     },
 
-    async fetchEvents(fromPoll) {
-        // warn('>>> fetchEvents');
-        if (!fromPoll) {
-            document.querySelector("#loader").style.display = "block";
-        }
+    async init() {
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
-        const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-        let hexpubs = transformToHexpubs.call(this);
-        // push all hexpubs to authorHexpubs
-        this.authorHexpubs.push(...hexpubs);
-        // debug('???? SEARCH FOR HEXPUBS', hexpubs);
-        // FILTER
-        let fetchedEvents = await fetcher.fetchAllEvents(
-            this.$store.ndk.validatedRelays,
-            {kinds: [eventKind.text], authors: hexpubs},
-            {since: nHoursAgo(this.$store.ndk.hoursAgo)},
-            {sort: true}
-        );
-        // debug('UNTIL', this.formatDate(nHoursAgo(this.$store.ndk.hoursAgo)));
-        //debug('FOUND EVENTS', fetchedEvents);
-        // filter events that are replies or reposts
-        fetchedEvents = filterReplies(fetchedEvents);
-        // hit cache for events
-        const eventsIds = fetchedEvents.map((ev) => ev.id);
-        await this.$wire.getEventsByIds(eventsIds).then(result => {
-            // debug('+++ HIT EVENTS CACHE', result);
-            if (result > 0) {
-                // warn('*** EVENTS AFTER HITTING CACHE', this.eventsCache);
+
+        Alpine.effect(async () => {
+            if (this.feedHexpubs.length > 0 && this.cachedEvents.length === 0 && this.tries < 20) {
+                console.log('cachedEvents', this.cachedEvents);
+                console.log('cachedEventsLength', this.cachedEvents.length);
+                document.querySelector("#loader").style.display = "block";
+                this.since = nHoursAgo(this.hoursAgo);
+                this.until = Math.floor(Date.now() / 1000);
+                this.hoursAgo = this.hoursAgo + this.hoursSteps;
+                await this.fetchEvents();
+                document.querySelector("#loader").style.display = "none";
             }
         });
-        // debug('FILTERED EVENTS', fetchedEvents);
 
-        // init events object
-        if (fetchedEvents.length > 0) {
-            for (const newEv of fetchedEvents) {
+        // init confetti
+        this.jsConfetti = new JSConfetti();
 
-                // debug('????? SEARCH ON EVENTS CACHE', Alpine.raw(this.eventsCache[newEv.id] ?? {}));
+        this.$store.ndk.explicitRelayUrls = await this.verifyRelays(defaultRelays);
+        const instance = new NDK({
+            explicitRelayUrls: this.$store.ndk.explicitRelayUrls,
+            signer: this.$store.ndk.nip07signer,
+            cacheAdapter: this.$store.ndk.dexieAdapter,
+        });
 
-                if (fromPoll) {
-                    if (this.newEvents[newEv.id]) {
-                        this.newEvents[newEv.id] = this.eventsCache[newEv.id];
-                    }
-                    if (!this.newEvents[newEv.id]) {
-                        this.newEvents[newEv.id] = newEv;
-                    }
-                } else {
-                    if (this.eventsCache[newEv.id]) {
-                        this.events[newEv.id] = this.eventsCache[newEv.id];
-                    }
-                    if (!this.events[newEv.id]) {
-                        this.events[newEv.id] = newEv;
-                    }
-                }
-            }
-        }
-        // warn('NEW EVENTS OBJECT', Object.values(Alpine.raw(this.events)));
-
-        // replies
-        for (const event of fetchedEvents) {
-            // fetch replies
-            const replies = await this.fetchAllRepliesOfEvent(event);
-            // loop through replies and push hexpubs to authorHexpubs
-            for (const reply of replies) {
-                this.authorHexpubs.push(reply.pubkey);
-            }
-            //debug('FOUND REPLIES', replies);
-            const combinedEventWithReplies = [event, ...replies];
-            //debug('combined', combinedEventWithReplies);
-            const nestedReplies = nested(combinedEventWithReplies, [event.id], this.authorHexpubs);
-            if (fromPoll) {
-                this.newEvents[event.id].replies = Array.from(nestedReplies);
-            } else {
-                this.events[event.id].replies = Array.from(nestedReplies);
-            }
+        try {
+            await instance.connect(10000);
+        } catch (error) {
+            throw new Error('NDK instance init failed: ', error);
         }
 
-        // fetch authors metadata
-        // filter this.authorHexpubs for unique values
-        hexpubs = [...new Set(this.authorHexpubs)];
-        //debug('hexpubs we want to fetch', hexpubs);
-        await this.getAuthorsMeta(Array.from(hexpubs));
-        await this.getReactions(fetchedEvents);
-        if (fromPoll) {
-            // warn('+++ HIT EVENTS CACHE UPDATE FROM POLL', Object.values(Alpine.raw(this.newEvents)));
-            this.$wire.updateEventCache(Object.values(Alpine.raw(this.newEvents)));
-            // warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
-            this.$wire.getEventsByIds(eventsIds).then(result => {
-                // warn('--- NEW CACHE RESULT', result);
-            });
-            // check if there are new events by id, compare to this.events
-            const newEventIds = Object.keys(this.newEvents);
-            const oldEventIds = Object.keys(this.events);
-            const diff = newEventIds.filter((x) => !oldEventIds.includes(x));
-            if (diff.length > 0) {
-                this.hasNewEvents = true;
+        // store NDK instance in store
+        this.$store.ndk.ndk = instance;
+
+        // init nip07 signer and fetch profile
+        await this.$store.ndk.nip07signer.user().then(async (user) => {
+            if (!!user.npub) {
+                this.$store.ndk.user = this.$store.ndk.ndk.getUser({
+                    npub: user.npub,
+                });
+                await this.$store.ndk.user.fetchProfile();
             }
-        } else {
-            // hit the cache
-            // warn('+++ HIT EVENTS CACHE UPDATE', Object.values(Alpine.raw(this.events)));
-            this.$wire.updateEventCache(Object.values(Alpine.raw(this.events)));
-            // warn('<<< HIT CACHE WITH EVENT IDS', eventsIds);
-            this.$wire.getEventsByIds(eventsIds).then(result => {
-                // warn('--- NEW CACHE RESULT', result);
-            });
-            document.querySelector("#loader").style.display = "none";
+        }).catch((error) => {
+            this.rejected = true;
+        });
+
+        // fetch follows of currentUser
+        const follows = await this.$store.ndk.user.follows();
+        let hexpubs = Array.from(follows).map((follow) => follow.hexpubkey());
+        this.$wire.setFollowers(hexpubs);
+
+        // hexpubs current pubkey
+        if (this.pubkeys) {
+            hexpubs = [];
+            for (const pubkey of this.pubkeys) {
+                const pubkeyUser = this.$store.ndk.ndk.getUser({
+                    npub: pubkey,
+                });
+                hexpubs.push(pubkeyUser.hexpubkey());
+            }
         }
-        debug('AUTHORS', Object.values(Alpine.raw(this.authorMetaData)));
-        debug('EVENTS', Object.values(Alpine.raw(this.events)));
+
+        // call cache to load data
+        await this.$wire.setFeedHexpubs(hexpubs);
+
+        // interval to fetch new events every minute
+        setInterval(async () => {
+            this.until = Math.floor(Date.now() / 1000);
+            console.log('<<<<<< POLLING FOR NEW EVENTS >>>>>>')
+            await this.fetchEvents();
+        }, 60000);
     },
 
-    async getAuthorsMeta(authorIds) {
-        // filter authorIds that are already in this.authorMetaData with filter function
-        authorIds = authorIds.filter((authorId) => !this.authorMetaData[authorId]);
-        // todo: console.log('SEARCH FOR NEW AUTHORS', authorIds.length, authorIds);
-        if (authorIds.length === 0) return;
-
+    fetchEvents: async function (reload = true) {
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
+
+        // get all events from hexpubs
+        let {fetchedEvents} = await fetchEventsByHexpubs.call(this, fetcher, this.feedHexpubs);
+
+        let cachedAuthors = {};
+        if (reload) {
+            // cache every author of fetched events
+            cachedAuthors = await cacheAuthors.call(this, fetchedEvents);
+        }
+
+        // filter replies
+        fetchedEvents = filterReplies(fetchedEvents);
+        if (fetchedEvents.length > 0) {
+            console.log('setCache EVENTS', fetchedEvents);
+            await this.$wire.setCache(fetchedEvents, 'events');
+
+            if (reload) {
+                // replies
+                await cacheReplies.call(this, fetchedEvents, fetcher);
+
+                // reactions
+                let {
+                    cachedReposts,
+                    cachedReactions,
+                    cachedZaps,
+                } = await cacheReactions.call(this, fetchedEvents, fetcher, cachedAuthors);
+
+                // set cached authors
+                await this.$wire.setCache(cachedAuthors, 'authors');
+                // set cached reposts
+                await this.$wire.setCache(cachedReposts, 'reposts');
+                // set cached reactions
+                await this.$wire.setCache(cachedReactions, 'reactions');
+                // set cached zaps
+                await this.$wire.setCache(cachedZaps, 'zaps');
+            }
+        }
+    },
+
+    reloadEventReactions: async function (events) {
+        const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
+        // reactions
+        let {
+            cachedReposts,
+            cachedReactions,
+            cachedZaps,
+        } = await cacheReactions.call(this, events, fetcher, {});
+        // set cached reposts
+        await this.$wire.setCache(cachedReposts, 'reposts');
+        // set cached reactions
+        await this.$wire.setCache(cachedReactions, 'reactions');
+        // set cached zaps
+        await this.$wire.setCache(cachedZaps, 'zaps');
+    },
+
+    async loadMoreEvents() {
+        document.querySelector("#loader").style.display = "block";
+        const oldFetchedLength = this.fetchedEventsLength;
         const nHoursAgo = (hrs) => Math.floor((Date.now() - hrs * 60 * 60 * 1000) / 1000);
-        const latestEvents = await fetcher.fetchAllEvents(
-            this.$store.ndk.validatedRelays,
-            {kinds: [eventKind.metadata], authors: authorIds},
-            {},
-            {skipVerification: true}
-        )
-        for await (const latestEvent of latestEvents) {
-            if (latestEvent.kind !== eventKind.metadata) return;
-            let profile = JSON.parse(latestEvent.content);
-            if (!profile.image) {
-                profile.image = profile.picture;
-            }
-            // convert latestEvent.id from hex to npub
-            const npub = nip19.npubEncode(latestEvent.pubkey);
-            profile.npub = npub;
-            profile.pubkey = latestEvent.pubkey;
-            if (!profile.display_name) {
-                profile.display_name = profile.displayName;
-            }
-            if (!profile.display_name) {
-                profile.display_name = profile.name;
-            }
-            // loop through profile values and sanitize them
-            for (const [key, value] of Object.entries(profile)) {
-                // remove malformed strings from values
-                if (typeof value === 'string' && (key === 'image' || key === 'picture' || key === 'banner' || key === 'display_name' || key === 'displayName')) {
-                    profile[key] = encodeURI(value);
-                }
-            }
-
-            this.authorMetaData[latestEvent.pubkey] = profile;
-            // hit cache
-            // debug('HIT AUTHORS CACHE UPDATE', profile);
-            this.$wire.call('updateNpubsCache', profile);
+        while (this.fetchedEventsLength === oldFetchedLength) {
+            console.log('this.fetchedEventsLength', this.fetchedEventsLength);
+            console.log('oldFetchedLength', oldFetchedLength);
+            this.hoursAgo = this.hoursAgo + this.hoursSteps;
+            this.until = Math.floor(Date.now() / 1000);
+            this.since = nHoursAgo(this.hoursAgo);
+            await this.fetchEvents(false);
         }
+        await this.fetchEvents(true);
+
+        document.querySelector("#loader").style.display = "none";
     },
 
-    async parseContent(event) {
-        return await parseEventContent(event.content, event.id, this);
+    openReactionPicker(id) {
+        this.currentEventToReactId = id;
+        this.openReactionModal = true;
     },
 
-    async getReactions(events) {
-        if (this.$store.ndk.user) {
-            // warn('connected to getReactions');
-            // if events is an array
-            if (events.length > 0) {
-                const eventIds = events.map((event) => event.id);
-                const fetcher = NostrFetcher.withCustomPool(ndkAdapter(this.$store.ndk.ndk));
-                const reactionEvents = await fetcher.allEventsIterator(
-                    this.$store.ndk.validatedRelays,
-                    {kinds: [eventKind.reaction, eventKind.zap, eventKind.repost], '#e': eventIds,},
-                    {},
-                );
-                for await (const ev of reactionEvents) {
-                    const reactedToEvent = ev.tags.find((tag) => tag[0] === 'e')[1];
-                    if (!this.events[reactedToEvent]) {
-                        continue;
-                    }
-                    switch (ev.kind) {
-                        case 6:
-                            if (!this.events[reactedToEvent].reactionRepostsData) {
-                                this.events[reactedToEvent].reactionRepostsData = [];
-                            }
-                            if (!this.events[reactedToEvent].reactionRepostsData.find((e) => e.id === ev.id)) {
-                                if (!this.events[reactedToEvent].reposts) {
-                                    this.events[reactedToEvent].reposts = 0;
-                                }
-                                this.events[reactedToEvent].reposts += 1;
-                                this.events[reactedToEvent].reactionRepostsData.push(ev);
-                            }
-                            break;
-                        case 7:
-                            if (!this.events[reactedToEvent].reacted) {
-                                this.events[reactedToEvent].reacted = ev.pubkey === this.$store.ndk.user.hexpubkey();
-                            }
-                            if (!ev.content.includes('"kind":1')) {
-                                if (!this.events[reactedToEvent].reactions) {
-                                    this.events[reactedToEvent].reactions = 0;
-                                }
-                                if (!this.events[reactedToEvent].reactionEventsData) {
-                                    this.events[reactedToEvent].reactionEventsData = [];
-                                }
-                                if (!this.events[reactedToEvent].reactionEventsData.find((e) => e.id === ev.id)) {
-                                    this.events[reactedToEvent].reactions += 1;
-                                    this.events[reactedToEvent].reactionEventsData.push(ev);
-                                }
-                            }
-                            break;
-                        case 9735: {
-                            const bolt11 = ev.tags.find((tag) => tag[0] === 'bolt11')[1];
-                            if (bolt11) {
-                                const decoded = decode(bolt11);
-                                const amount = decoded.sections.find((item) => item.name === 'amount');
-                                const sats = amount.value / 1000;
-                                ev.indexId = 'zap_' + ev.id;
-                                ev.amount = sats;
-                                ev.senderPubkey = JSON.parse(ev.tags.find((tag) => tag[0] === 'description')[1]).pubkey;
-                                if (!this.events[reactedToEvent].reactionZapsData) {
-                                    this.events[reactedToEvent].reactionZapsData = [];
-                                }
-                                if (!this.events[reactedToEvent].reactionZapsData.find((e) => e.id === ev.id)) {
-                                    if (!this.events[reactedToEvent].zaps) {
-                                        this.events[reactedToEvent].zaps = 0;
-                                    }
-                                    this.events[reactedToEvent].zaps += sats;
-                                    this.events[reactedToEvent].reactionZapsData.push(ev);
-                                }
-                            }
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-
-                // todo: unique pubkeys from events
-                //await this.getAuthorsMeta(pubkeys);
-            } else {
-                error('NO NEW REACTIONS', events.length);
-            }
-        }
-    },
-
-    async love(event, emoticon) {
+    async love(id, emoticon) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
         // react to event
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.content = emoticon;
@@ -533,14 +440,13 @@ export default (livewireComponent) => ({
         await ndkEvent.publish();
         await this.jsConfetti.addConfetti({
             emojis: [emoticon,],
-        })
-        setTimeout(async () => await this.getReactions([event]), 1000);
+        });
+        await cacheAuthors.call([event]);
+        await this.reloadEventReactions([event]);
     },
 
-    async zap(event) {
-        if (!this.$store.ndk.ndk.signer) {
-            this.$store.ndk.ndk.signer = this.$store.ndk.nip07signer;
-        }
+    async zap(id) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk, event);
         const res = await ndkEvent
             .zap(
@@ -554,10 +460,14 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: ['⚡'],
         });
-        setTimeout(async () => await this.getReactions([event]), 5000);
+        // reload reactions after 10 seconds
+        setTimeout(async () => {
+            await this.reloadEventReactions([event]);
+        }, 3000);
     },
 
-    async repost(event) {
+    async repost(id) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.kind = eventKind.repost;
         ndkEvent.tags = [
@@ -568,52 +478,12 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: ['🤙',],
         });
-        setTimeout(async () => await this.getReactions([event]), 1000);
+        await this.reloadEventReactions([event]);
     },
 
-    async follow() {
-        await this.jsConfetti.addConfetti({
-            emojis: ['🛠️',],
-        });
-    },
-
-    checkNip05(nip05) {
-        if (nip05) {
-            // split nip05 into parts
-            const nip05Parts = nip05.split('@');
-            // check if nip05 has 2 parts
-            if (nip05Parts.length !== 2) {
-                // warn('nip05 is invalid');
-                return;
-            }
-            // check if nip05 has a valid domain
-            const nip05Domain = nip05Parts[1];
-            if (!nip05Domain.includes('.')) {
-                error('nip05 is invalid');
-                return;
-            }
-            // construct nip05 check url
-            const nip05CheckUrl = 'https://' + nip05Domain + '/.well-known/nostr.json';
-
-            // check nostr nip05 with http fetch on .well-known/nostr.json and look for nip05
-            fetch(nip05CheckUrl)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.names) {
-                        // check if in data.names there is a name with the nip05
-                        const nip05Name = nip05Parts[0];
-                        return data.names.find((name) => name === nip05Name);
-                    } else {
-                        // debug(data);
-                    }
-                });
-        }
-    },
-
-    async loadMore() {
-        this.$store.ndk.hoursAgo += this.$store.ndk.hoursStep;
-        // debug('>> NEW HOURS', this.$store.ndk.hoursAgo);
-        await this.fetchEvents();
+    async debug(id) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
+        console.log('event', event);
     }
 
 });

@@ -36,9 +36,7 @@ export default (event) => ({
             emojis: ['📣',],
         });
 
-        const that = this;
-        setTimeout(async function () {
-            await that.fetchEvents();
-        }, 1000);
+        this.until = Math.floor(Date.now() / 1000);
+        await this.fetchEvents();
     },
 });

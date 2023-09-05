@@ -1,12 +1,13 @@
 <div
-        x-show="openCommentModal"
-        style="display: none"
-        x-on:keydown.escape.prevent.stop="openCommentModal = false"
-        role="dialog"
-        aria-modal="true"
-        x-id="['modal-title']"
-        :aria-labelledby="$id('modal-title')"
-        class="fixed inset-0 z-10 overflow-y-auto"
+    wire:ignore
+    x-show="openCommentModal"
+    style="display: none"
+    x-on:keydown.escape.prevent.stop="openCommentModal = false"
+    role="dialog"
+    aria-modal="true"
+    x-id="['modal-title']"
+    :aria-labelledby="$id('modal-title')"
+    class="fixed inset-0 z-10 overflow-y-auto"
 >
     <!-- Overlay -->
     <div x-show="openCommentModal" x-transition.opacity
@@ -14,12 +15,11 @@
 
     <!-- Panel -->
     <div
-            x-show="openCommentModal" x-transition
-            x-on:click="openCommentModal = false"
-            class="relative flex min-h-screen items-center justify-center p-4"
+        x-show="openCommentModal" x-transition
+        x-on:click="openCommentModal = false"
+        class="relative flex min-h-screen items-center justify-center p-4"
     >
-        <div wire:ignore
-             x-data="nostrCommentEditor"
+        <div x-data="nostrCommentEditor"
              x-on:click.stop
              class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
         >
@@ -29,12 +29,16 @@
             <!-- Content -->
             <div class="mt-3 text-gray-600">
                 <div
-                        class="prose w-full"
+                    class="prose w-full"
                 >
                     <textarea x-ref="editor"></textarea>
                 </div>
-                <div class="text-xs"
-                     x-text="currentEventToReact && currentEventToReact.id"></div>
+                <div class="flex flex-col spacey-2">
+                    <div class="text-xs"
+                         x-text="currentEventToReactId"></div>
+                    <div class="text-xs"
+                         x-text="currentEventToReactPubkey"></div>
+                </div>
             </div>
 
             <!-- Buttons -->

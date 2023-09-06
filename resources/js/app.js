@@ -1,16 +1,14 @@
-import nostrApp from './nostr/nostrApp';
-import nostrNoteEditor from './nostr/nostrNoteEditor';
-import nostrCommentEditor from './nostr/nostrCommentEditor';
-
-import Alpine from 'alpinejs';
-import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
+import { Livewire, Alpine} from '../../vendor/livewire/livewire/dist/livewire.esm';
 import {NDKNip07Signer} from "@nostr-dev-kit/ndk";
-
-window.Alpine = Alpine;
+import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
+import nostrEvents from "./nostr/nostrEvents";
+import nostrAuthor from "./nostr/nostrAuthor";
+import nostrReplies from "./nostr/nostrReplies";
+import nostrReactions from "./nostr/nostrReactions";
+import nostrZaps from "./nostr/nostrZaps";
+import nostrReposts from "./nostr/nostrReposts";
 
 Alpine.store('ndk', {
-    // fetcher
-    fetcher: null,
     // nostr ndk
     ndk: null,
     // signer
@@ -20,13 +18,14 @@ Alpine.store('ndk', {
     // current nostr user
     user: null,
     // hours ago
-    lastEventTimestamp: null,
-    // hours ago
     explicitRelayUrls: [],
-})
+});
 
-Alpine.data('nostrApp', nostrApp);
-Alpine.data('nostrNoteEditor', nostrNoteEditor);
-Alpine.data('nostrCommentEditor', nostrCommentEditor);
+Alpine.data('nostrEvents', nostrEvents);
+Alpine.data('nostrAuthor', nostrAuthor);
+Alpine.data('nostrReplies', nostrReplies);
+Alpine.data('nostrReactions', nostrReactions);
+Alpine.data('nostrZaps', nostrZaps);
+Alpine.data('nostrReposts', nostrReposts);
 
-Alpine.start();
+Livewire.start();

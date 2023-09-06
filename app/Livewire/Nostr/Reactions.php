@@ -22,6 +22,7 @@ class Reactions extends Component
         if ($reactions) {
             $this->reactions = json_decode($reactions, true, 512, JSON_THROW_ON_ERROR);
         }
+        $this->dispatch('reactionsLoaded');
     }
 
     public function cacheReactions($reactions)

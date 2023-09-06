@@ -16,6 +16,12 @@ export default (livewireComponent) => ({
         }, 60000);
     },
 
+    async loved(detail) {
+        if (detail === this.event.id) {
+            await this.loadReaction();
+        }
+    },
+
     async loadReaction() {
         this.$wire.call('cacheReactions', await nostrEvents(this).fetchReactions(this.event));
         await this.$wire.call('loadCachedReactions');

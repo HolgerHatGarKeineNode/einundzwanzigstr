@@ -1,4 +1,4 @@
-<tbody x-data="nostrReactions(@this)" class="divide-y divide-white/5" x-show="currentTab === 'reactions'">
+<tbody x-data="nostrReactions(@this)" x-on:loved.window="loved($event.detail)" class="divide-y divide-white/5" x-show="currentTab === 'reactions'">
 @foreach($reactions as $reaction)
     <tr wire:key="reaction_{{ $reaction['id'] }}">
         <td class="py-4 px-4 max-w-[300px]">

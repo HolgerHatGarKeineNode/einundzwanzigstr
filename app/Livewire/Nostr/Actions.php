@@ -3,6 +3,7 @@
 namespace App\Livewire\Nostr;
 
 use Illuminate\Support\Facades\Redis;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Actions extends Component
@@ -18,6 +19,7 @@ class Actions extends Component
         $this->loadCounts();
     }
 
+    #[On('reactionsLoaded')]
     public function loadCounts(): void
     {
         $redisClient = Redis::connection('nostr')->client();

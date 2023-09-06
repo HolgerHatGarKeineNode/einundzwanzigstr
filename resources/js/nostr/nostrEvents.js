@@ -89,6 +89,7 @@ export default (livewireComponent) => ({
         await this.jsConfetti.addConfetti({
             emojis: [emoji,],
         });
+        await this.$dispatch('loved', event.id);
     },
 
 });

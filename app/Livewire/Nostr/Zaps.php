@@ -22,6 +22,7 @@ class Zaps extends Component
         if ($zaps) {
             $this->zaps = json_decode($zaps, true, 512, JSON_THROW_ON_ERROR);
         }
+        $this->dispatch('zapsLoaded');
     }
 
     public function cacheZaps($zaps)

@@ -22,6 +22,7 @@ class Reposts extends Component
         if ($reposts) {
             $this->reposts = json_decode($reposts, true, 512, JSON_THROW_ON_ERROR);
         }
+        $this->dispatch('repostsLoaded');
     }
 
     public function cacheReposts($reposts)

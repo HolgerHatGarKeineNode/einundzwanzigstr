@@ -1,4 +1,4 @@
-<tbody x-data="nostrReposts(@this)" class="divide-y divide-white/5" x-show="currentTab === 'reposts'">
+<tbody x-data="nostrReposts(@this)" x-on:reposted.window="zapped($event.detail)" class="divide-y divide-white/5" x-show="currentTab === 'reposts'">
 @foreach($reposts as $repost)
     <tr wire:key="repost_{{ $repost['id'] }}">
         <td class="py-4 px-4 max-w-[300px]">

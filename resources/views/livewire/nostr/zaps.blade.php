@@ -1,4 +1,5 @@
-<tbody x-data="nostrZaps(@this)" class="divide-y divide-white/5" x-show="currentTab === 'zaps'">
+<tbody x-data="nostrZaps(@this)" x-on:zapped.window="zapped($event.detail)" class="divide-y divide-white/5"
+       x-show="currentTab === 'zaps'">
 @foreach($zaps as $zap)
     <tr wire:key="zap_{{ $zap['id'] }}">
         <td class="py-4 px-4 max-w-[300px]">

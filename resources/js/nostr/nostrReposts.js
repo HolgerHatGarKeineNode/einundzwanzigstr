@@ -7,9 +7,19 @@ export default (livewireComponent) => ({
 
     async init() {
         if (this.reposts.length < 1) {
-            this.$wire.call('cacheReposts', await nostrEvents(this).fetchReposts(this.event));
-            await this.$wire.call('loadCachedReposts');
+            await this.loadReposts();
         }
-    }
+    },
+
+    async reposted(detail) {
+        if (detail === this.event.id) {
+            await this.loadReposts();
+        }
+    },
+
+    async loadReposts() {
+        this.$wire.call('cacheReposts', await nostrEvents(this).fetchReposts(this.event));
+        await this.$wire.call('loadCachedReposts');
+    },
 
 });

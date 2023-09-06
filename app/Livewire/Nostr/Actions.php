@@ -19,7 +19,7 @@ class Actions extends Component
         $this->loadCounts();
     }
 
-    #[On('reactionsLoaded')]
+    #[On('reactionsLoaded'), On('zapsLoaded'), On('repostsLoaded')]
     public function loadCounts(): void
     {
         $redisClient = Redis::connection('nostr')->client();

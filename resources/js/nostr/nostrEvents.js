@@ -3,7 +3,7 @@ import {nostrEvents} from "./ndk/events.js";
 import {NDKEvent} from "@nostr-dev-kit/ndk";
 import {eventKind} from "nostr-fetch";
 import JSConfetti from "js-confetti";
-import nostrReactions from "./nostrReactions.js";
+import {requestProvider} from "webln";
 
 export default (livewireComponent) => ({
 
@@ -72,6 +72,12 @@ export default (livewireComponent) => ({
         this.openReactionModal = true;
     },
 
+    async openCommentEditor(id) {
+        await this.jsConfetti.addConfetti({
+            emojis: ['🛠️',],
+        });
+    },
+
     async love(emoji) {
         console.log('~~~~ love ~~~~');
         console.log('#### emoji ####', emoji);
@@ -90,6 +96,54 @@ export default (livewireComponent) => ({
             emojis: [emoji,],
         });
         await this.$dispatch('loved', event.id);
+    },
+
+    async zap(id) {
+        console.log('~~~~ zap ~~~~');
+        console.log('#### id ####', id);
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk, event);
+        const res = await ndkEvent
+            .zap(
+                69000,
+                'This is a test zap from my experimental nostr web client at https://einundzwanzigstr.codingarena.de'
+            );
+        // debug(res, window.webln);
+        await requestProvider();
+        const payment = await window.webln.sendPayment(res);
+        await this.jsConfetti.addConfetti({
+            emojis: ['⚡'],
+        });
+        // wait 2 seconds to give the zap time to propagate
+        setTimeout(async () => {
+            await this.$dispatch('zapped', event.id);
+        }, 2000);
+    },
+
+    async repost(id) {
+        console.log('~~~~ repost ~~~~');
+        console.log('#### id ####', id);
+        await this.jsConfetti.addConfetti({
+            emojis: ['🛠️',],
+        });
+        return;
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk, event);
+        ndkEvent.kind = eventKind.repost;
+        ndkEvent.tags = [
+            ['e', event.id, 'wss://nostr.einundzwanzig.space', 'root'],
+            ['p', event.pubkey],
+        ];
+        await ndkEvent.publish();
+        await this.jsConfetti.addConfetti({
+            emojis: ['🤙',],
+        });
+        await this.$dispatch('reposted', event.id);
+    },
+
+    async debug(id) {
+        const event = await this.$store.ndk.ndk.fetchEvent(id);
+        console.log('event', event);
     },
 
 });

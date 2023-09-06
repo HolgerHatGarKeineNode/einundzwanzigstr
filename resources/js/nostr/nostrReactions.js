@@ -13,7 +13,7 @@ export default (livewireComponent) => ({
         setInterval(async () => {
             console.log('~~~~ nostrReactions interval ~~~~');
             await this.loadReactions();
-        }, 60000);
+        }, 120000);
     },
 
     async loved(detail) {

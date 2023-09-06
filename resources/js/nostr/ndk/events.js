@@ -12,7 +12,7 @@ export const nostrEvents = (Alpine) => ({
             Alpine.$store.ndk.explicitRelayUrls,
             {kinds: [eventKind.text], authors: hexpubkeys},
             {until: Alpine.until, since: Alpine.since},
-            {sort: true}
+            {sort: true, abortSignal: AbortSignal.timeout(5000)},
         );
 
         fetchedEvents = this.filterReplies(fetchedEvents);

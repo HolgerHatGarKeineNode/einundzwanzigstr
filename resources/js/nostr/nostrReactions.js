@@ -7,9 +7,18 @@ export default (livewireComponent) => ({
 
     async init() {
         if (this.reactions.length < 1) {
-            this.$wire.call('cacheReactions', await nostrEvents(this).fetchReactions(this.event));
-            await this.$wire.call('loadCachedReactions');
+            await this.loadReaction();
         }
-    }
+        // interval to check for new reactions
+        setInterval(async () => {
+            console.log('~~~~ nostrReactions interval ~~~~');
+            await this.loadReaction();
+        }, 60000);
+    },
+
+    async loadReaction() {
+        this.$wire.call('cacheReactions', await nostrEvents(this).fetchReactions(this.event));
+        await this.$wire.call('loadCachedReactions');
+    },
 
 });

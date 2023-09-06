@@ -33,13 +33,13 @@
         </colgroup>
 
         {{-- REACTIONS --}}
-        <livewire:nostr.reactions :$event/>
+        <livewire:nostr.reactions :$event :key="'reactions_' . $event['id']"/>
 
         {{-- ZAPS --}}
-        <livewire:nostr.zaps :$event/>
+        <livewire:nostr.zaps :$event :key="'zaps_' . $event['id']"/>
 
         {{-- BOOSTS --}}
-        <livewire:nostr.reposts :$event/>
+        <livewire:nostr.reposts :$event :key="'reposts_' . $event['id']"/>
 
     </table>
 </div>

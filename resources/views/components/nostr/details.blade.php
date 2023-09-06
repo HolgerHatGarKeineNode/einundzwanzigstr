@@ -1,13 +1,6 @@
 @props([
     'event',
-    'reactions',
-    'zaps',
-    'reposts',
 ])
-
-@php
-    $redisClient = Illuminate\Support\Facades\Redis::connection('nostr')->client();
-@endphp
 
 <div x-data="{
     currentTab: 'reactions',
@@ -39,126 +32,14 @@
             <col class="lg:w-1/12">
         </colgroup>
 
-        <tbody class="divide-y divide-white/5">
-
         {{-- REACTIONS --}}
-        @foreach($reactions ?? [] as $reaction)
-            @php
-                $author = json_decode($redisClient->hGet('authors', $reaction['pubkey'] . ':' . $reaction['pubkey']), true);
-                if (!isset($author['profile']['image'])) {
-                    $author['profile']['image'] = '/img/nostr.png';
-                    $author['profile']['display_name'] = 'anon';
-                }
-            @endphp
-            <tr x-show="currentTab === 'reactions'" wire:key="reaction_{{ $reaction['id'] }}">
-                <td class="py-4 px-4 max-w-[300px]">
-                    <a href="{{ isset($author['npub']) ? '/feed/' . $author['npub'] : '#' }}" class="flex">
-                        <div class="flex items-center gap-x-4">
-                            <img
-                                src="{{ $author['profile']['image'] }}"
-                                alt="{{ isset($author['profile']['display_name']) ? str($author['profile']['display_name'])->limit(1, '') : 'A' }}"
-                                class="h-8 w-8 rounded-full bg-gray-800">
-                            <div class=" max-w-[240px] truncate text-sm font-medium leading-6 text-white">
-                                {{ isset($author['profile']['display_name']) ? urldecode($author['profile']['display_name']) : 'anon' }}
-                            </div>
-                        </div>
-                    </a>
-                </td>
-                <td class="py-4 pl-0 pr-4 sm:pr-8 w-16">
-                    <div class="flex gap-x-3">
-                        <div class="font-mono text-sm leading-6 text-gray-400">
-                            {{ $reaction['content'] === '+' ? 'boost': $reaction['content'] }}
-                        </div>
-                    </div>
-                </td>
-                <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                    <time>
-                        {{ \Illuminate\Support\Carbon::parse($reaction['created_at'])->diffForHumans() }}
-                    </time>
-                </td>
-            </tr>
-        @endforeach
+        <livewire:nostr.reactions :$event :key="'reactions_' . $event['id']"/>
 
         {{-- ZAPS --}}
-        @foreach($zaps ?? [] as $zap)
-            @php
-                $author = json_decode($redisClient->hGet('authors', $zap['sender'] . ':' . $zap['sender']), true);
-                if (!isset($author['profile']['image'])) {
-                    $author['profile']['image'] = '/img/nostr.png';
-                    $author['profile']['display_name'] = 'anon';
-                }
-            @endphp
-            <tr x-show="currentTab === 'zaps'" wire:key="zap_{{ $zap['id'] }}">
-                <td class="py-4 px-4 max-w-[150px]">
-                    <a
-                        {{--:href="authorMetaData[reaction.senderPubkey] ? '/feed/' + authorMetaData[reaction.senderPubkey].npub : '#'"--}}
-                    >
-                        <div class="flex items-center gap-x-4">
-                            <img
-                                src="{{ $author['profile']['image'] }}"
-                                alt="{{ str($author['profile']['display_name'])->limit(1, '') }}"
-                                class="h-8 w-8 rounded-full bg-gray-800">
-                            <div
-                                class="truncate text-sm font-medium leading-6 text-white"
-                            >
-                                {{ urldecode($author['profile']['display_name']) }}
-                            </div>
-                        </div>
-                    </a>
-                </td>
-                <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                    <div class="flex gap-x-3">
-                        <div class="font-mono text-sm leading-6 text-amber-500"
-                            {{--x-text="numberFormat(reaction.amount) + ' sats'"--}}
-                        >
-                            {{ $zap['sats'] }} sats
-                        </div>
-                    </div>
-                </td>
-                <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                    <time>
-                        {{ \Illuminate\Support\Carbon::parse($zap['created_at'])->diffForHumans() }}
-                    </time>
-                </td>
-            </tr>
-        @endforeach
+        <livewire:nostr.zaps :$event :key="'zaps_' . $event['id']"/>
 
         {{-- BOOSTS --}}
-        @foreach($reposts ?? [] as $repost)
-            @php
-                $author = json_decode($redisClient->hGet('authors', $repost['pubkey'] . ':' . $repost['pubkey']), true);
-                if (!isset($author['profile']['image'])) {
-                    $author['profile']['image'] = '/img/nostr.png';
-                    $author['profile']['display_name'] = 'anon';
-                }
-            @endphp
-            <tr x-show="currentTab === 'reposts'" wire:key="repost_{{ $repost['id'] }}">
-                <td class="py-4 px-4 max-w-[150px]">
-                    <a
-                        {{--:href="authorMetaData[reaction.pubkey] ? '/feed/' + authorMetaData[reaction.pubkey].npub : '/img/nostr.png'"--}}
-                    >
-                        <div class="flex items-center gap-x-4">
-                            <img
-                                src="{{ $author['profile']['image'] }}"
-                                alt="{{ str($author['profile']['display_name'])->limit(1, '') }}"
-                                class="h-8 w-8 rounded-full bg-gray-800">
-                            <div class="truncate text-sm font-medium leading-6 text-white">
-                                {{ urldecode($author['profile']['display_name']) }}
-                            </div>
-                        </div>
-                    </a>
-                </td>
-                <td class="py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+        <livewire:nostr.reposts :$event :key="'reposts_' . $event['id']"/>
 
-                </td>
-                <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
-                    <time>
-                        {{ \Illuminate\Support\Carbon::parse($repost['created_at'])->diffForHumans() }}
-                    </time>
-                </td>
-            </tr>
-        @endforeach
-
-        </tbody>
     </table>
 </div>

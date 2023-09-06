@@ -1,6 +1,5 @@
 import {parse} from "../nips/nip10.js";
 import {unflatten} from "./unflatten.js";
-import {debug} from "high-console";
 
 export function nested(events, anchorIds) {
     // If anchorIds are supplied, use them to find the rootId and replyId

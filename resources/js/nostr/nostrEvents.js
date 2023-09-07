@@ -4,6 +4,7 @@ import {NDKEvent} from "@nostr-dev-kit/ndk";
 import {eventKind} from "nostr-fetch";
 import JSConfetti from "js-confetti";
 import {requestProvider} from "webln";
+import {editors} from "./utils/editors.js";
 
 export default (livewireComponent) => ({
 
@@ -34,6 +35,8 @@ export default (livewireComponent) => ({
         console.log('#### until ####', this.until);
         console.log('#### since ####', this.since);
 
+        editors(this).initEditors();
+
         // init confetti
         this.jsConfetti = new JSConfetti();
 
@@ -44,7 +47,8 @@ export default (livewireComponent) => ({
             this.hexpubkeys = Array.from(follows).map((follow) => follow.hexpubkey);
         }
         if (this.pubkey) {
-            this.hexpubkeys = [this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey];
+            const key = this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey;
+            this.hexpubkeys = [key];
         }
         console.log('#### hexpubkeys ####', Alpine.raw(this.hexpubkeys));
 
@@ -59,6 +63,7 @@ export default (livewireComponent) => ({
 
         await nostrEvents(this).fetch(this.hexpubkeys);
         if (this.eventsLength < 1) {
+            document.querySelector("#loader").style.display = "block";
             do {
                 this.until = Math.floor(Date.now() / 1000); // now
                 this.since = this.since - (this.timeSteps);
@@ -67,30 +72,7 @@ export default (livewireComponent) => ({
                 await nostrEvents(this).fetch(this.hexpubkeys);
             } while (this.eventsLength < 1);
         }
-
-        let editor = new window.SimpleMDE({
-            element: this.$refs.editor,
-            hideIcons: ['image', 'side-by-side', 'fullscreen'],
-            toolbar: false
-        });
-
-        editor.value(this.commentValue);
-
-        editor.codemirror.on('change', () => {
-            this.commentValue = editor.value();
-        });
-
-        let noteEditor = new window.SimpleMDE({
-            element: this.$refs.noteEditor,
-            hideIcons: ['image', 'side-by-side', 'fullscreen'],
-            toolbar: false
-        });
-
-        noteEditor.value(this.newNoteValue);
-
-        noteEditor.codemirror.on('change', () => {
-            this.newNoteValue = noteEditor.value();
-        });
+        document.querySelector("#loader").style.display = "none";
     },
 
     async loadMore() {

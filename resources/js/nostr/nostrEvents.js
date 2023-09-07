@@ -41,10 +41,10 @@ export default (livewireComponent) => ({
 
         if (this.isMyFeed) {
             const follows = await this.$store.ndk.user.follows();
-            this.hexpubkeys = Array.from(follows).map((follow) => follow.hexpubkey());
+            this.hexpubkeys = Array.from(follows).map((follow) => follow.hexpubkey);
         }
         if (this.pubkey) {
-            this.hexpubkeys = [this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey()];
+            this.hexpubkeys = [this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey];
         }
         console.log('#### hexpubkeys ####', Alpine.raw(this.hexpubkeys));
 
@@ -131,8 +131,8 @@ export default (livewireComponent) => ({
             ['e', event.id],
             ['p', event.pubkey],
         ];
-        await ndkEvent.publish();
         this.openReactionModal = false;
+        await ndkEvent.publish();
         await this.jsConfetti.addConfetti({
             emojis: [emoji,],
         });

@@ -34,15 +34,14 @@ trait RenderHtml
                 return '<div class="object-contain w-96 aspect-auto"><video controls><source src="' . $matches[1] . '" type="video/mp4"></video></div>';
             },
             $text);
-
-        // Replace YouTube video URLs
-        $text = preg_replace('/https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)(?:\?|&).*$/i', '<iframe class="w-full aspect-video" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>', $text, -1, $count);
-
         // Replace Twitter video URLs
         $text = preg_replace('/https?:\/\/(?:www\.)?twitter\.com\/\w+\/status\/(\d+)/i', '<iframe class="w-full aspect-video" src="https://twitter.com/i/videos/$1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>', $text);
 
         // replace \n by <br>
         $text = str_replace("\n", '<br>', $text);
+
+        // Replace YouTube video URLs
+        $text = preg_replace('#https?://(?:www\.)?(?:youtube\.com/watch\?v=|m\.youtube\.com/watch\?v=|youtu\.be/)([\w-]+)(?:\?|&).*$#i', '<iframe class="w-full aspect-video" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>', $text, -1, $count);
 
         return $text;
     }

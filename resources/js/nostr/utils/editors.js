@@ -57,8 +57,9 @@ export const editors = (Alpine) => ({
         const picker = new Picker({
             data,
             onEmojiSelect: (emoji) => {
-                Alpine.newNoteValue += emoji.native;
-                noteEditor.value(Alpine.newNoteValue);
+                const pos = noteEditor.codemirror.getCursor();
+                noteEditor.codemirror.setSelection(pos, pos);
+                noteEditor.codemirror.replaceSelection(emoji.native);
             },
         });
 

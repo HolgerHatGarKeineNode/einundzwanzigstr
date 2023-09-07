@@ -21,17 +21,22 @@
     >
         <div
              x-on:click.stop
-             class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
+             class="relative w-full max-w-screen-7xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
         >
             <!-- Title -->
             <h2 class="text-3xl font-bold" :id="$id('modal-title')">Create a note</h2>
 
             <!-- Content -->
             <div class="mt-3 text-gray-600">
-                <div
-                        class="prose w-full"
-                >
-                    <textarea x-ref="noteEditor"></textarea>
+                <div class="flex w-full">
+                    <div
+                            class="prose w-8/12"
+                    >
+                        <textarea x-ref="noteEditor"></textarea>
+                    </div>
+                    <div class="w-4/12 px-2 xl:px-16" x-ref="picker">
+
+                    </div>
                 </div>
             </div>
 

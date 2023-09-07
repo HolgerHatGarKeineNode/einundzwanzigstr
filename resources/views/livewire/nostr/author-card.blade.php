@@ -4,7 +4,7 @@
 @endphp
 
 <div x-data="nostrAuthor(@this)" class="flex justify-between">
-    <a href="{{ $author['npub'] ?? '#' }}" class="flex">
+    <a href="{{ isset($author['npub']) ? route('feed', ['pubkey' => $author['npub']]) : '#' }}" class="flex">
         <div class="mr-4 flex-shrink-0">
             <img class="inline-block {{ $imgClass }} rounded-full"
                  src="{{ $author['image'] ?? '/img/nostr.png' }}"

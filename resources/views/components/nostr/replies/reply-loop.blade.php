@@ -5,9 +5,6 @@
 
 <li class="" wire:key="reply_{{ $reply['id'] }}">
     <div class="relative pb-2">
-        @if(!isset($reply['renderedHtml']))
-            @dd($reply)
-        @endif
         <livewire:nostr.author-card :event="$reply"/>
         <div class="ml-2 text-lg">{!! $reply['renderedHtml'] !!}</div>
         <livewire:nostr.actions :event="$reply" :compact="true"/>

@@ -8,6 +8,9 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
 
+        './app/Livewire/**/*.php',
+        './app/Traits/**/*.php',
+
         './vendor/robsontenorio/mary/src/View/Components/**/*.php',
 
         './resources/js/nostr/**/*.js',

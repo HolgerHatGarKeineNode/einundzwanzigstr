@@ -170,13 +170,13 @@ export default (livewireComponent) => ({
         tags.push(['e', event.id, '', 'reply']);
         tags.push(['p', event.pubkey]);
         ndkEvent.tags = tags;
+        this.commentValue = '';
+        this.openCommentModal = false;
         await ndkEvent.publish();
         await this.jsConfetti.addConfetti({
             emojiSize: 100,
             emojis: ['🗣️',],
         });
-        this.commentValue = '';
-        this.openCommentModal = false;
         await this.$dispatch('replied', event.id);
     },
 

@@ -47,4 +47,5 @@
     </div>
 
     <x-nostr.modals.reaction/>
+    <x-nostr.modals.comment/>
 </div>

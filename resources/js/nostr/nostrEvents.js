@@ -11,6 +11,8 @@ export default (livewireComponent) => ({
 
     jsConfetti: null,
 
+    commentValue: '',
+
     pubkey: livewireComponent.entangle('pubkey'),
     isMyFeed: livewireComponent.entangle('isMyFeed'),
     hexpubkeys: livewireComponent.entangle('hexpubkeys', true),
@@ -21,6 +23,7 @@ export default (livewireComponent) => ({
     eventsLength: livewireComponent.entangle('eventsLength'),
 
     openReactionModal: false,
+    openCommentModal: false,
     currentEventToReactId: false,
 
     async init() {
@@ -62,6 +65,18 @@ export default (livewireComponent) => ({
                 await nostrEvents(this).fetch(this.hexpubkeys);
             } while (this.eventsLength < 1);
         }
+
+        let editor = new window.SimpleMDE({
+            element: this.$refs.editor,
+            hideIcons: ['image', 'side-by-side', 'fullscreen'],
+            toolbar: false
+        });
+
+        editor.value(this.commentValue);
+
+        editor.codemirror.on('change', () => {
+            this.commentValue = editor.value();
+        });
     },
 
     async loadMore() {
@@ -86,9 +101,8 @@ export default (livewireComponent) => ({
     },
 
     async openCommentEditor(id) {
-        await this.jsConfetti.addConfetti({
-            emojis: ['🛠️',],
-        });
+        this.currentEventToReactId = id;
+        this.openCommentModal = true;
     },
 
     async love(emoji) {
@@ -136,22 +150,34 @@ export default (livewireComponent) => ({
     async repost(id) {
         console.log('~~~~ repost ~~~~');
         console.log('#### id ####', id);
-        await this.jsConfetti.addConfetti({
-            emojis: ['🛠️',],
-        });
-        return;
         const event = await this.$store.ndk.ndk.fetchEvent(id);
-        const ndkEvent = new NDKEvent(this.$store.ndk.ndk, event);
-        ndkEvent.kind = eventKind.repost;
-        ndkEvent.tags = [
-            ['e', event.id, 'wss://nostr.einundzwanzig.space', 'root'],
-            ['p', event.pubkey],
-        ];
-        await ndkEvent.publish();
+        await event.repost();
         await this.jsConfetti.addConfetti({
             emojis: ['🤙',],
         });
         await this.$dispatch('reposted', event.id);
+    },
+
+    async comment() {
+        console.log('~~~~ comment ~~~~');
+        const event = await this.$store.ndk.ndk.fetchEvent(this.currentEventToReactId);
+        console.log('#### event ####', event);
+        console.log('#### commentValue ####', this.commentValue);
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
+        ndkEvent.content = this.commentValue;
+        ndkEvent.kind = eventKind.text;
+        let tags = [];
+        tags.push(['e', event.id, '', 'reply']);
+        tags.push(['p', event.pubkey]);
+        ndkEvent.tags = tags;
+        await ndkEvent.publish();
+        await this.jsConfetti.addConfetti({
+            emojiSize: 100,
+            emojis: ['🗣️',],
+        });
+        this.commentValue = '';
+        this.openCommentModal = false;
+        await this.$dispatch('replied', event.id);
     },
 
     async debug(id) {

@@ -2,7 +2,7 @@
 @foreach($reactions as $reaction)
     <tr wire:key="reaction_{{ $reaction['id'] }}">
         <td class="py-4 px-4 max-w-[300px]">
-            <livewire:nostr.author-card :event="$reaction" :compact="true" :key="'reaction_author_' . $reaction['id']"/>
+            <livewire:nostr.author-card :event="$reaction" :compact="true" :withTimestamp="false" :key="'reaction_author_' . $reaction['id']"/>
         </td>
         <td class="py-4 pl-0 pr-4 sm:pr-8 w-16">
             <div class="flex gap-x-3">

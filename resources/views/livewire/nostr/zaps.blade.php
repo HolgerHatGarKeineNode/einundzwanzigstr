@@ -3,7 +3,7 @@
 @foreach($zaps as $zap)
     <tr wire:key="zap_{{ $zap['id'] }}">
         <td class="py-4 px-4 max-w-[300px]">
-            <livewire:nostr.author-card :event="$zap" :compact="true" :key="'zap_author_' . $zap['id']"/>
+            <livewire:nostr.author-card :event="$zap" :compact="true" :withTimestamp="false" :key="'zap_author_' . $zap['id']"/>
         </td>
         <td class="py-4 pl-0 pr-4 sm:pr-8 w-16">
             <div class="flex gap-x-3">

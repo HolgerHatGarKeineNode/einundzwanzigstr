@@ -7,9 +7,17 @@ export default (livewireComponent) => ({
 
     async init() {
         if (this.replies.length < 1) {
-            this.$wire.call('cacheReplies', await nostrEvents(this).fetchReplies(this.event));
-            await this.$wire.call('loadCachedReplies');
+            await this.loadReplies();
         }
-    }
+    },
+
+    async loadReplies() {
+        this.$wire.call('cacheReplies', await nostrEvents(this).fetchReplies(this.event));
+        await this.$wire.call('loadCachedReplies');
+    },
+
+    async replied() {
+        await this.loadReplies();
+    },
 
 });

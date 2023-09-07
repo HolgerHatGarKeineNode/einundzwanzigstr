@@ -1,8 +1,8 @@
-<tbody x-data="nostrReposts(@this)" x-on:reposted.window="zapped($event.detail)" class="divide-y divide-white/5" x-show="currentTab === 'reposts'">
+<tbody x-data="nostrReposts(@this)" x-on:reposted.window="reposted($event.detail)" class="divide-y divide-white/5" x-show="currentTab === 'reposts'">
 @foreach($reposts as $repost)
     <tr wire:key="repost_{{ $repost['id'] }}">
         <td class="py-4 px-4 max-w-[300px]">
-            <livewire:nostr.author-card :event="$repost" :compact="true" :key="'repost_author_' . $repost['id']"/>
+            <livewire:nostr.author-card :event="$repost" :compact="true" :withTimestamp="false" :key="'repost_author_' . $repost['id']"/>
         </td>
         <td class="py-4 pl-0 pr-4 sm:pr-8 w-16">
             <div class="flex gap-x-3">

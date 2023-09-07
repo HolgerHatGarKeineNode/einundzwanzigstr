@@ -65,6 +65,7 @@ export default (livewireComponent) => ({
     },
 
     async loadMore() {
+        document.querySelector("#loader").style.display = "block";
         const oldLength = this.eventsLength;
         do {
             this.until = Math.floor(Date.now() / 1000); // now
@@ -73,6 +74,8 @@ export default (livewireComponent) => ({
             console.log('#### oldLength ####', oldLength);
             console.log('#### this.eventsLength ####', this.eventsLength);
         } while (this.eventsLength <= oldLength)
+
+        document.querySelector("#loader").style.display = "none";
     },
 
     openReactionPicker(id) {

@@ -8,7 +8,6 @@ use Livewire\Component;
 class AuthorCard extends Component
 {
     public $event;
-
     public $author;
     public $compact = false;
 

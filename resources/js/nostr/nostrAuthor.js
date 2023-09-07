@@ -37,7 +37,7 @@ export default (livewireComponent) => ({
             if (!profile.npub) {
                 profile.npub = user.npub;
             }
-            if (!profile.npub && profile.display_name) {
+            if (profile.npub && profile.display_name) {
                 this.author = profile;
             }
         }

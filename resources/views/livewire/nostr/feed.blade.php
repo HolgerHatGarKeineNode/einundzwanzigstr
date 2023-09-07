@@ -1,4 +1,4 @@
-<div x-data="nostrEvents(@this)">
+<div x-data="nostrEvents(@this)" @noteeditor.window="openCreateNoteModal = true">
     <div id="loader" class="fixed" wire:ignore></div>
 
     <ul role="list" class="space-y-3">
@@ -48,4 +48,5 @@
 
     <x-nostr.modals.reaction/>
     <x-nostr.modals.comment/>
+    <x-nostr.modals.create-note/>
 </div>

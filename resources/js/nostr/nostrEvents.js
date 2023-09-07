@@ -12,6 +12,7 @@ export default (livewireComponent) => ({
     jsConfetti: null,
 
     commentValue: '',
+    newNoteValue: '',
 
     pubkey: livewireComponent.entangle('pubkey'),
     isMyFeed: livewireComponent.entangle('isMyFeed'),
@@ -24,6 +25,7 @@ export default (livewireComponent) => ({
 
     openReactionModal: false,
     openCommentModal: false,
+    openCreateNoteModal: false,
     currentEventToReactId: false,
 
     async init() {
@@ -76,6 +78,18 @@ export default (livewireComponent) => ({
 
         editor.codemirror.on('change', () => {
             this.commentValue = editor.value();
+        });
+
+        let noteEditor = new window.SimpleMDE({
+            element: this.$refs.noteEditor,
+            hideIcons: ['image', 'side-by-side', 'fullscreen'],
+            toolbar: false
+        });
+
+        noteEditor.value(this.newNoteValue);
+
+        noteEditor.codemirror.on('change', () => {
+            this.newNoteValue = noteEditor.value();
         });
     },
 
@@ -178,6 +192,25 @@ export default (livewireComponent) => ({
             emojis: ['🗣️',],
         });
         await this.$dispatch('replied', event.id);
+    },
+
+    async createNote() {
+        console.log('~~~~ createNote ~~~~');
+        console.log('#### newNoteValue ####', this.newNoteValue);
+        const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
+        ndkEvent.kind = eventKind.text;
+        ndkEvent.content = this.newNoteValue;
+        await ndkEvent.publish();
+        this.newNoteValue = '';
+        this.openCreateNoteModal = false;
+        await this.jsConfetti.addConfetti({
+            emojiSize: 100,
+            emojis: ['📣',],
+        });
+        this.until = Math.floor(Date.now() / 1000); // now
+        console.log('#### until ####', this.until);
+        console.log('#### since ####', this.since);
+        await nostrEvents(this).fetch(this.hexpubkeys);
     },
 
     async debug(id) {

@@ -13,8 +13,8 @@
         "laravel/tinker": "^2.8",
         "livewire/livewire": "^3.0",
         "owenvoke/blade-fontawesome": "^2.4",
-        "robsontenorio/mary": "^0.33.5",
-        "spatie/laravel-google-fonts": "^1.2"
+        "spatie/laravel-google-fonts": "^1.2",
+        "wireui/wireui": "^1.18"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.9",

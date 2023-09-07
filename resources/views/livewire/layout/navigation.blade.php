@@ -80,8 +80,8 @@
                                    class="flex space-x-2"
                                    target="_blank">
                                     <x-fab-github class="w-6 h-6 mr-2"/>
-                                    <span>GitHub</span>
-                                    <span>{{ exec('git describe --tags --abbrev=0') }}</span>
+                                    <span>Open-sourced</span>
+                                    <span>v{{ exec('git describe --tags --abbrev=0') }}</span>
                                 </a>
                             </li>
                             <li class="flex space-x-2 justify-end">

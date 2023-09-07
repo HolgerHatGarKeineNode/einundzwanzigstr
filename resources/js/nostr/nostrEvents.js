@@ -196,7 +196,6 @@ export default (livewireComponent) => ({
 
     async createNote() {
         console.log('~~~~ createNote ~~~~');
-        console.log('#### newNoteValue ####', this.newNoteValue);
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.kind = eventKind.text;
         ndkEvent.content = this.newNoteValue;

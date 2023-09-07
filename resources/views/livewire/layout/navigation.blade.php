@@ -73,14 +73,23 @@
                             usedMemory: @entangle('usedMemory'),
                         }"
                     >
-                        <div class="text-xs font-semibold leading-6 text-gray-400">Settings</div>
-                        <ul role="list" class="-mx-2 mt-2 space-y-1">
+                        <div class="text-xs font-semibold leading-6 text-gray-400">Server</div>
+                        <ul role="list" class="-mx-2 mt-2 space-y-4">
+                            <li class="flex space-x-2 justify-end text-gray-300">
+                                <a href="https://github.com/HolgerHatGarKeineNode/einundzwanzigstr"
+                                   class="flex space-x-2"
+                                   target="_blank">
+                                    <x-fab-github class="w-6 h-6 mr-2"/>
+                                    <span>GitHub</span>
+                                    <span>{{ exec('git describe --tags --abbrev=0') }}</span>
+                                </a>
+                            </li>
                             <li class="flex space-x-2 justify-end">
-                            <span class="text-xs text-amber-500 font-bold">
-                                <x-fat-database class="w-6 h-6"/>
-                            </span>
-                                <span class="text-xs text-amber-500 font-bold">Redis memory</span>
-                                <span class="text-xs text-amber-500" x-text="usedMemory"></span>
+                                <span class="text-xs text-amber-500 font-bold">
+                                    <x-fat-database class="w-6 h-6"/>
+                                </span>
+                                    <span class="text-xs text-amber-500 font-bold">Redis memory</span>
+                                    <span class="text-xs text-amber-500" x-text="usedMemory"></span>
                             </li>
                         </ul>
                     </li>

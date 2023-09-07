@@ -9,6 +9,12 @@ export default (livewireComponent) => ({
         if (this.replies.length < 1) {
             await this.loadReplies();
         }
+
+        // interval to check for new replies
+        setInterval(async () => {
+            console.log('~~~~ nostrReplies interval ~~~~');
+            await this.loadReplies();
+        }, 100000);
     },
 
     async loadReplies() {

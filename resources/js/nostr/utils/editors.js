@@ -1,6 +1,10 @@
+import data from '@emoji-mart/data'
+import { Picker } from 'emoji-mart'
+
 export const editors = (Alpine) => ({
 
     initEditors() {
+
         let editor = new window.SimpleMDE({
             element: Alpine.$refs.editor,
             hideIcons: ['image', 'side-by-side', 'fullscreen'],
@@ -12,6 +16,8 @@ export const editors = (Alpine) => ({
         editor.codemirror.on('change', () => {
             Alpine.commentValue = editor.value();
         });
+
+        const smileys = ["🫂", "🥰", "🎯", "💯"];
 
         let noteEditor = new window.SimpleMDE({
             element: Alpine.$refs.noteEditor,
@@ -30,23 +36,33 @@ export const editors = (Alpine) => ({
             urlText: '{filename}',
             onFileUploadResponse: function(xhr) {
                 console.log(JSON.parse(xhr.responseText), this.settings.jsonFieldName);
-                var result = JSON.parse(xhr.responseText),
+                const result = JSON.parse(xhr.responseText),
                     filename = result[this.settings.jsonFieldName];
 
                 if (result && filename) {
-                    var newValue;
+                    let newValue;
                     if (typeof this.settings.urlText === 'function') {
                         newValue = this.settings.urlText.call(this, filename, result);
                     } else {
                         newValue = this.settings.urlText.replace(this.filenameTag, filename);
                     }
-                    var text = this.editor.getValue().replace(this.lastValue, newValue);
+                    const text = this.editor.getValue().replace(this.lastValue, newValue);
                     this.editor.setValue(text);
                     this.settings.onFileUploaded.call(this, filename);
                 }
                 return false;
             }
         });
+
+        const picker = new Picker({
+            data,
+            onEmojiSelect: (emoji) => {
+                Alpine.newNoteValue += emoji.native;
+                noteEditor.value(Alpine.newNoteValue);
+            },
+        });
+
+        Alpine.$refs.picker.appendChild(picker);
     },
 
 });

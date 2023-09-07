@@ -30,14 +30,14 @@
     <!-- Navigation -->
     <livewire:layout.navigation/>
 
-    <div class="xl:pl-72 relative">
+    <div class="pl-72 relative">
 
         <!-- Sticky search header -->
         <livewire:layout.sticky-header/>
 
         <main>
             <!-- CONTENT -->
-            <div class="px-2 sm:px-12 pt-12 pb-32">
+            <div class="px-12 pt-12 pb-32">
                 {{ $slot }}
             </div>
         </main>

@@ -16,6 +16,7 @@ export default (livewireComponent) => ({
     newNoteValue: '',
 
     pubkey: livewireComponent.entangle('pubkey'),
+    loadNpubs: livewireComponent.entangle('loadNpubs'),
     isMyFeed: livewireComponent.entangle('isMyFeed'),
     hexpubkeys: livewireComponent.entangle('hexpubkeys', true),
 
@@ -49,6 +50,13 @@ export default (livewireComponent) => ({
         if (this.pubkey) {
             const key = this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey;
             this.hexpubkeys = [key];
+        }
+        if (this.loadNpubs.length > 0) {
+            let hexpubkeys = [];
+            for (const npub of this.loadNpubs) {
+                hexpubkeys.push(this.$store.ndk.ndk.getUser({npub: npub.trim()}).hexpubkey);
+            }
+            this.hexpubkeys = hexpubkeys;
         }
         console.log('#### hexpubkeys ####', Alpine.raw(this.hexpubkeys));
 

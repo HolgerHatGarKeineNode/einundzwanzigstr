@@ -3,6 +3,7 @@
 namespace App\Livewire\Nostr;
 
 use App\Traits\RenderHtml;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 use Livewire\Component;
 
@@ -12,6 +13,7 @@ class Feed extends Component
 
     public ?string $pubkey = null;
     public bool $isMyFeed = false;
+    public array $loadNpubs = [];
     public array $hexpubkeys = [];
     public array $events = [];
     public int $eventsLength = 0;
@@ -21,6 +23,9 @@ class Feed extends Component
 
     public function mount()
     {
+        if (request()->route()->getName() === 'einundzwanzig-feed') {
+            $this->loadNpubs = Http::get('https://portal.einundzwanzig.space/api/nostrplebs')->json();
+        }
         if (request()->route()->getName() === 'my-feed') {
             $this->isMyFeed = true;
         }

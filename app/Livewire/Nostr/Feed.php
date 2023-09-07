@@ -2,11 +2,14 @@
 
 namespace App\Livewire\Nostr;
 
+use App\Traits\RenderHtml;
 use Illuminate\Support\Facades\Redis;
 use Livewire\Component;
 
 class Feed extends Component
 {
+    use RenderHtml;
+
     public ?string $pubkey = null;
     public bool $isMyFeed = false;
     public array $hexpubkeys = [];
@@ -44,6 +47,10 @@ class Feed extends Component
             )
             ->values();
         $this->events = $events->map(fn($event) => json_decode($event, true, 512, JSON_THROW_ON_ERROR))
+            ->map(function($event){
+                $event['renderedHtml'] = $this->renderHtml($event['content'], $event['id']);
+                return $event;
+            })
             ->sortByDesc('created_at')
             ->values()
             ->toArray();

@@ -9,7 +9,7 @@
                         class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
                         <div class="flex flex-col justify-between space-y-2 h-full">
                             <livewire:nostr.author-card :$event :key="'event_author_' . $event['id']"/>
-                            <div class="ml-2 text-lg pb-12">{!! $event['content'] !!}</div>
+                            <div class="ml-2 text-lg pb-12">{!! $event['renderedHtml'] !!}</div>
                             <div class="flex flex-wrap space-x-2 justify-end py-2">
                                 @foreach(collect($event['tags'])->filter(fn($tag) => $tag[0] === 't')->map(fn($tag) => $tag[1]) as $tag)
                                     <div

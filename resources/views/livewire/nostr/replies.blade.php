@@ -1,4 +1,4 @@
-<div x-data="nostrReplies(@this)" class="flex flex-col">
+<div x-data="nostrReplies(@this)" x-on:replied.window="replied($event.detail)" class="flex flex-col">
     <div>
         <h3 class="pb-2">Replies</h3>
     </div>

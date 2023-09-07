@@ -19,7 +19,7 @@
         </div>
     </a>
     <div>
-        @if(!$compact)
+        @if(!$compact || $withTimestamp)
             <span
                 class="text-gray-300 text-xs">{{ \Illuminate\Support\Carbon::parse($event['created_at'])->diffForHumans() }}</span>
         @endif

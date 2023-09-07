@@ -8,9 +8,9 @@ use Livewire\Component;
 class AuthorCard extends Component
 {
     public $event;
-
     public $author;
     public $compact = false;
+    public $withTimestamp = true;
 
     public function mount()
     {

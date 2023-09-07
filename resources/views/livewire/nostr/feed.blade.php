@@ -1,4 +1,6 @@
 <div x-data="nostrEvents(@this)">
+    <div id="loader" class="fixed" wire:ignore></div>
+
     <ul role="list" class="space-y-3">
 
         @foreach($events as $event)
@@ -45,4 +47,5 @@
     </div>
 
     <x-nostr.modals.reaction/>
+    <x-nostr.modals.comment/>
 </div>

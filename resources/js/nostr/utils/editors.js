@@ -8,7 +8,8 @@ export const editors = (Alpine) => ({
         let editor = new window.SimpleMDE({
             element: Alpine.$refs.editor,
             hideIcons: ['image', 'side-by-side', 'fullscreen'],
-            toolbar: false
+            toolbar: false,
+            spellChecker: false,
         });
 
         editor.value(Alpine.commentValue);
@@ -22,7 +23,8 @@ export const editors = (Alpine) => ({
         let noteEditor = new window.SimpleMDE({
             element: Alpine.$refs.noteEditor,
             hideIcons: ['image', 'side-by-side', 'fullscreen'],
-            toolbar: false
+            toolbar: false,
+            spellChecker: false,
         });
 
         noteEditor.value(Alpine.newNoteValue);

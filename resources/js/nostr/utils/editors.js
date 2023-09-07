@@ -27,6 +27,7 @@ export const editors = (Alpine) => ({
 
         inlineAttachment.editors.codemirror4.attach(noteEditor.codemirror, {
             uploadUrl: '/upload-attachment',
+            urlText: '{filename}',
             onFileUploadResponse: function(xhr) {
                 console.log(JSON.parse(xhr.responseText), this.settings.jsonFieldName);
                 var result = JSON.parse(xhr.responseText),

@@ -7,3 +7,4 @@ Route::get('/', function () {
 });
 
 Route::get('/feed/{pubkey}', \App\Livewire\Nostr\Feed::class)->name('feed');
+Route::get('/my-feed', \App\Livewire\Nostr\Feed::class)->name('my-feed');

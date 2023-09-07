@@ -11,6 +11,7 @@
     @googlefonts
 
     <!-- Scripts -->
+    <wireui:scripts />
     <script src="https://cdn.jsdelivr.net/simplemde/1.11/simplemde.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 

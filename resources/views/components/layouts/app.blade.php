@@ -12,6 +12,8 @@
 
     <!-- Scripts -->
     <wireui:scripts />
+    <script src="{{ asset('vendor/inline-attachment.js') }}"></script>
+    <script src="{{ asset('vendor/codemirror-4.inline-attachment.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/simplemde/1.11/simplemde.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 

@@ -37,7 +37,9 @@ export default (livewireComponent) => ({
             if (!profile.npub) {
                 profile.npub = user.npub;
             }
-            this.author = profile;
+            if (!profile.npub && profile.display_name) {
+                this.author = profile;
+            }
         }
     },
 });

@@ -4,9 +4,9 @@
 ])
 
 <li class="" wire:key="reply_{{ $reply['id'] }}">
-    <div class="relative pb-2">
+    <div class="relative pb-2 px-4">
         <livewire:nostr.author-card :event="$reply" :compact="true" :key="'reply_author_' . $reply['id']"/>
-        <div class="ml-2 text-lg">{!! $reply['renderedHtml'] !!}</div>
+        <div class="ml-2 text-xs">{!! $reply['renderedHtml'] !!}</div>
         {{--<livewire:nostr.actions :event="$reply" :compact="true" :key="'reply_actions_' . $reply['id']"/>--}}
     </div>
     @if(isset($reply['children']) && count($reply['children']) > 0)

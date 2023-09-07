@@ -7,9 +7,12 @@ import {requestProvider} from "webln";
 
 export default (livewireComponent) => ({
 
+    timeSteps: livewireComponent.entangle('timeSteps'),
+
     jsConfetti: null,
 
     pubkey: livewireComponent.entangle('pubkey'),
+    isMyFeed: livewireComponent.entangle('isMyFeed'),
     hexpubkeys: livewireComponent.entangle('hexpubkeys', true),
 
     until: livewireComponent.entangle('until'),
@@ -31,38 +34,45 @@ export default (livewireComponent) => ({
 
         await ndkInstance(this).init();
 
-        if (this.pubkey) {
-            this.hexpubkeys = [this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey()];
-        } else {
+        if (this.isMyFeed) {
             const follows = await this.$store.ndk.user.follows();
             this.hexpubkeys = Array.from(follows).map((follow) => follow.hexpubkey());
+        }
+        if (this.pubkey) {
+            this.hexpubkeys = [this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey()];
         }
         console.log('#### hexpubkeys ####', Alpine.raw(this.hexpubkeys));
 
         await this.$wire.call('loadCachedEvent');
 
-        if (this.until === 0 && this.since === 0) {
-            this.until = Math.floor(Date.now() / 1000); // now
-            this.since = this.until - (60 * 60 * 1); // 1 hours ago
-            console.log('#### until ####', this.until);
-            console.log('#### since ####', this.since);
-        } else {
-            this.since = this.until + 1 // last until
-            this.until = Math.floor(Date.now() / 1000); // now
-            console.log('#### until ####', this.until);
-            console.log('#### since ####', this.since);
-        }
+        this.since = this.since + 1 // last until
+        this.until = Math.floor(Date.now() / 1000); // now
+        console.log('#### until ####', this.until);
+        console.log('#### since ####', this.since);
 
         console.log('#### eventsLength ####', this.eventsLength);
 
+        await nostrEvents(this).fetch(this.hexpubkeys);
         if (this.eventsLength < 1) {
             do {
                 this.until = Math.floor(Date.now() / 1000); // now
-                this.since = this.since - (60 * 60 * 1);
+                this.since = this.since - (this.timeSteps);
+                console.log('#### until ####', this.until);
+                console.log('#### since ####', this.since);
                 await nostrEvents(this).fetch(this.hexpubkeys);
             } while (this.eventsLength < 1);
         }
+    },
 
+    async loadMore() {
+        const oldLength = this.eventsLength;
+        do {
+            this.until = Math.floor(Date.now() / 1000); // now
+            this.since = this.since - (this.timeSteps);
+            await nostrEvents(this).fetch(this.hexpubkeys);
+            console.log('#### oldLength ####', oldLength);
+            console.log('#### this.eventsLength ####', this.eventsLength);
+        } while (this.eventsLength <= oldLength)
     },
 
     openReactionPicker(id) {

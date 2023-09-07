@@ -8,7 +8,7 @@
         <div class="mr-4 flex-shrink-0">
             <img class="inline-block {{ $imgClass }} rounded-full"
                  src="{{ $author['image'] ?? '/img/nostr.png' }}"
-                 alt="{{ isset($author['display_name']) ? str($author['display_name'])->substr(0, 1) : 'anon' }}"
+                 alt="{{ isset($author['display_name']) ? str($author['display_name'])->substr(0, 1) : 'A' }}"
             />
         </div>
         <div>

@@ -21,7 +21,7 @@ trait RenderHtml
                     return $matches[0];
                 }
                 // check if matches does include the string <video-js
-                if (preg_match('/(m3u8)/i', $matches[1])) {
+                if (preg_match('/(zap\.stream)/i', $matches[1])) {
                     return $matches[0];
                 }
                 return '<a class="text-amber-500 font-bold" href="' . $matches[1] . '" target="_blank">' . $matches[1] . '</a>';

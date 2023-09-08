@@ -3,6 +3,7 @@ import {ndkAdapter} from "@nostr-fetch/adapter-ndk";
 import {nested} from "../utils/nested.js";
 import {decode} from "light-bolt11-decoder";
 import {reloadLightbox} from "../utils/lightbox.js";
+import parser from "./parser.js";
 
 export const nostrEvents = (Alpine) => ({
 
@@ -17,6 +18,8 @@ export const nostrEvents = (Alpine) => ({
         );
 
         fetchedEvents = this.filterReplies(fetchedEvents);
+
+        await parser(Alpine).findNostrEventsInContent(fetchedEvents);
 
         console.log('#### fetchedEvents ####', fetchedEvents);
 
@@ -49,6 +52,7 @@ export const nostrEvents = (Alpine) => ({
             {sort: true}
         );
         const combinedEventWithReplies = [event, ...replies];
+
         const nestedReplies = nested(combinedEventWithReplies, [event.id]);
 
         reloadLightbox();

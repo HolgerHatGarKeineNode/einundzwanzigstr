@@ -29,13 +29,11 @@ class Feed extends Component
         if (request()->route()->getName() === 'my-feed') {
             $this->isMyFeed = true;
         }
-        if (
-            (request()->route()->getName() === 'feed')
-        ) {
+        if (request()->route()->getName() === 'feed') {
             // set timeSteps to 24 hours if not my feed
             $this->timeSteps = 86400;
         }
-        if (request()->route()->parameter('pubkey') !== 'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc') {
+        if (request()->route()->parameter('pubkey') === 'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc') {
             // set timeSteps to 1 hour
             $this->timeSteps = 3600;
         }

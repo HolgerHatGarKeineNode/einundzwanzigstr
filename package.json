@@ -24,7 +24,9 @@
     "postcss": "^8.4.6",
     "simple-text-parser": "^2.1.1",
     "tailwindcss": "^3.1.0",
+    "venobox": "^2.0.4",
     "vite": "^4.0.0",
+    "vite-plugin-static-copy": "^0.17.0",
     "webln": "^0.3.2"
   }
 }

@@ -31,11 +31,15 @@ class Feed extends Component
         }
         if (
             (request()->route()->getName() === 'feed')
-            && request()->route()->parameter('pubkey') !== 'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc'
         ) {
             // set timeSteps to 24 hours if not my feed
             $this->timeSteps = 86400;
         }
+        if (request()->route()->parameter('pubkey') !== 'npub1dergggklka99wwrs92yz8wdjs952h2ux2ha2ed598ngwu9w7a6fsh9xzpc') {
+            // set timeSteps to 1 hour
+            $this->timeSteps = 3600;
+        }
+
         $this->until = time();
         // since is set to 10 minutes ago to avoid missing events that were created in the last 10 minutes
         $this->since = time() - $this->timeSteps;

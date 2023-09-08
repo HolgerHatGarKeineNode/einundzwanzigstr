@@ -9,7 +9,7 @@ export default defineConfig({
                 {
                     src: 'node_modules/venobox/dist/venobox.min.js',
                     dest: 'vendor/venobox'
-                }
+                },
             ]
         }),
 

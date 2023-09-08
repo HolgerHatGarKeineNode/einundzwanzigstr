@@ -40,6 +40,30 @@ export default (Alpine) => ({
                         }
                     }
                 }
+
+                if (decoded.type === 'naddr') {
+                    console.log('#### decoded ####', decoded);
+                    if (decoded.data.kind === eventKind.liveEvent) {
+                        const e = await Alpine.$store.ndk.ndk.fetchEvent({kinds: [eventKind.liveEvent], id: decoded.data.id});
+                        console.log('#### event ####', e);
+                        // find title in tags
+                        const title = e.tags.find((el) => el[0] === 'title')?.[1];
+                        // find starts in tags
+                        const starts = e.tags.find((el) => el[0] === 'starts')?.[1];
+                        const date = new Date(starts * 1000);
+                        // Hours part from the timestamp
+                        const hours = date.getHours();
+                        const minutes = "0" + date.getMinutes();
+                        const seconds = "0" + date.getSeconds();
+                        const formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                        console.log('#### title ####', title);
+                        // find status in tags
+                        const status = e.tags.find((el) => el[0] === 'status')?.[1];
+                        // replace match with link to live event
+                        event.content = event.content.replace(match[0], `<div class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20"><div class="flex items-center justify-end gap-x-2 sm:justify-start"><time class="text-amber-500">Starts: ${formattedTime}</time><div class="flex-none rounded-full p-1 text-green-400 bg-green-400/10"><div class="h-1.5 w-1.5 rounded-full bg-current"></div></div><div class="hidden text-white sm:block">${status === 'live' ? 'Live' : 'Offline'}</div></div></div>`);
+                    }
+
+                }
             }
 
         }

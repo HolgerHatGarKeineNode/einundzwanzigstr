@@ -4,7 +4,7 @@
 
 <div class="relative p-4 sticky bottom-0 bg-[#1b1b1b] shadow rounded-lg">
     <div class="flex justify-between w-full">
-        <div class="cursor-pointer flex space-x-2 items-center">
+        <div class="cursor-pointer flex space-x-2 items-center relative">
             <div class="text-amber-500">
                 {{ $reactionCount }}
             </div>

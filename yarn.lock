@@ -2311,7 +2311,7 @@ nostr-fetch@^0.12.2:
   dependencies:
     "@nostr-fetch/kernel" "^0.12.2"
 
-nostr-tools@^1.14.0:
+nostr-tools@^1.14.0, nostr-tools@^1.14.2:
   version "1.14.2"
   resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-1.14.2.tgz#161c9401467725e87c07fcf1c9924d31b12fd45c"
   integrity sha512-QEe8+tMDW0632eNDcQ+EG1edmsCXLV4WPiWLDcdT3uoE+GM15pVcy18sKwbN7SmgO4GKFEqQ49k45eANC6++SQ==

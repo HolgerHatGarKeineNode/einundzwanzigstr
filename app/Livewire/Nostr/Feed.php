@@ -72,6 +72,12 @@ class Feed extends Component
         }
     }
 
+    public function cacheAuthor($author)
+    {
+        $redisClient = Redis::connection('nostr')->client();
+        $redisClient->hSet('authors', $author['hexpubkey'], json_encode($author, JSON_THROW_ON_ERROR));
+    }
+
     public function render()
     {
         return view('livewire.nostr.feed');

@@ -18,8 +18,6 @@ export const editors = (Alpine) => ({
             Alpine.commentValue = editor.value();
         });
 
-        const smileys = ["🫂", "🥰", "🎯", "💯"];
-
         let noteEditor = new window.SimpleMDE({
             element: Alpine.$refs.noteEditor,
             hideIcons: ['image', 'side-by-side', 'fullscreen'],

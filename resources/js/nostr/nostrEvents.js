@@ -5,6 +5,8 @@ import {eventKind} from "nostr-fetch";
 import JSConfetti from "js-confetti";
 import {requestProvider} from "webln";
 import {editors} from "./utils/editors.js";
+import {Picker} from "emoji-mart";
+import data from "@emoji-mart/data";
 
 export default (livewireComponent) => ({
 
@@ -98,10 +100,33 @@ export default (livewireComponent) => ({
     },
 
     openReactionPicker(id) {
-        console.log('~~~~ openReactionPicker ~~~~');
-        console.log('#### event ####', id);
         this.currentEventToReactId = id;
-        this.openReactionModal = true;
+
+        if (this.openReactionModal) {
+            // check if this.$refs['react_' + id] has a child
+            // if so, remove it
+            if (this.$refs['react_' + id].hasChildNodes()) {
+                this.$refs['react_' + id].removeChild(this.$refs['react_' + id].childNodes[0]);
+            }
+            this.openReactionModal = false;
+        } else {
+            this.openReactionModal = true;
+
+            console.log('~~~~ openReactionPicker ~~~~');
+            console.log('#### event ####', id);
+
+            const picker = new Picker({
+                data,
+                onEmojiSelect: async (emoji) => {
+                    console.log('#### emoji ####', emoji);
+                    this.$refs['react_' + id].removeChild(this.$refs['react_' + id].childNodes[0]);
+                    this.openReactionModal = false;
+                    await this.love(emoji.native);
+                },
+            });
+
+            this.$refs['react_' + id].appendChild(picker);
+        }
     },
 
     async openCommentEditor(id) {

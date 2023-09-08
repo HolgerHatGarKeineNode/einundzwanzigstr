@@ -214,9 +214,9 @@ export default (livewireComponent) => ({
         const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
         ndkEvent.kind = eventKind.text;
         ndkEvent.content = this.newNoteValue;
-        await ndkEvent.publish();
         this.newNoteValue = '';
         this.openCreateNoteModal = false;
+        await ndkEvent.publish();
         await this.jsConfetti.addConfetti({
             emojiSize: 100,
             emojis: ['📣',],

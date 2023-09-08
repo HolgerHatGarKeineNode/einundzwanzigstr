@@ -44,5 +44,6 @@
     </div>
 </div>
 @livewireScriptConfig
+<script src="{{ asset('build/vendor/venobox/venobox.min.js') }}"></script>
 </body>
 </html>

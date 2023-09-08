@@ -8,6 +8,8 @@ import nostrReactions from "./nostr/nostrReactions";
 import nostrZaps from "./nostr/nostrZaps";
 import nostrReposts from "./nostr/nostrReposts";
 
+import "venobox/dist/venobox.min.css";
+
 Alpine.store('ndk', {
     // nostr ndk
     ndk: null,

@@ -8,8 +8,10 @@
                 <div class="grid grid-cols-7 gap-2">
 
                     <div
-                        class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden relative">
-                        <div class="absolute top-0 right-0" x-ref="react_{{ $event['id'] }}"></div>
+                        class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                        <div class="p-4 sticky top-0 z-50" wire:ignore>
+                            <div x-ref="react_{{ $event['id'] }}"></div>
+                        </div>
                         <div class="flex flex-col justify-between space-y-2 h-full">
                             <livewire:nostr.author-card :$event :key="'event_author_' . $event['id']"/>
                             <div class="ml-2 text-lg pb-12">{!! $event['renderedHtml'] !!}</div>

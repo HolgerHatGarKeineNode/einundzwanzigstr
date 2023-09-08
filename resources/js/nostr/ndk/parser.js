@@ -60,7 +60,9 @@ export default (Alpine) => ({
                         // find status in tags
                         const status = e.tags.find((el) => el[0] === 'status')?.[1];
                         // replace match with link to live event
-                        event.content = event.content.replace(match[0], `<div class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20"><div class="flex items-center justify-end gap-x-2 sm:justify-start"><time class="text-amber-500">Starts: ${formattedTime}</time><div class="flex-none rounded-full p-1 text-green-400 bg-green-400/10"><div class="h-1.5 w-1.5 rounded-full bg-current"></div></div><div class="hidden text-white sm:block">${status === 'live' ? 'Live' : 'Offline'}</div></div></div>`);
+                        // string after nostr: of match[0]
+                        const eventString = match[0].split(':')[1];
+                        event.content = event.content.replace(match[0], `<a href="https://zap.stream/${eventString}" target="_blank"><div class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20"><div class="flex items-center justify-end gap-x-2 sm:justify-start"><time class="text-amber-500">Starts: ${formattedTime}</time><div class="flex-none rounded-full p-1 text-green-400 bg-green-400/10"><div class="h-1.5 w-1.5 rounded-full bg-current"></div></div><div class="hidden text-white sm:block">${status === 'live' ? 'Live' : 'Offline'}</div></div></div></a>`);
                     }
 
                 }

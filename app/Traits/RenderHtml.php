@@ -20,11 +20,15 @@ trait RenderHtml
                 if (preg_match('/(youtu)/i', $matches[1])) {
                     return $matches[0];
                 }
+                // check if matches does include the string <video-js
+                if (preg_match('/(m3u8)/i', $matches[1])) {
+                    return $matches[0];
+                }
                 return '<a class="text-amber-500 font-bold" href="' . $matches[1] . '" target="_blank">' . $matches[1] . '</a>';
             },
             $text);
 
-        // find all strings that start with nostr:
+        // find all strings that start with nostrAuthor:
         $text = preg_replace_callback('/(nostrAuthor:[a-zA-Z0-9]+)/i',
             function ($matches) {
                 $redisClient = Redis::connection('nostr')->client();
@@ -33,7 +37,7 @@ trait RenderHtml
                 if ($author) {
                     $author = json_decode($redisClient->hGet('authors', $hexpubkey), true, 512, JSON_THROW_ON_ERROR);
                     $proxyUrl = route('img.proxy', ['url' => base64_encode($author['image']), 'w' => 32]);
-                    return '<a class="text-amber-500 group block flex-shrink-0" href="' . route('feed', ['pubkey' => $author['npub']]) . '"><div class="flex items-center"><div><img class="inline-block h-9 w-9 rounded-full" src="'.$proxyUrl.'" alt=""></div><div class="ml-3"><p class="text-sm font-medium group-hover:text-amber-600">'.$author['display_name'].'</p></div></div></a>';
+                    return '<a class="text-amber-500 group block flex-shrink-0" href="' . route('feed', ['pubkey' => $author['npub']]) . '"><div class="flex items-center"><div><img class="inline-block h-9 w-9 rounded-full" src="' . $proxyUrl . '" alt=""></div><div class="ml-3"><p class="text-sm font-medium group-hover:text-amber-600">' . $author['display_name'] . '</p></div></div></a>';
                 }
                 return $matches[1];
             },

@@ -1,4 +1,5 @@
 import {nip19} from "nostr-tools";
+import {eventKind} from "nostr-fetch";
 
 export default (Alpine) => ({
 
@@ -29,9 +30,14 @@ export default (Alpine) => ({
                     console.log('#### decoded ####', decoded);
                     const e = await Alpine.$store.ndk.ndk.fetchEvent(decoded.data.id);
                     console.log('#### event ####', e);
-                    // if event tags contains ["url"] then replace match with link to url
-                    if (e.tags.find((el) => el[0] === 'url')?.[1]) {
-                        event.content = event.content.replace(match[0], `${e.tags.find((el) => el[0] === 'url')?.[1]}`);
+                    if (e.kind === eventKind.text) {
+                        event.content = event.content.replace(match[0], `${e.content}`);
+                    }
+                    if (e.kind !== eventKind.text) {
+                        // if event tags contains ["url"] then replace match with link to url
+                        if (e.tags.find((el) => el[0] === 'url')?.[1]) {
+                            event.content = event.content.replace(match[0], `${e.tags.find((el) => el[0] === 'url')?.[1]}`);
+                        }
                     }
                 }
             }

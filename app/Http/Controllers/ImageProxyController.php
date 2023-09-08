@@ -20,27 +20,31 @@ class ImageProxyController extends Controller
             'base_url' => 'img',
         ]);
 
-        $key = $request->input('url');
-        $url = base64_decode($key, true);
-        // get extension from url after last dot from $url
-        $fileExtension = explode('.', $url)[count(explode('.', $url)) - 1];
+        try {
+            $key = $request->input('url');
+            $url = base64_decode($key, true);
+            // get extension from url after last dot from $url
+            $fileExtension = explode('.', $url)[count(explode('.', $url)) - 1];
 
-        // set path
-        $path = 'public/proxy/' . $key . '.' . $fileExtension;
+            // set path
+            $path = 'public/proxy/' . $key . '.' . $fileExtension;
 
-        if (Storage::disk('public')->exists(str($path)->after('public/'))) {
-            return $server->getImageResponse($path, request()->except('url'));
-        }
+            if (Storage::disk('public')->exists(str($path)->after('public/'))) {
+                return $server->getImageResponse($path, request()->except('url'));
+            }
 
-        // download file from url as a stream
-        $download = Storage::disk('public')
-            ->put('proxy/' . $key, fopen($url, 'rb'));
-        if ($download) {
-            // rename file with mime type
-            Storage::disk('public')
-                ->move('proxy/' . $key, 'proxy/' . $key . '.' . $fileExtension);
+            // download file from url as a stream
+            $download = Storage::disk('public')
+                ->put('proxy/' . $key, fopen($url, 'rb'));
+            if ($download) {
+                // rename file with mime type
+                Storage::disk('public')
+                    ->move('proxy/' . $key, 'proxy/' . $key . '.' . $fileExtension);
 
-            return $server->getImageResponse($path, request()->except('url'));
+                return $server->getImageResponse($path, request()->except('url'));
+            }
+        } catch (\Exception $e) {
+            return $server->getImageResponse('public/nostr.png', request()->except('url'));
         }
 
         return $server->getImageResponse('public/nostr.png', request()->except('url'));

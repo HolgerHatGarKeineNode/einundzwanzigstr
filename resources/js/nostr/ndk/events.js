@@ -2,6 +2,7 @@ import {eventKind, NostrFetcher} from "nostr-fetch";
 import {ndkAdapter} from "@nostr-fetch/adapter-ndk";
 import {nested} from "../utils/nested.js";
 import {decode} from "light-bolt11-decoder";
+import {reloadLightbox} from "../utils/lightbox.js";
 
 export const nostrEvents = (Alpine) => ({
 
@@ -22,17 +23,7 @@ export const nostrEvents = (Alpine) => ({
         await Alpine.$wire.call('cacheEvents', fetchedEvents);
         await Alpine.$wire.call('loadCachedEvent');
 
-        new window.VenoBox({
-            selector: ".lightbox",
-            numeration: true,
-            infinigall: true,
-            share: true,
-            spinner: "rotating-plane"
-        });
-
-        new window.VenoBox({
-            selector: ".video-links",
-        });
+        reloadLightbox();
     },
 
     filterReplies(fetchedEvents) {
@@ -60,11 +51,14 @@ export const nostrEvents = (Alpine) => ({
         const combinedEventWithReplies = [event, ...replies];
         const nestedReplies = nested(combinedEventWithReplies, [event.id]);
 
+        reloadLightbox();
+
         return Array.from(nestedReplies);
     },
 
     async fetchReactions(event) {
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(Alpine.$store.ndk.ndk));
+
         return await fetcher.fetchAllEvents(
             Alpine.$store.ndk.explicitRelayUrls,
             {kinds: [eventKind.reaction,], '#e': [event.id],},

@@ -24,7 +24,8 @@ trait RenderHtml
         // replace image urls by img tag
         $text = preg_replace_callback('/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i',
             function ($matches) {
-                return '<img class="object-contain w-96" src="' . $matches[1] . '" />';
+                $proxyUrl = route('img.proxy', ['url' => base64_encode($matches[1]), 'w' => 348]);
+                return '<img class="object-contain w-96" src="' . $proxyUrl . '" />';
             },
             $text);
 
@@ -42,7 +43,7 @@ trait RenderHtml
         $text = preg_replace_callback('#https?://(?:www\.)?(?:youtube\.com/watch\?v=|m\.youtube\.com/watch\?v=|youtu\.be/)([\w-]+)#i',
             function ($matches) {
                 //dd($matches);
-                return '<iframe class="w-full aspect-video" src="https://www.youtube.com/embed/'.$matches[1].'" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                return '<iframe class="w-full aspect-video" src="https://www.youtube.com/embed/' . $matches[1] . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
             }
             , $text, -1, $count);
 

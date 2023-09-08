@@ -7,7 +7,7 @@
     <a href="{{ isset($author['npub']) ? route('feed', ['pubkey' => $author['npub']]) : '#' }}" class="flex">
         <div class="mr-4 flex-shrink-0">
             <img class="inline-block {{ $imgClass }} rounded-full"
-                 src="{{ $author['image'] ?? '/img/nostr.png' }}"
+                 src="{{ $this->getProxyImageUrl($author['image'] ?? null) }}"
                  alt="{{ isset($author['display_name']) ? str($author['display_name'])->substr(0, 1) : 'A' }}"
             />
         </div>

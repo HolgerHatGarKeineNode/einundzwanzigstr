@@ -1,5 +1,6 @@
 import {nip19} from "nostr-tools";
 import {eventKind} from "nostr-fetch";
+import {decode} from "light-bolt11-decoder";
 
 export default (Alpine) => ({
 
@@ -44,7 +45,10 @@ export default (Alpine) => ({
                 if (decoded.type === 'naddr') {
                     console.log('#### decoded ####', decoded);
                     if (decoded.data.kind === eventKind.liveEvent) {
-                        const e = await Alpine.$store.ndk.ndk.fetchEvent({kinds: [eventKind.liveEvent], id: decoded.data.id});
+                        const e = await Alpine.$store.ndk.ndk.fetchEvent({
+                            kinds: [eventKind.liveEvent],
+                            id: decoded.data.id
+                        });
                         console.log('#### event ####', e);
                         // find title in tags
                         const title = e.tags.find((el) => el[0] === 'title')?.[1];
@@ -66,6 +70,21 @@ export default (Alpine) => ({
                     }
 
                 }
+            }
+
+            // find all strings starting with lnbc
+            const matches2 = event.content.matchAll(/lnbc[a-zA-Z0-9]+/g);
+            for (const match of matches2) {
+                // decode lnbc bolt11
+                console.log('#### match ####', match[0]);
+                const decoded = decode(match[0]);
+                console.log('#### decoded ####', decoded);
+                const amount = decoded.sections.find((item) => item.name === 'amount');
+                console.log('#### amount ####', amount.value / 1000);
+                event.content = event.content.replace(match[0], `nostrInvoice:${btoa(JSON.stringify({
+                    bolt11: match[0],
+                    sats: amount.value / 1000
+                }))}`);
             }
 
         }

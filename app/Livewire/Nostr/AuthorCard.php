@@ -24,6 +24,15 @@ class AuthorCard extends Component
     public function updatedAuthor($author)
     {
         $redisClient = Redis::connection('nostr')->client();
+
+        if (is_string($author)) {
+            return;
+        }
+
+        if (is_int($author)) {
+            return;
+        }
+
         $redisClient->hSet('authors', $author['hexpubkey'], json_encode($author, JSON_THROW_ON_ERROR));
     }
 

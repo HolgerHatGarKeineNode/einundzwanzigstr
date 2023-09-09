@@ -1,20 +1,27 @@
+import {nip19} from "nostr-tools";
+
 export default (livewireComponent) => ({
 
     event: livewireComponent.entangle('event'),
     author: livewireComponent.entangle('author', true),
 
     async init() {
-        if (!this.author) {
-            await this.loadAuthor();
-        }
 
-        // interval to check for new author data
-        setInterval(async () => {
-            if (!this.author) {
-                console.log('~~~~ nostrAuthor interval ~~~~');
-                await this.loadAuthor();
+        Alpine.effect(async () => {
+
+            if (this.$store.ndk.ndk) {
+                // check if this.event.pubkey contains npub1
+                if (this.event.pubkey.includes('npub1')) {
+                    // convert npub1 to hexpubkey
+                    const decoded = nip19.decode(this.event.pubkey.trim());
+                    this.event.pubkey = decoded.data;
+                }
+
+                if (!this.author) {
+                    await this.loadAuthor();
+                }
             }
-        }, 30000);
+        });
     },
 
     loadAuthor: async function () {

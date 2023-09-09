@@ -80,7 +80,7 @@
                                     Markus Turm's Feed
                                 </a>
                             </li>
-                            <li>
+                            {{--<li>
                                 <a href="{{ route('einundzwanzig-plebs') }}"
                                    class="{{ request()->is('einundzwanzig-plebs') ? $activeClass : $notActiveClass }}"
                                    x-state:on="Current" x-state:off="Default"
@@ -92,7 +92,7 @@
                                     </svg>
                                     Einundzwanzig Plebs
                                 </a>
-                            </li>
+                            </li>--}}
                         </ul>
                     </li>
                     <li x-data="{

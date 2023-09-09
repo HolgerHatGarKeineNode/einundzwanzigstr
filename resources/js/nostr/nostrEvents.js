@@ -73,6 +73,7 @@ export default (livewireComponent) => ({
         console.log('#### eventsLength ####', this.eventsLength);
 
         await nostrEvents(this).fetch(this.hexpubkeys, this.alreadyCachedEventIds);
+
         if (this.eventsLength < 1) {
             document.querySelector("#loader").style.display = "block";
             do {

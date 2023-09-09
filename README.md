@@ -11,11 +11,9 @@ Connect Einundzwanzig Portal data with the nost network.
 ## Features
 
 - [ ] real-time notifications
-- [ ] image proxy
 - [ ] better error handling
     - [ ] frontend notifications
-- [ ] never ending bugfixes
-    - [ ] prevent re-rendering of posts (flickering)
+- [x] image proxy
 - [x] NIP-01
     - [ ] user profile
     - [ ] user profile settings
@@ -44,11 +42,13 @@ Connect Einundzwanzig Portal data with the nost network.
     - [x] cache
         - [x] redis
         - [x] dexie cache
-        - [ ] optimize cache
+        - [x] optimize cache
     - [x] signing
         - [x] NIP-07
         - [ ] nsec bunker
         - [ ] Nostr Connect
+- [ ] never ending bugfixes
+    - [x] prevent re-rendering of posts (flickering)
 
 ## Development
 

@@ -5,16 +5,25 @@
 
         @foreach($events as $event)
             <li wire:key="{{ $event['id'] }}">
-                <div class="grid grid-cols-7 gap-2">
+                <div class="grid grid-cols-7 gap-2" x-data="{
+                    left: 0,
+                    init() {
+                        setTimeout(() => {
+                            this.left = $refs.events_{{ $event['id'] }}.offsetHeight;
+                            $refs.replies_{{ $event['id'] }}.style.height = this.left + 'px';
+                            $refs.details_{{ $event['id'] }}.style.height = this.left + 'px';
+                        }, 1000);
+                    },
+                }">
 
-                    <div
-                        class="h-[42rem] col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
-                        <div class="p-4 sticky top-0 z-50" wire:ignore>
+                    <div x-ref="events_{{ $event['id'] }}"
+                        class="col-span-3 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-hidden">
+                        <div class="sticky top-0 z-50" wire:ignore>
                             <div x-ref="react_{{ $event['id'] }}"></div>
                         </div>
                         <div class="flex flex-col justify-between space-y-2 h-full">
                             <livewire:nostr.author-card :$event :key="'event_author_' . $event['id']"/>
-                            <div class="ml-2 text-lg pb-12">{!! $event['renderedHtml'] !!}</div>
+                            <div class="ml-2 text-lg">{!! $event['renderedHtml'] !!}</div>
                             <div class="flex flex-wrap space-x-2 justify-end py-2">
                                 @foreach(collect($event['tags'])->filter(fn($tag) => $tag[0] === 't')->map(fn($tag) => $tag[1]) as $tag)
                                     <div
@@ -27,13 +36,13 @@
                         </div>
                     </div>
 
-                    <div
-                        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
+                    <div x-ref="replies_{{ $event['id'] }}" style="height: 64px" :style="{ height: left + 'px' }"
+                        class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
                         <livewire:nostr.replies :$event :key="'event_replies_' . $event['id']"/>
                     </div>
 
-                    <div
-                        class="h-[42rem] col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
+                    <div x-ref="details_{{ $event['id'] }}" style="height: 64px" :style="{ height: left + 'px' }"
+                        class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
                         <x-nostr.details :$event :key="'event_details_' . $event['id']"/>
                     </div>
 

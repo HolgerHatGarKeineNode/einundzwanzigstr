@@ -25,6 +25,7 @@ export default (livewireComponent) => ({
     until: livewireComponent.entangle('until'),
     since: livewireComponent.entangle('since'),
 
+    alreadyCachedEventIds: livewireComponent.entangle('alreadyCachedEventIds'),
     eventsLength: livewireComponent.entangle('eventsLength'),
 
     openReactionModal: false,
@@ -71,7 +72,7 @@ export default (livewireComponent) => ({
 
         console.log('#### eventsLength ####', this.eventsLength);
 
-        await nostrEvents(this).fetch(this.hexpubkeys);
+        await nostrEvents(this).fetch(this.hexpubkeys, this.alreadyCachedEventIds);
         if (this.eventsLength < 1) {
             document.querySelector("#loader").style.display = "block";
             do {
@@ -79,7 +80,7 @@ export default (livewireComponent) => ({
                 this.since = this.since - (this.timeSteps);
                 console.log('#### until ####', this.until);
                 console.log('#### since ####', this.since);
-                await nostrEvents(this).fetch(this.hexpubkeys);
+                await nostrEvents(this).fetch(this.hexpubkeys, this.alreadyCachedEventIds);
             } while (this.eventsLength < 1);
         }
         document.querySelector("#loader").style.display = "none";
@@ -98,7 +99,7 @@ export default (livewireComponent) => ({
         do {
             this.until = Math.floor(Date.now() / 1000); // now
             this.since = this.since - (this.timeSteps);
-            await nostrEvents(this).fetch(this.hexpubkeys);
+            await nostrEvents(this).fetch(this.hexpubkeys, this.alreadyCachedEventIds);
             console.log('#### oldLength ####', oldLength);
             console.log('#### this.eventsLength ####', this.eventsLength);
         } while (this.eventsLength <= oldLength)
@@ -231,7 +232,7 @@ export default (livewireComponent) => ({
         this.until = Math.floor(Date.now() / 1000); // now
         console.log('#### until ####', this.until);
         console.log('#### since ####', this.since);
-        await nostrEvents(this).fetch(this.hexpubkeys);
+        await nostrEvents(this).fetch(this.hexpubkeys, this.alreadyCachedEventIds);
     },
 
     async debug(id) {

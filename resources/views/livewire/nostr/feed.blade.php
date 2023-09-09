@@ -55,7 +55,7 @@
         @endforeach
     </ul>
 
-    <div x-intersect:enter="intersect">...</div>
+    <div x-intersect:enter="intersect"></div>
 
     <div class="flex w-full justify-center mt-12">
         <x-button @click="loadMore" class="btn-outline btn-warning">

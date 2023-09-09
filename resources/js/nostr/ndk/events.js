@@ -7,7 +7,7 @@ import parser from "./parser.js";
 
 export const nostrEvents = (Alpine) => ({
 
-    async fetch(hexpubkeys) {
+    async fetch(hexpubkeys, alreadyCachedEventIds) {
         const fetcher = NostrFetcher.withCustomPool(ndkAdapter(Alpine.$store.ndk.ndk));
 
         let fetchedEvents = await fetcher.fetchAllEvents(
@@ -19,6 +19,7 @@ export const nostrEvents = (Alpine) => ({
 
         fetchedEvents = this.filterReplies(fetchedEvents);
 
+        fetchedEvents = fetchedEvents.filter((event) => !alreadyCachedEventIds.includes(event.id));
         await parser(Alpine).findNostrEventsInContent(fetchedEvents);
 
         console.log('#### fetchedEvents ####', fetchedEvents);

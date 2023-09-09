@@ -7,12 +7,16 @@
             <li wire:key="{{ $event['id'] }}">
                 <div class="grid grid-cols-7 gap-2" x-data="{
                     left: 0,
+                    display: 'none',
                     init() {
                         setTimeout(() => {
                             this.left = $refs.events_{{ $event['id'] }}.offsetHeight;
+                            this.display = 'block';
                             $refs.replies_{{ $event['id'] }}.style.height = this.left + 'px';
+                            $refs.replies_{{ $event['id'] }}.style.display = 'block';
                             $refs.details_{{ $event['id'] }}.style.height = this.left + 'px';
-                        }, 1000);
+                            $refs.details_{{ $event['id'] }}.style.display = 'block';
+                        }, 1500);
                     },
                 }">
 
@@ -36,12 +40,12 @@
                         </div>
                     </div>
 
-                    <div x-ref="replies_{{ $event['id'] }}" style="height: 64px" :style="{ height: left + 'px' }"
+                    <div x-ref="replies_{{ $event['id'] }}" style="height: 64px; display: none;" :style="{ height: left + 'px', display }"
                         class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
                         <livewire:nostr.replies :$event :key="'event_replies_' . $event['id']"/>
                     </div>
 
-                    <div x-ref="details_{{ $event['id'] }}" style="height: 64px" :style="{ height: left + 'px' }"
+                    <div x-ref="details_{{ $event['id'] }}" style="height: 64px; display: none;" :style="{ height: left + 'px', display }"
                         class="col-span-2 rounded-md bg-[#1b1b1b] px-6 py-4 shadow text-white overflow-x-auto">
                         <x-nostr.details :$event :key="'event_details_' . $event['id']"/>
                     </div>
@@ -50,6 +54,8 @@
             </li>
         @endforeach
     </ul>
+
+    <div x-intersect:enter="intersect">...</div>
 
     <div class="flex w-full justify-center mt-12">
         <x-button @click="loadMore" class="btn-outline btn-warning">

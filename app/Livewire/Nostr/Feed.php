@@ -20,6 +20,7 @@ class Feed extends Component
     public int $until = 0;
     public int $since = 0;
     public int $timeSteps = 600;
+    public array $alreadyCachedEventIds = [];
 
     public function mount()
     {
@@ -53,6 +54,7 @@ class Feed extends Component
                     && json_decode($event, true, 512, JSON_THROW_ON_ERROR)['created_at'] > $this->since
             )
             ->values();
+        $this->alreadyCachedEventIds = $events->map(fn($event) => json_decode($event, true, 512, JSON_THROW_ON_ERROR)['id'])->toArray();
         $this->events = $events->map(fn($event) => json_decode($event, true, 512, JSON_THROW_ON_ERROR))
             ->map(function($event){
                 $event['renderedHtml'] = $this->renderHtml($event['content'], $event['id']);

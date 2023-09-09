@@ -48,8 +48,8 @@ export const ndkInstance = (Alpine) => ({
                 explicitRelayUrls: Alpine.$store.ndk.explicitRelayUrls,
                 signer: Alpine.$store.ndk.nip07signer,
                 cacheAdapter: Alpine.$store.ndk.dexieAdapter,
-                outboxRelayUrls: ["wss://purplepag.es","wss://nostr.einundzwanzig.space",],
-                enableOutboxModel: true,
+                outboxRelayUrls: ["wss://nostr.einundzwanzig.space",],
+                enableOutboxModel: false,
             });
 
             try {

@@ -1,4 +1,4 @@
-<div x-data="nostrEvents(@this)" @noteeditor.window="openCreateNoteModal = true" @loadmore.window="loadMore">
+<div x-data="nostrEvents(@this)" @noteeditor.window="openCreateNoteModal = true" @loadnew.window="loadNewPosts">
     <div id="loader" class="fixed" wire:ignore></div>
 
     <ul role="list" class="space-y-3">

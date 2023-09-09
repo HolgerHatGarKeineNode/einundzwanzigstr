@@ -94,6 +94,13 @@ export default (livewireComponent) => ({
         }
     },
 
+    async loadNewPosts() {
+        document.querySelector("#loader").style.display = "block";
+        this.until = Math.floor(Date.now() / 1000); // now
+        await nostrEvents(this).fetch(this.hexpubkeys, this.alreadyCachedEventIds);
+        document.querySelector("#loader").style.display = "none";
+    },
+
     async loadMore() {
         document.querySelector("#loader").style.display = "block";
         const oldLength = this.eventsLength;

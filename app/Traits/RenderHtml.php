@@ -38,7 +38,7 @@ trait RenderHtml
                 if ($author) {
                     $author = json_decode($redisClient->hGet('authors', $hexpubkey), true, 512, JSON_THROW_ON_ERROR);
                     $proxyUrl = route('img.proxy', ['url' => base64_encode($author['image']), 'w' => 32]);
-                    return '<a class="text-amber-500 group inline-block flex-shrink-0" href="' . route('feed', ['pubkey' => $author['npub']]) . '"><span class="flex items-center"><span><img class="inline-block h-9 w-9 rounded-full" src="' . $proxyUrl . '" alt=""></span><span class="ml-3"><span class="text-sm font-medium group-hover:text-amber-600">' . $author['display_name'] . '</span></span></span></a>';
+                    return '<a class="text-amber-500 align-text-bottom inline-block flex-shrink-0" href="' . route('feed', ['pubkey' => $author['npub']]) . '"><span class="flex items-center"><span><img class="inline-block h-9 w-9 rounded-full" src="' . $proxyUrl . '" alt=""></span><span class="ml-3"><span class="text-sm font-medium group-hover:text-amber-600">' . $author['display_name'] . '</span></span></span></a>';
                 }
                 return $matches[1];
             },

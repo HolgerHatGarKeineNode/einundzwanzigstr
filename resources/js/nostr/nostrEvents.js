@@ -150,6 +150,13 @@ export default (livewireComponent) => ({
         this.openCommentModal = true;
     },
 
+    async follow(id) {
+        await this.jsConfetti.addConfetti({
+            emojiSize: 100,
+            emojis: ['🏗️',],
+        });
+    },
+
     async love(emoji) {
         console.log('~~~~ love ~~~~');
         console.log('#### emoji ####', emoji);

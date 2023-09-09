@@ -1,6 +1,10 @@
 <div x-data="nostrEvents(@this)" @noteeditor.window="openCreateNoteModal = true" @loadnew.window="loadNewPosts">
     <div id="loader" class="fixed" wire:ignore></div>
 
+    @if($pubkey && count($hexpubkeys) > 0)
+        <livewire:nostr.profile-header :pubkey :hexpubkeys="$hexpubkeys"/>
+    @endif
+
     <ul role="list" class="space-y-3">
 
         @foreach($events as $event)

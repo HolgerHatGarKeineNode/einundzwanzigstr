@@ -37,7 +37,7 @@
 
         <main>
             <!-- CONTENT -->
-            <div class="px-12 pt-12 pb-32">
+            <div class="px-12 pt-2 pb-32">
                 {{ $slot }}
             </div>
         </main>

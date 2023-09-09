@@ -1,6 +1,6 @@
 @php
     $imgClass = $compact ? 'h-8 w-8' : 'h-14 w-14';
-    $textClass = $compact ? 'text-xs' : 'text-lg';
+    $textClass = $compact ? 'text-xs text-white' : 'text-lg text-white';
 @endphp
 
 <div x-data="nostrAuthor(@this)" class="flex justify-between">

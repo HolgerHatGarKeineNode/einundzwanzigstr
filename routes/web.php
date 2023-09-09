@@ -15,4 +15,6 @@ Route::get('/feed/{pubkey}', \App\Livewire\Nostr\Feed::class)->name('feed');
 Route::get('/my-feed', \App\Livewire\Nostr\Feed::class)->name('my-feed');
 Route::get('/einundzwanzig-feed', \App\Livewire\Nostr\Feed::class)->name('einundzwanzig-feed');
 
+Route::get('/einundzwanzig-plebs', \App\Livewire\Nostr\EinundzwanzigPlebs::class)->name('einundzwanzig-plebs');
+
 Route::post('/upload-attachment', \App\Http\Controllers\Upload\InlineAttachment::class)->name('upload.attachment');

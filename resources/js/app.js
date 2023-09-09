@@ -7,6 +7,7 @@ import nostrReplies from "./nostr/nostrReplies";
 import nostrReactions from "./nostr/nostrReactions";
 import nostrZaps from "./nostr/nostrZaps";
 import nostrReposts from "./nostr/nostrReposts";
+import nostrPlebs from "./nostr/nostrPlebs";
 
 import "venobox/dist/venobox.min.css";
 
@@ -29,5 +30,6 @@ Alpine.data('nostrReplies', nostrReplies);
 Alpine.data('nostrReactions', nostrReactions);
 Alpine.data('nostrZaps', nostrZaps);
 Alpine.data('nostrReposts', nostrReposts);
+Alpine.data('nostrPlebs', nostrPlebs);
 
 Livewire.start();

@@ -85,6 +85,13 @@ export default (livewireComponent) => ({
         document.querySelector("#loader").style.display = "none";
     },
 
+    async intersect() {
+        if (this.eventsLength > 0) {
+            console.log('~~~~ intersect ~~~~');
+            await this.loadMore();
+        }
+    },
+
     async loadMore() {
         document.querySelector("#loader").style.display = "block";
         const oldLength = this.eventsLength;

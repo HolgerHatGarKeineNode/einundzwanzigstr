@@ -38,7 +38,7 @@ trait RenderHtml
                 if ($author) {
                     $author = json_decode($redisClient->hGet('authors', $hexpubkey), true, 512, JSON_THROW_ON_ERROR);
                     $proxyUrl = route('img.proxy', ['url' => base64_encode($author['image']), 'w' => 32]);
-                    return '<a class="text-amber-500 group block flex-shrink-0" href="' . route('feed', ['pubkey' => $author['npub']]) . '"><div class="flex items-center"><div><img class="inline-block h-9 w-9 rounded-full" src="' . $proxyUrl . '" alt=""></div><div class="ml-3"><p class="text-sm font-medium group-hover:text-amber-600">' . $author['display_name'] . '</p></div></div></a>';
+                    return '<a class="text-amber-500 group inline-block flex-shrink-0" href="' . route('feed', ['pubkey' => $author['npub']]) . '"><span class="flex items-center"><span><img class="inline-block h-9 w-9 rounded-full" src="' . $proxyUrl . '" alt=""></span><span class="ml-3"><span class="text-sm font-medium group-hover:text-amber-600">' . $author['display_name'] . '</span></span></span></a>';
                 }
                 return $matches[1];
             },
@@ -83,7 +83,7 @@ trait RenderHtml
         $text = str_replace("\n", '<br>', $text);
 
         // Replace YouTube video URLs
-        $text = preg_replace_callback('#https?://(?:www\.)?(?:youtube\.com/watch\?v=|m\.youtube\.com/watch\?v=|youtu\.be/)([\w-]+)#i',
+        $text = preg_replace_callback('#https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtube\.com/live/|m\.youtube\.com/watch\?v=|m\.youtube\.com/live/|youtu\.be/)([\w-]+)#i',
             function ($matches) {
                 //dd($matches);
                 return '<iframe class="w-full aspect-video" src="https://www.youtube.com/embed/' . $matches[1] . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';

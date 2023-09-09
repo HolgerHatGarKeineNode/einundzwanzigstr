@@ -24,7 +24,7 @@
     </div>
 
     <div x-cloak class="flex justify-center py-4">
-        <x-button outline amber @click="$dispatch('loadmore')">
+        <x-button outline amber @click="$dispatch('loadnew')">
             <x-fat-rotate class="w-6 h-6 mr-2"/>
             <span>Load new posts</span>
         </x-button>

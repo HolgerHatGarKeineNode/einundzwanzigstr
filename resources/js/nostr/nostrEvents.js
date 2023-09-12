@@ -7,6 +7,7 @@ import {requestProvider} from "webln";
 import {editors} from "./utils/editors.js";
 import {Picker} from "emoji-mart";
 import data from "@emoji-mart/data";
+import {scrollToTop} from "../scrollToTop.js";
 
 export default (livewireComponent) => ({
 
@@ -38,6 +39,8 @@ export default (livewireComponent) => ({
         console.log('#### pubkey ####', this.pubkey);
         console.log('#### until ####', this.until);
         console.log('#### since ####', this.since);
+
+        scrollToTop(this).initScrollToTop();
 
         editors(this).initEditors();
 

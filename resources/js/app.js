@@ -23,7 +23,6 @@ Alpine.store('ndk', {
     // hours ago
     explicitRelayUrls: [],
 });
-
 Alpine.data('nostrEvents', nostrEvents);
 Alpine.data('nostrAuthor', nostrAuthor);
 Alpine.data('nostrReplies', nostrReplies);

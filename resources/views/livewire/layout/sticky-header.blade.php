@@ -1,7 +1,7 @@
 <div x-data="{
     hasNewEvents: @entangle('hasNewEvents'),
 }"
-    class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-white/5 bg-[#1b1b1b] px-4 shadow-sm sm:px-6 lg:px-8">
+     class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-white/5 bg-[#1b1b1b] px-4 shadow-sm sm:px-6 lg:px-8">
     <button type="button" class="-m-2.5 p-2.5 text-white xl:hidden" @click="open = true">
         <span class="sr-only">Open sidebar</span>
         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -23,17 +23,26 @@
         </form>--}}
     </div>
 
-    <div x-cloak class="flex justify-center py-4">
-        <x-button outline amber @click="$dispatch('loadnew')">
-            <x-fat-rotate class="w-6 h-6 mr-2"/>
-            <span>Load new posts</span>
-        </x-button>
-    </div>
+    @if(!request()->is('einundzwanzig-plebs'))
+        <div x-cloak class="flex justify-center py-4">
+            <x-button outline amber @click="$dispatch('loadnew')">
+                <x-fat-rotate class="w-6 h-6 mr-2"/>
+                <span>Load new posts</span>
+            </x-button>
+        </div>
 
-    <div>
-        <x-button outline amber @click="$dispatch('noteeditor')">
-            <x-fat-pen-nib class="w-6 h-6 mr-2"/>
-            Create a note
-        </x-button>
-    </div>
+        <div>
+            <x-button outline amber @click="$dispatch('noteeditor')">
+                <x-fat-pen-nib class="w-6 h-6 mr-2"/>
+                Create a note
+            </x-button>
+        </div>
+    @else
+        <div>
+            <x-button outline amber @click="$dispatch('followall')">
+                <x-fat-people-group class="w-6 h-6 mr-2"/>
+                Follow all plebs
+            </x-button>
+        </div>
+    @endif
 </div>

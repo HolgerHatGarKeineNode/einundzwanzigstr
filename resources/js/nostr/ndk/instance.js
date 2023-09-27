@@ -49,7 +49,7 @@ export const ndkInstance = (Alpine) => ({
                 signer: Alpine.$store.ndk.nip07signer,
                 cacheAdapter: Alpine.$store.ndk.dexieAdapter,
                 outboxRelayUrls: ["wss://nostr.einundzwanzig.space",],
-                enableOutboxModel: false,
+                enableOutboxModel: true,
             });
 
             try {

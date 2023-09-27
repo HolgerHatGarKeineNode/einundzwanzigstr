@@ -1,17 +1,22 @@
 import {ndkInstance} from "./ndk/instance.js";
-import {nostrEvents} from "./ndk/events.js";
-import {NDKEvent} from "@nostr-dev-kit/ndk";
-import {eventKind} from "nostr-fetch";
 import JSConfetti from "js-confetti";
 
 export default (livewireComponent) => ({
 
     jsConfetti: null,
+    follows: [],
+    isFollowing: false,
 
-    commentValue: '',
-    newNoteValue: '',
-
-    openCreateNoteModal: false,
+    async followPleb(hexpubkey) {
+        this.isFollowing = true;
+        console.log('#### followPleb ####', hexpubkey);
+        console.log('#### user ####', this.$store.ndk.user);
+        const follow = await this.$store.ndk.user.follow(this.$store.ndk.ndk.getUser({hexpubkey: hexpubkey}));
+        console.log('#### follow ####', follow);
+        this.follows.push(hexpubkey);
+        await livewireComponent.call('cacheFollows', this.follows, this.$store.ndk.user._hexpubkey);
+        this.isFollowing = false;
+    },
 
     async init() {
         console.log('~~~~ INIT nostrPlebs ~~~~');
@@ -20,24 +25,17 @@ export default (livewireComponent) => ({
         this.jsConfetti = new JSConfetti();
 
         await ndkInstance(this).init();
-    },
 
-    async createNote() {
-        console.log('~~~~ createNote ~~~~');
-        const ndkEvent = new NDKEvent(this.$store.ndk.ndk);
-        ndkEvent.kind = eventKind.text;
-        ndkEvent.content = this.newNoteValue;
-        this.newNoteValue = '';
-        this.openCreateNoteModal = false;
-        await ndkEvent.publish();
-        await this.jsConfetti.addConfetti({
-            emojiSize: 100,
-            emojis: ['📣',],
-        });
-        this.until = Math.floor(Date.now() / 1000); // now
-        console.log('#### until ####', this.until);
-        console.log('#### since ####', this.since);
-        await nostrEvents(this).fetch(this.hexpubkeys);
+        // get follows
+        const follows = await livewireComponent.call('loadFollows', this.$store.ndk.user._hexpubkey);
+        console.log('#### follows ####', follows);
+        this.follows = follows;
+
+        if (this.follows.length < 1) {
+            const follows = await this.$store.ndk.user.follows();
+            // call $wire.cacheFollows() on the Livewire component with array of hexpubs
+            livewireComponent.call('cacheFollows', Array.from(follows).map(follow => follow._hexpubkey), this.$store.ndk.user._hexpubkey);
+        }
     },
 
 });

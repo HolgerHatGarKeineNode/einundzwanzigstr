@@ -36,7 +36,8 @@ class AuthorCard extends Component
         $redisClient->hSet('authors', $author['hexpubkey'], json_encode($author, JSON_THROW_ON_ERROR));
     }
 
-    public function getProxyImageUrl($url){
+    public function getProxyImageUrl($url)
+    {
         if (isset($url)) {
             return route('img.proxy', ['url' => base64_encode($url), 'w' => 54,]);
         }

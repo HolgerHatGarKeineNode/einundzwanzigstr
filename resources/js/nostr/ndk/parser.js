@@ -32,7 +32,7 @@ export default (Alpine) => ({
                     const e = await Alpine.$store.ndk.ndk.fetchEvent(decoded.data.id);
                     console.log('#### event ####', e);
                     if (e.kind === eventKind.text) {
-                        event.content = event.content.replace(match[0], `${e.content}`);
+                        event.content = event.content.replace(match[0], `<div class="border border-dotted border-amber-500 p-2">${e.content}</div>`);
                     }
                     if (e.kind !== eventKind.text) {
                         // if event tags contains ["url"] then replace match with link to url

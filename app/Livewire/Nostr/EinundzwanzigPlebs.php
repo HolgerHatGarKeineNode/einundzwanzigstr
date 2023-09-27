@@ -13,7 +13,7 @@ class EinundzwanzigPlebs extends Component
 
     public function mount()
     {
-        $this->plebs = Http::get('https://portal.einundzwanzig.space/api/nostrplebs')->json();
+        $this->plebs = collect(Http::get('https://portal.einundzwanzig.space/api/nostrplebs')->json())->sort()->toArray();
     }
 
     public function loadFollows($me)

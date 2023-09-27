@@ -19,6 +19,7 @@ export default (livewireComponent) => ({
     },
 
     async init() {
+        this.isFollowing = true;
         console.log('~~~~ INIT nostrPlebs ~~~~');
 
         // init confetti
@@ -38,6 +39,7 @@ export default (livewireComponent) => ({
             // call $wire.cacheFollows() on the Livewire component with array of hexpubs
             livewireComponent.call('cacheFollows', Array.from(follows).map(follow => follow._hexpubkey), this.$store.ndk.user._hexpubkey);
         }
+        this.isFollowing = false;
     },
 
 });

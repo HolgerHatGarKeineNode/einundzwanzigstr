@@ -19,7 +19,13 @@ class EinundzwanzigPlebs extends Component
     public function loadFollows($me)
     {
         $redisClient = Redis::connection('nostr')->client();
-        $follows = json_decode($redisClient->hGet('follows', $me), true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $follows = json_decode($redisClient->hGet('follows', $me), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return [];
+        } catch (\RedisException $e) {
+            return [];
+        }
 
         return $follows;
     }

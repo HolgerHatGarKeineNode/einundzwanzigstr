@@ -29,7 +29,9 @@ export default (livewireComponent) => ({
         // get follows
         const follows = await livewireComponent.call('loadFollows', this.$store.ndk.user._hexpubkey);
         console.log('#### follows ####', follows);
-        this.follows = follows;
+        if (follows.length > 0) {
+            this.follows = follows;
+        }
 
         if (this.follows.length < 1) {
             const follows = await this.$store.ndk.user.follows();

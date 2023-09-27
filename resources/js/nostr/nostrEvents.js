@@ -18,6 +18,9 @@ export default (livewireComponent) => ({
     commentValue: '',
     newNoteValue: '',
 
+    follows: [],
+    isFollowing: false,
+
     pubkey: livewireComponent.entangle('pubkey'),
     loadNpubs: livewireComponent.entangle('loadNpubs'),
     isMyFeed: livewireComponent.entangle('isMyFeed'),

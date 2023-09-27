@@ -80,7 +80,7 @@
                                     Markus Turm's Feed
                                 </a>
                             </li>
-                            {{--<li>
+                            <li>
                                 <a href="{{ route('einundzwanzig-plebs') }}"
                                    class="{{ request()->is('einundzwanzig-plebs') ? $activeClass : $notActiveClass }}"
                                    x-state:on="Current" x-state:off="Default"
@@ -92,7 +92,7 @@
                                     </svg>
                                     Einundzwanzig Plebs
                                 </a>
-                            </li>--}}
+                            </li>
                         </ul>
                     </li>
                     <li x-data="{
@@ -114,8 +114,8 @@
                                 <span class="text-xs text-amber-500 font-bold">
                                     <x-fat-database class="w-6 h-6"/>
                                 </span>
-                                    <span class="text-xs text-amber-500 font-bold">Redis memory</span>
-                                    <span class="text-xs text-amber-500" x-text="usedMemory"></span>
+                                <span class="text-xs text-amber-500 font-bold">Redis memory</span>
+                                <span class="text-xs text-amber-500" x-text="usedMemory"></span>
                             </li>
                         </ul>
                     </li>

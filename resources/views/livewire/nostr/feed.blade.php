@@ -35,7 +35,7 @@
                             <div class="flex flex-wrap space-x-2 justify-end py-2">
                                 @foreach(collect($event['tags'])->filter(fn($tag) => $tag[0] === 't')->map(fn($tag) => $tag[1]) as $tag)
                                     <div
-                                            class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
+                                        class="inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-gray-800">
                                         <span>{{ $tag }}</span>
                                     </div>
                                 @endforeach
@@ -63,7 +63,7 @@
 
     <div x-intersect:enter="intersect"></div>
 
-    <div class="flex w-full justify-center mt-12">
+    <div class="flex w-full justify-center mt-12" wire:ignore>
         <x-button @click="loadMore" class="btn-outline btn-warning">
             <x-fat-spinner class="w-6 h-6 mr-2"/>
             Load more
@@ -74,21 +74,21 @@
     <x-nostr.modals.create-note/>
 
     <button
-            wire:ignore
-            x-ref="scrollToTopBtn"
-            type="button"
-            class="!fixed bottom-5 right-5 hidden rounded-full bg-amber-600 p-3 text-xs font-medium uppercase leading-tight text-white shadow-md transition duration-150 ease-in-out hover:bg-amber-700 hover:shadow-lg focus:bg-amber-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-amber-800 active:shadow-lg">
+        wire:ignore
+        x-ref="scrollToTopBtn"
+        type="button"
+        class="!fixed bottom-5 right-5 hidden rounded-full bg-amber-600 p-3 text-xs font-medium uppercase leading-tight text-white shadow-md transition duration-150 ease-in-out hover:bg-amber-700 hover:shadow-lg focus:bg-amber-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-amber-800 active:shadow-lg">
         <svg
-                aria-hidden="true"
-                focusable="false"
-                data-prefix="fas"
-                class="h-4 w-4"
-                role="img"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 448 512">
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="fas"
+            class="h-4 w-4"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 448 512">
             <path
-                    fill="currentColor"
-                    d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"></path>
+                fill="currentColor"
+                d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"></path>
         </svg>
     </button>
 

@@ -22,6 +22,24 @@
         @if(!$compact || $withTimestamp)
             <span
                 class="text-gray-300 text-xs">{{ \Illuminate\Support\Carbon::parse($event['created_at'])->diffForHumans() }}</span>
+        @else
+            @if(isset($author['hexpubkey']) && $author['display_name'])
+                <template x-if="!isFollowing && follows.length > 0 && follows.includes('{{ $author['hexpubkey'] }}')">
+                    <x-button xs outline gray label="Unfollow"/>
+                </template>
+                <template x-if="!isFollowing && follows.length > 0 && !follows.includes('{{ $author['hexpubkey'] }}')">
+                    <x-button xs outline amber label="Follow" @click="followPleb('{{ $author['hexpubkey'] }}')"/>
+                </template>
+                <template x-if="isFollowing">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                         fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </template>
+            @endif
         @endif
     </div>
 </div>

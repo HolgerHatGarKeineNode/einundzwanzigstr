@@ -25,7 +25,7 @@
         @else
             @if(isset($author['hexpubkey']) && $author['display_name'])
                 <template x-if="!isFollowing && follows.length > 0 && follows.includes('{{ $author['hexpubkey'] }}')">
-                    <x-button xs outline gray label="Unfollow"/>
+                    <x-button disabled xs outline gray label="Following"/>
                 </template>
                 <template x-if="!isFollowing && follows.length > 0 && !follows.includes('{{ $author['hexpubkey'] }}')">
                     <x-button xs outline amber label="Follow" @click="followPleb('{{ $author['hexpubkey'] }}')"/>

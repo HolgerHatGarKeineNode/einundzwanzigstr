@@ -1,9 +1,11 @@
 <div x-data="nostrEvents(@this)" @noteeditor.window="openCreateNoteModal = true" @loadnew.window="loadNewPosts">
     <div id="loader" class="fixed" wire:ignore></div>
 
-    @if($pubkey && count($hexpubkeys) > 0)
-        <livewire:nostr.profile-header :pubkey :hexpubkeys="$hexpubkeys"/>
-    @endif
+    <div>
+        @if($pubkey && count($hexpubkeys) > 0)
+            <livewire:nostr.profile-header :pubkey :hexpubkeys="$hexpubkeys" key="profileHeader"/>
+        @endif
+    </div>
 
     <ul role="list" class="space-y-3">
 
@@ -61,7 +63,7 @@
         @endforeach
     </ul>
 
-    <div x-intersect:enter="intersect"></div>
+    <div x-intersect:enter="intersect" wire:ignore></div>
 
     <div class="flex w-full justify-center mt-12" wire:ignore>
         <x-button @click="loadMore" class="btn-outline btn-warning">
@@ -70,8 +72,8 @@
         </x-button>
     </div>
 
-    <x-nostr.modals.comment/>
-    <x-nostr.modals.create-note/>
+    <x-nostr.modals.comment wire:key="createComment"/>
+    <x-nostr.modals.create-note wire:key="createNote"/>
 
     <button
         wire:ignore

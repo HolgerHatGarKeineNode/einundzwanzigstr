@@ -1,13 +1,13 @@
 <div
-        wire:ignore
-        x-show="openCommentModal"
-        style="display: none"
-        x-on:keydown.escape.prevent.stop="openCommentModal = false"
-        role="dialog"
-        aria-modal="true"
-        x-id="['modal-title']"
-        :aria-labelledby="$id('modal-title')"
-        class="fixed inset-0 z-10 overflow-y-auto"
+    wire:ignore
+    x-show="openCommentModal"
+    style="display: none"
+    x-on:keydown.escape.prevent.stop="openCommentModal = false"
+    role="dialog"
+    aria-modal="true"
+    x-id="['create-comment']"
+    :aria-labelledby="$id('create-comment')"
+    class="fixed inset-0 z-10 overflow-y-auto"
 >
     <!-- Overlay -->
     <div x-show="openCommentModal" x-transition.opacity
@@ -15,21 +15,21 @@
 
     <!-- Panel -->
     <div
-            x-show="openCommentModal" x-transition
-            x-on:click="openCommentModal = false"
-            class="relative flex min-h-screen items-center justify-center p-4"
+        x-show="openCommentModal" x-transition
+        x-on:click="openCommentModal = false"
+        class="relative flex min-h-screen items-center justify-center p-4"
     >
         <div
-             x-on:click.stop
-             class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
+            x-on:click.stop
+            class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
         >
             <!-- Title -->
-            <h2 class="text-3xl font-bold" :id="$id('modal-title')">Write your reply</h2>
+            <h2 class="text-3xl font-bold" :id="$id('create-comment')">Write your reply</h2>
 
             <!-- Content -->
             <div class="mt-3 text-gray-600">
                 <div
-                        class="prose w-full"
+                    class="prose w-full"
                 >
                     <textarea x-ref="editor"></textarea>
                 </div>

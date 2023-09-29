@@ -39,10 +39,10 @@
         </div>
     @else
         <div>
-            {{--<x-button outline amber @click="$dispatch('followall')">
+            <x-button outline amber @click="$dispatch('followall')">
                 <x-fat-people-group class="w-6 h-6 mr-2"/>
                 Follow all plebs
-            </x-button>--}}
+            </x-button>
         </div>
     @endif
 </div>

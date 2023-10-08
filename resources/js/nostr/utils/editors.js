@@ -34,6 +34,7 @@ export const editors = (Alpine) => ({
             Alpine.newNoteValue = noteEditor.value();
         });
 
+
         inlineAttachment.editors.codemirror4.attach(commentEditor.codemirror, {
             uploadUrl: '/upload-attachment',
             urlText: '{filename}',
@@ -60,14 +61,13 @@ export const editors = (Alpine) => ({
         const commentPicker = new Picker({
             data,
             onEmojiSelect: (emoji) => {
-                const pos = noteEditor.codemirror.getCursor();
-                noteEditor.codemirror.setSelection(pos, pos);
-                noteEditor.codemirror.replaceSelection(emoji.native);
+                const pos = commentEditor.codemirror.getCursor();
+                commentEditor.codemirror.setSelection(pos, pos);
+                commentEditor.codemirror.replaceSelection(emoji.native);
             },
         });
 
         Alpine.$refs.commentPicker.appendChild(commentPicker);
-
 
         inlineAttachment.editors.codemirror4.attach(noteEditor.codemirror, {
             uploadUrl: '/upload-attachment',

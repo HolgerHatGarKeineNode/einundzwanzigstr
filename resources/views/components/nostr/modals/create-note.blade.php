@@ -32,7 +32,7 @@
                     <div class="prose w-8/12">
                         <textarea x-ref="noteEditor"></textarea>
                     </div>
-                    <div class="w-4/12 px-2 xl:px-16" x-ref="picker"></div>
+                    <div class="w-4/12 px-2 xl:px-16" x-ref="notePicker"></div>
                 </div>
             </div>
 

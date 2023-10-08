@@ -222,37 +222,20 @@
     fastq "^1.6.0"
 
 "@nostr-dev-kit/ndk-cache-dexie@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-cache-dexie/-/ndk-cache-dexie-1.3.0.tgz#95d83470b2318897b66ad07dfb7dbe1fac3fbe7d"
-  integrity sha512-T9c2d/CennLXm/VO+4oKQgJln5+4GATM/Ko+QDkjOOKryqCYldap2QkIZ27IAsfhgGqMueyiU5g3oOcZFBgejQ==
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-cache-dexie/-/ndk-cache-dexie-1.3.2.tgz#5a1a6ac00b46d086656568d4db241a9202f79894"
+  integrity sha512-sC5IGLuKymRxoJHc/BiHOxuRukHgXutHCspQxeuM0YkfijT3raWRNvrClFoGhgWMV/1BTVgQ8aom8d/FzDeglw==
   dependencies:
-    "@nostr-dev-kit/ndk" "1.3.0"
+    "@nostr-dev-kit/ndk" "1.3.2"
     debug "^4.3.4"
     dexie "^3.2.4"
     nostr-tools "^1.14.0"
     typescript-lru-cache "^2.0.0"
 
-"@nostr-dev-kit/ndk@1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk/-/ndk-1.3.0.tgz#2183861ea746216c63ced530496c02681f638e0a"
-  integrity sha512-ZRne/TF1IRqy35ZwLq3452YD+AUux0r5A+mZgHuGNRv7GJzr2gUl1QNRjs+Db+emXdaHn82LKTRn6cFrni1oPA==
-  dependencies:
-    "@noble/hashes" "^1.3.1"
-    "@noble/secp256k1" "^2.0.0"
-    "@scure/base" "^1.1.1"
-    debug "^4.3.4"
-    eventemitter3 "^5.0.1"
-    light-bolt11-decoder "^3.0.0"
-    node-fetch "^3.3.1"
-    nostr-tools "^1.15.0"
-    typescript-lru-cache "^2.0.0"
-    utf8-buffer "^1.0.0"
-    websocket-polyfill "^0.0.3"
-
-"@nostr-dev-kit/ndk@^1.0.0":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk/-/ndk-1.3.1.tgz#65869098ba2145ebcbdac8c2a0a1c92808d74715"
-  integrity sha512-BVqhL2qU0kFL0YHTXLBbzPSvmGbY/ivL9M4k7ZmqYHHCd3Vwd9eMAgxq4kkCsHc4KoSeOB3NCLFKdjLdUB+5Pg==
+"@nostr-dev-kit/ndk@1.3.2", "@nostr-dev-kit/ndk@^1.0.0":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk/-/ndk-1.3.2.tgz#22aab1c3706a142e4f6a7b691ee26419d7af85f2"
+  integrity sha512-8uXYGQWiYJE4nbd+dSOuFwLR55mRSkhCaxwBLhM7TBakz/bj0AcvhISgD3NxwVzPH/xLns0tyb17K3xoxODURQ==
   dependencies:
     "@noble/hashes" "^1.3.1"
     "@noble/secp256k1" "^2.0.0"
@@ -394,9 +377,9 @@ aes-decrypter@3.1.3:
     pkcs7 "^1.0.4"
 
 alpinejs@^3.4.2:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/alpinejs/-/alpinejs-3.13.0.tgz#0334d5f9edb612be33f1f8a7eb3a579b53e4f04e"
-  integrity sha512-7FYR1Yz3evIjlJD1mZ3SYWSw+jlOmQGeQ1QiSufSQ6J84XMQFkzxm6OobiZ928SfqhGdoIp2SsABNsS4rXMMJw==
+  version "3.13.1"
+  resolved "https://registry.yarnpkg.com/alpinejs/-/alpinejs-3.13.1.tgz#811a61af653906840babb2fde2ef58261ad8c632"
+  integrity sha512-/LZ7mumW02V7AV5xTTftJFHS0I3KOXLl7tHm4xpxXAV+HJ/zjTT0n8MU7RZ6UoGPhmO/i+KEhQojaH/0RsH5tg==
   dependencies:
     "@vue/reactivity" "~3.1.1"
 
@@ -478,9 +461,9 @@ camelcase-css@^2.0.1:
   integrity sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==
 
 caniuse-lite@^1.0.30001538, caniuse-lite@^1.0.30001541:
-  version "1.0.30001541"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001541.tgz#b1aef0fadd87fb72db4dcb55d220eae17b81cdb1"
-  integrity sha512-bLOsqxDgTqUBkzxbNlSBt8annkDpQB9NdzdTbO2ooJ+eC/IQcvDspDc058g84ejCelF7vHUx57KIOjEecOHXaw==
+  version "1.0.30001546"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001546.tgz#10fdad03436cfe3cc632d3af7a99a0fb497407f0"
+  integrity sha512-zvtSJwuQFpewSyRrI3AsftF6rM0X80mZkChIt1spBGEvRglCrjTniXvinc8JKRoqTwXAgvqTImaN9igfSMtUBw==
 
 chokidar@^3.5.3:
   version "3.5.3"
@@ -560,9 +543,9 @@ dom-walk@^0.1.0:
   integrity sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==
 
 electron-to-chromium@^1.4.535:
-  version "1.4.536"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.536.tgz#ebdf960fbc27fb8bd0b0dfa9a899cc333bb15f1c"
-  integrity sha512-L4VgC/76m6y8WVCgnw5kJy/xs7hXrViCFdNKVG8Y7B2isfwrFryFyJzumh3ugxhd/oB1uEaEEvRdmeLrnd7OFA==
+  version "1.4.544"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.544.tgz#fcb156d83f0ee6e4c9d030c6fedb2a37594f3abf"
+  integrity sha512-54z7squS1FyFRSUqq/knOFSptjjogLZXbKcYk3B0qkE1KZzvqASwRZnY2KzZQJqIYLVD38XZeoiMRflYSwyO4w==
 
 emoji-mart@^5.5.2:
   version "5.5.2"
@@ -704,11 +687,6 @@ fsevents@~2.3.2:
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
-function-bind@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
-  integrity sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
-
 glob-parent@^5.1.2, glob-parent@~5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-5.1.2.tgz#869832c58034fe68a4093c17dc15e8340d8401c4"
@@ -749,11 +727,9 @@ graceful-fs@^4.1.6, graceful-fs@^4.2.0:
   integrity sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==
 
 has@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/has/-/has-1.0.3.tgz#722d7cbfc1f6aa8241f16dd814e011e1f41e8796"
-  integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
-  dependencies:
-    function-bind "^1.1.1"
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/has/-/has-1.0.4.tgz#2eb2860e000011dae4f1406a86fe80e530fb2ec6"
+  integrity sha512-qdSAmqLF6209RFj4VVItywPMbm3vWylknmB3nvNiUIs72xAimcM8nVYxYr7ncvZq5qzk9MKIZR8ijqD/1QuYjQ==
 
 high-console@^0.4.2:
   version "0.4.2"
@@ -1391,9 +1367,9 @@ vite-plugin-static-copy@^0.17.0:
     picocolors "^1.0.0"
 
 vite@^4.0.0:
-  version "4.4.9"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-4.4.9.tgz#1402423f1a2f8d66fd8d15e351127c7236d29d3d"
-  integrity sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==
+  version "4.4.11"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-4.4.11.tgz#babdb055b08c69cfc4c468072a2e6c9ca62102b0"
+  integrity sha512-ksNZJlkcU9b0lBwAGZGGaZHCMqHsc8OpgtoYhsQ4/I2v5cnpmmmqe5pM4nv/4Hn6G/2GhTdj0DhZh2e+Er1q5A==
   dependencies:
     esbuild "^0.18.10"
     postcss "^8.4.27"

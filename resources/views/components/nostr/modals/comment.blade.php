@@ -21,21 +21,18 @@
     >
         <div
             x-on:click.stop
-            class="relative w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
+            class="relative w-full max-w-screen-7xl overflow-y-auto rounded-xl bg-white p-12 shadow-lg"
         >
             <!-- Title -->
             <h2 class="text-3xl font-bold" :id="$id('create-comment')">Write your reply</h2>
 
             <!-- Content -->
             <div class="mt-3 text-gray-600">
-                <div
-                    class="prose w-full"
-                >
-                    <textarea x-ref="editor"></textarea>
-                </div>
-                <div class="flex flex-col spacey-2">
-                    <div class="text-xs"
-                         x-text="currentEventToReactId"></div>
+                <div class="flex w-full">
+                    <div class="prose w-8/12">
+                        <textarea x-ref="commentEditor"></textarea>
+                    </div>
+                    <div class="w-4/12 px-2 xl:px-16" x-ref="commentPicker"></div>
                 </div>
             </div>
 

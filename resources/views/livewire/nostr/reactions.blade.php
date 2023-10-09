@@ -1,17 +1,15 @@
 <tbody x-data="nostrReactions(@this)" x-on:loved.window="loved($event.detail)" class="divide-y divide-white/5" x-show="currentTab === 'reactions'">
 @foreach($reactions as $reaction)
     <tr wire:key="reaction_{{ $reaction['id'] }}">
-        <td class="py-4 px-4 max-w-[300px]">
+        <td class="p-2 table-cell">
             <livewire:nostr.author-card :event="$reaction" :compact="true" :withTimestamp="false" :key="'reaction_author_' . $reaction['id']"/>
         </td>
-        <td class="py-4 pl-0 pr-4 sm:pr-8 w-16">
-            <div class="flex gap-x-3">
-                <div class="font-mono text-sm leading-6 text-gray-400">
-                    {{ $reaction['content'] === '+' ? 'boost': $reaction['content'] }}
-                </div>
+        <td class="p-2 flex justify-center items-center table-cell">
+            <div class="font-mono text-sm leading-6 text-gray-400">
+                {{ $reaction['content'] === '+' ? 'boost': $reaction['content'] }}
             </div>
         </td>
-        <td class="py-4 pl-0 pr-4 text-right text-sm leading-6 text-gray-400 sm:table-cell sm:pr-6 lg:pr-8">
+        <td class="p-2 table-cell">
             <time>
                 {{ \Illuminate\Support\Carbon::parse($reaction['created_at'])->diffForHumans() }}
             </time>

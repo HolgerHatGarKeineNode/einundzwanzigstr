@@ -12,18 +12,40 @@
                      alt="{{ isset($author['display_name']) ? $author['display_name'] : 'A' }}"
                 >
             </div>
-            <div class="mt-6 sm:flex sm:min-w-0 sm:flex-1 sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
-                <div class="mt-6 min-w-0 flex-1 sm:hidden md:block">
+            <div class="mt-6 sm:flex sm:min-w-0 sm:flex-1 sm:items-center justify-start sm:space-x-6 sm:pb-1">
+                <div class="mt-6 min-w-0">
                     <h1 class="truncate text-2xl font-bold text-gray-200">
                         {{ isset($author['display_name']) ? $author['display_name'] : 'anon' }}
                     </h1>
                 </div>
                 <div class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-x-4 sm:space-y-0">
-                    <button @click="follow" type="button"
-                            class="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                        <x-fat-user-plus class="w-6 h-6 mr-2"/>
-                        <span>Follow</span>
-                    </button>
+                    <template
+                        x-if="!isFollowing && follows.length > 0 && !follows.includes('{{ $author['hexpubkey'] }}')">
+                        <x-button
+                            outline
+                            amber
+                            label="Follow"
+                            @click="followPleb('{{ $author['hexpubkey'] }}')"
+                        />
+                    </template>
+                    <template
+                        x-if="!isFollowing && follows.length > 0 && follows.includes('{{ $author['hexpubkey'] }}')">
+                        <x-button
+                            disabled
+                            outline
+                            gray
+                            label="Following"
+                        />
+                    </template>
+                    <template x-if="isFollowing">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                             fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </template>
                 </div>
             </div>
         </div>

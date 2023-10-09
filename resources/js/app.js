@@ -1,3 +1,4 @@
+import "./components.js"
 import {Alpine, Livewire} from '../../vendor/livewire/livewire/dist/livewire.esm';
 import {NDKNip07Signer} from "@nostr-dev-kit/ndk";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";

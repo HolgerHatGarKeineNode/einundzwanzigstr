@@ -52,6 +52,19 @@ export default (livewireComponent) => ({
 
         await ndkInstance(this).init();
 
+        // get follows
+        const follows = await livewireComponent.call('loadFollows', this.$store.ndk.user._hexpubkey);
+        if (follows.length > 0) {
+            this.follows = follows;
+        }
+        if (this.follows.length < 1) {
+            const follows = await this.$store.ndk.user.follows();
+            // call $wire.cacheFollows() on the Livewire component with array of hexpubs
+            await livewireComponent.call('cacheFollows', Array.from(follows).map(follow => follow._hexpubkey), this.$store.ndk.user._hexpubkey);
+            this.follows = await livewireComponent.call('loadFollows', this.$store.ndk.user._hexpubkey);
+        }
+        console.log('#### follows ####', this.follows);
+
         if (this.isMyFeed) {
             const follows = await this.$store.ndk.user.follows();
             this.hexpubkeys = Array.from(follows).map((follow) => follow.hexpubkey);
@@ -259,6 +272,17 @@ export default (livewireComponent) => ({
     async debug(id) {
         const event = await this.$store.ndk.ndk.fetchEvent(id);
         console.log('event', event);
+    },
+
+    async followPleb(hexpubkey) {
+        this.isFollowing = true;
+        console.log('#### followPleb ####', hexpubkey);
+        console.log('#### user ####', this.$store.ndk.user);
+        const follow = await this.$store.ndk.user.follow(this.$store.ndk.ndk.getUser({hexpubkey: hexpubkey}));
+        console.log('#### follow ####', follow);
+        this.follows.push(hexpubkey);
+        await livewireComponent.call('cacheFollows', this.follows, this.$store.ndk.user._hexpubkey);
+        this.isFollowing = false;
     },
 
 });

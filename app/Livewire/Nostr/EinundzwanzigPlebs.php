@@ -9,7 +9,6 @@ use Livewire\Component;
 class EinundzwanzigPlebs extends Component
 {
     public array $plebs = [];
-    public array $follows = [];
 
     public function mount()
     {

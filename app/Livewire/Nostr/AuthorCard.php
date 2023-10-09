@@ -10,6 +10,7 @@ class AuthorCard extends Component
     public $event;
     public $author;
     public $compact = false;
+    public $withFollowButton = false;
     public $withTimestamp = true;
 
     public function mount()

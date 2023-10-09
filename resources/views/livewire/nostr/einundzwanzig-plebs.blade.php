@@ -26,6 +26,7 @@
                     :event="['pubkey' => $pleb]"
                     :compact="true"
                     :withTimestamp="false"
+                    :withFollowButton="true"
                 />
             </li>
         @endforeach

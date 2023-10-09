@@ -44,6 +44,24 @@ class Feed extends Component
         $this->since = time() - $this->timeSteps;
     }
 
+    public function loadFollows($me)
+    {
+        $redisClient = Redis::connection('nostr')->client();
+        $result = $redisClient->hGet('follows', $me);
+        if ($result) {
+            return json_decode($redisClient->hGet('follows', $me), true, 512, JSON_THROW_ON_ERROR);
+        }
+        return [];
+    }
+
+    public function cacheFollows($follows, $me)
+    {
+        $redisClient = Redis::connection('nostr')->client();
+        $redisClient->hSet('follows', $me, json_encode($follows, JSON_THROW_ON_ERROR));
+        // set expire time to 1 day of hashkey
+        $redisClient->expire('follows', 86400);
+    }
+
     public function loadCachedEvent()
     {
         $redisClient = Redis::connection('nostr')->client();

@@ -5,7 +5,7 @@ import forms from '@tailwindcss/forms';
 export default {
 
     presets: [
-            require('./vendor/wireui/wireui/tailwind.config.js'),
+        require('./vendor/wireui/wireui/tailwind.config.js'),
     ],
 
     content: [
@@ -25,6 +25,9 @@ export default {
 
     theme: {
         extend: {
+            screens: {
+                'laptop': '1440px',
+            },
             fontFamily: {
                 sans: [
                     'Inconsolata',

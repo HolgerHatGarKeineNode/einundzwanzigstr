@@ -1,7 +1,7 @@
 <div x-data="{
     hasNewEvents: @entangle('hasNewEvents'),
 }"
-     class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-white/5 bg-[#1b1b1b] px-4 shadow-sm sm:px-6 lg:px-8">
+     class="flex shrink-0 items-center gap-x-6 border-b border-white/5 bg-[#1b1b1b] shadow-sm px-8">
     <button type="button" class="-m-2.5 p-2.5 text-white xl:hidden" @click="open = true">
         <span class="sr-only">Open sidebar</span>
         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

@@ -4,25 +4,29 @@
 @endphp
 
 <div x-data="nostrAuthor(@this)" class="flex justify-between">
-    <a href="{{ isset($author['npub']) ? route('feed', ['pubkey' => $author['npub']]) : '#' }}" class="flex">
-        <div class="mr-4 flex-shrink-0">
-            <img class="inline-block {{ $imgClass }} rounded-full"
-                 src="{{ $this->getProxyImageUrl($author['image'] ?? null) }}"
-                 alt="{{ isset($author['display_name']) ? str($author['display_name'])->substr(0, 1) : 'A' }}"
-            />
-        </div>
-        <div>
-            <h4 class="{{ $textClass }} font-bold">{{ $author['display_name'] ?? 'anon' }}</h4>
-            @if(!$compact)
-                <h4 class="text-md font-bold">{{ $author['nip05'] ?? '' }}</h4>
-            @endif
-        </div>
-    </a>
+    <div>
+        <a href="{{ isset($author['npub']) ? route('feed', ['pubkey' => $author['npub']]) : '#' }}">
+            <div class="flex">
+                <div class="mr-4 flex-shrink-0">
+                    <img class="inline-block {{ $imgClass }} rounded-full"
+                         src="{{ $this->getProxyImageUrl($author['image'] ?? null) }}"
+                         alt="{{ isset($author['display_name']) ? str($author['display_name'])->substr(0, 1) : 'A' }}"
+                    />
+                </div>
+                <div>
+                    <h4 class="{{ $textClass }} font-bold">{{ $author['display_name'] ?? 'anon' }}</h4>
+                    @if(!$compact)
+                        <h4 class="text-md font-bold">{{ $author['nip05'] ?? '' }}</h4>
+                    @endif
+                </div>
+            </div>
+        </a>
+    </div>
     <div>
         @if(!$compact || $withTimestamp)
             <span
                 class="text-gray-300 text-xs">{{ \Illuminate\Support\Carbon::parse($event['created_at'])->diffForHumans() }}</span>
-        @else
+        @elseif($withFollowButton)
             @if(isset($author['hexpubkey']) && $author['display_name'])
                 <template x-if="!isFollowing && follows.length > 0 && follows.includes('{{ $author['hexpubkey'] }}')">
                     <x-button disabled xs outline gray label="Following"/>

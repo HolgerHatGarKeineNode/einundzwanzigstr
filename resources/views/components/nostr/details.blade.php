@@ -25,7 +25,7 @@
             </template>
         </ul>
     </nav>
-    <table class="max-h-[40rem] w-full whitespace-nowrap text-left">
+    <table class="max-h-[40rem] w-full">
         <colgroup>
             <col class="w-full sm:w-4/12">
             <col class="lg:w-4/12">

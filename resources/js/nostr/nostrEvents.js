@@ -70,13 +70,13 @@ export default (livewireComponent) => ({
             this.hexpubkeys = Array.from(follows).map((follow) => follow.hexpubkey);
         }
         if (this.pubkey) {
-            const key = this.$store.ndk.ndk.getUser({npub: this.pubkey}).hexpubkey;
+            const key = this.$store.ndk.ndk.getUser({npub: this.pubkey}).pubkey;
             this.hexpubkeys = [key];
         }
         if (this.loadNpubs.length > 0) {
             let hexpubkeys = [];
             for (const npub of this.loadNpubs) {
-                hexpubkeys.push(this.$store.ndk.ndk.getUser({npub: npub.trim()}).hexpubkey);
+                hexpubkeys.push(this.$store.ndk.ndk.getUser({npub: npub.trim()}).pubkey);
             }
             this.hexpubkeys = hexpubkeys;
         }

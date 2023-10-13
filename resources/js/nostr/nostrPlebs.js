@@ -66,13 +66,13 @@ export default (livewireComponent) => ({
         for (const pleb of this.plebs) {
             const followUser = this.$store.ndk.ndk.getUser({npub: pleb.trim()});
             // skip if already following
-            if (this.follows.includes(followUser.hexpubkey)) {
+            if (this.follows.includes(followUser.pubkey)) {
                 index++;
                 this.width = Math.round((index / length) * 100);
                 continue;
             }
             console.log('#### pleb npub ####', pleb);
-            console.log('#### pleb hexpubkey ####', followUser.hexpubkey);
+            console.log('#### pleb hexpubkey ####', followUser.pubkey);
             try {
                 const follow = await this.$store.ndk.user.follow(followUser);
                 console.log('#### follow ####', follow);
@@ -80,14 +80,14 @@ export default (livewireComponent) => ({
                 console.log('#### follow error ####', e);
                 window.$wireui.notify({
                     title: 'Error',
-                    description: 'Error following ' + followUser.hexpubkey + ' ' + e.message,
+                    description: 'Error following ' + followUser.pubkey + ' ' + e.message,
                     icon: 'error'
                 })
                 index++;
                 this.width = Math.round((index / length) * 100);
                 continue;
             }
-            this.follows.push(followUser.hexpubkey);
+            this.follows.push(followUser.pubkey);
             // current progressbar width in percentage rounded without decimals
             index++;
             this.width = Math.round((index / length) * 100);

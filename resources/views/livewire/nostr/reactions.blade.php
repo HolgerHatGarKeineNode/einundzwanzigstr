@@ -10,7 +10,7 @@
             </div>
         </td>
         <td class="p-2 table-cell">
-            <time>
+            <time class="whitespace-nowrap">
                 {{ \Illuminate\Support\Carbon::parse($reaction['created_at'])->diffForHumans() }}
             </time>
         </td>
